@@ -1,0 +1,18 @@
+// M0 skeleton schema. The full data model (User/Account/Session, Child, progress,
+// badges, map, logs) lands in M2 — see docs/06-data-model.md.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL") // pooled (PgBouncer) — used by the app
+  directUrl = env("DIRECT_URL")   // direct — used by migrations
+}
+
+// Trivial model so M0 can prove an end-to-end DB round-trip on Neon.
+model Ping {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+}

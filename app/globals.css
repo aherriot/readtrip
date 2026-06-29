@@ -1,0 +1,9 @@
+@import "tailwindcss";
+
+/* Design tokens (full system lands in M1 — see docs/10-design-system.md). */
+:root {
+  --bg-night: #1b1f3b;
+  --ink-on-night: #f4f2ff;
+  --sun: #ffc24b;
+  --aqua: #36d6c3;
+}
