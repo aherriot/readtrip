@@ -1,0 +1,155 @@
+"use client";
+
+import { forwardRef } from "react";
+import type {
+  AnchorHTMLAttributes,
+  ButtonHTMLAttributes,
+  ReactNode,
+} from "react";
+import { Button as HeadlessButton } from "@headlessui/react";
+import { cn } from "@/lib/ui/cn";
+
+type ButtonVariant = "primary" | "secondary" | "ghost";
+type ButtonSize = "md" | "kid";
+
+interface CommonProps {
+  /** Visual weight. `primary` = the one clear action; `secondary`/`ghost` are quieter. */
+  variant?: ButtonVariant;
+  /** `kid` (default) hits the 56–64px touch-target floor; `md` for dense adult forms. */
+  size?: ButtonSize;
+  /** Decorative icon before the label (kept `aria-hidden` — the label carries meaning). */
+  leadingIcon?: ReactNode;
+  /** Decorative icon after the label. */
+  trailingIcon?: ReactNode;
+  /** Stretch to fill the container — good for stacked, thumb-friendly mobile actions. */
+  fullWidth?: boolean;
+}
+
+/**
+ * A `Button` is either a real `<button>` or, when `href` is set, a real `<a>` —
+ * never a clickable `<div>`, so keyboard + screen-reader behavior comes for free.
+ */
+type ButtonProps = CommonProps &
+  ButtonHTMLAttributes<HTMLButtonElement> & { href?: undefined };
+type AnchorProps = CommonProps &
+  AnchorHTMLAttributes<HTMLAnchorElement> & { href: string };
+
+export type { ButtonProps, AnchorProps, ButtonVariant, ButtonSize };
+
+const base = cn(
+  "inline-flex items-center justify-center gap-2 rounded-pill font-display font-medium",
+  "select-none whitespace-nowrap no-underline",
+  // Press feedback; the global reduced-motion floor neutralizes the transition.
+  // Gated on :not(:disabled) so a disabled control never reacts to press/hover.
+  "transition-[transform,background-color,border-color,box-shadow] duration-150",
+  "not-disabled:active:scale-[0.97]",
+  // Native disabled stays inert via the `disabled` attribute (blocks click +
+  // focus) — no pointer-events-none, so the desktop `not-allowed` cursor from
+  // globals.css can show. Links can't be `:disabled`, so a disabled link uses
+  // aria-disabled + pointer-events-none to actually block navigation.
+  "disabled:opacity-50",
+  "aria-disabled:pointer-events-none aria-disabled:opacity-50"
+);
+
+const variantStyles: Record<ButtonVariant, string> = {
+  // Bright fill + dark ink (≈9:1) — the documented accessible pairing.
+  primary:
+    "border-2 border-transparent bg-sun text-[var(--ink)] not-disabled:hover:brightness-95",
+  // Outline that reads on either surface; fills softly on hover (never hover-only meaning).
+  secondary:
+    "border-2 border-coral text-surface-ink bg-transparent not-disabled:hover:bg-coral/15",
+  // Quiet, for tertiary actions; still a real focusable button.
+  ghost:
+    "border-2 border-transparent bg-transparent text-surface-ink not-disabled:hover:bg-surface-ink/10",
+};
+
+const sizeStyles: Record<ButtonSize, string> = {
+  // 44px floor for dense adult UI.
+  md: "min-h-11 px-5 text-base",
+  // 56–64px kid target floor.
+  kid: "min-h-[60px] px-7 text-lg",
+};
+
+function buttonClasses({
+  variant = "primary",
+  size = "kid",
+  fullWidth = false,
+  className,
+}: Pick<CommonProps, "variant" | "size" | "fullWidth"> & {
+  className?: string;
+}) {
+  return cn(
+    base,
+    variantStyles[variant],
+    sizeStyles[size],
+    fullWidth && "w-full",
+    className
+  );
+}
+
+/**
+ * The one way to render an action in ReadTrip. Variants/size are tokens, not
+ * ad-hoc CSS, so every button across pages matches. Icon-only buttons MUST pass
+ * an `aria-label` (there's no visible text to name them).
+ *
+ * The button case renders Headless UI's `Button` (a real `<button type="button">`
+ * with focus/hover/active state hooks); when `href` is set it's a real `<a>`
+ * instead, so links stay links. Either way keyboard + screen-reader behavior is
+ * native, never a clickable `<div>`.
+ *
+ * Usage guidance: .claude/skills/design-system/references/button.md
+ */
+export const Button = forwardRef<
+  HTMLButtonElement | HTMLAnchorElement,
+  ButtonProps | AnchorProps
+>(function Button(props, ref) {
+  const {
+    variant,
+    size,
+    leadingIcon,
+    trailingIcon,
+    fullWidth,
+    className,
+    children,
+    ...rest
+  } = props;
+
+  const classes = buttonClasses({ variant, size, fullWidth, className });
+  const content = (
+    <>
+      {leadingIcon && <span aria-hidden="true">{leadingIcon}</span>}
+      {children}
+      {trailingIcon && <span aria-hidden="true">{trailingIcon}</span>}
+    </>
+  );
+
+  if ("href" in props && props.href !== undefined) {
+    const { href, ...anchorRest } =
+      rest as AnchorHTMLAttributes<HTMLAnchorElement>;
+    return (
+      <a
+        ref={ref as React.Ref<HTMLAnchorElement>}
+        href={href}
+        className={classes}
+        {...anchorRest}
+      >
+        {content}
+      </a>
+    );
+  }
+
+  const { type, ...buttonRest } =
+    rest as ButtonHTMLAttributes<HTMLButtonElement>;
+  return (
+    <HeadlessButton
+      ref={ref as React.Ref<HTMLButtonElement>}
+      // Headless UI defaults to type="button", so a Button inside a form doesn't
+      // submit by surprise; pass an explicit type to override (e.g. submit).
+      type={type}
+      className={classes}
+      {...buttonRest}
+    >
+      {content}
+    </HeadlessButton>
+  );
+});

@@ -44,15 +44,16 @@ into `components/` and replace its row with a reference when you do).
 
 ### Primitives — `components/ui/`
 
-| Component           | Status                        | When to use                                                                         |
-| ------------------- | ----------------------------- | ----------------------------------------------------------------------------------- |
-| `Input`             | ✅ [ref](references/input.md) | Single-line text/number entry in a form (sign-in, profile name, search).            |
-| `Button`            | ⏳                            | Any action/submit. Variants primary/secondary/ghost; `kid` size for child controls. |
-| `Card` / `Panel`    | ⏳                            | Group related content in a surface-aware container.                                 |
-| `Heading` / `Text`  | ⏳                            | All page text — enforces the type scale + families. No raw font sizing.             |
-| `Icon`              | ⏳                            | A sized, labelled wrapper around the icon set.                                      |
-| `Modal` / `Overlay` | ⏳                            | Focus-trapped dialog; `Escape` closes; returns focus to trigger.                    |
-| `ProgressBar`       | ⏳                            | Generic animated bar (XP, calibration).                                             |
+| Component        | Status                               | When to use                                                                         |
+| ---------------- | ------------------------------------ | ----------------------------------------------------------------------------------- |
+| `Input`          | ✅ [ref](references/input.md)        | Single-line text/number entry in a form (sign-in, profile name, search).            |
+| `Button`         | ✅ [ref](references/button.md)       | Any action/submit. Variants primary/secondary/ghost; `kid` size for child controls. |
+| `Card` (`Panel`) | ✅ [ref](references/card.md)         | Group related content in a surface-aware container; `elevated` is the Panel look.   |
+| `Heading`        | ✅ [ref](references/heading.md)      | Headings on the type scale with the right semantic level.                           |
+| `Text`           | ✅ [ref](references/text.md)         | All body/label copy — Lexend, reading-legibility defaults. No raw font sizing.      |
+| `Icon`           | ✅ [ref](references/icon.md)         | A sized wrapper that's either labelled (`role="img"`) or decorative.                |
+| `Modal`          | ✅ [ref](references/modal.md)        | Focus-trapped dialog; `Escape`/backdrop close; returns focus to trigger.            |
+| `ProgressBar`    | ✅ [ref](references/progress-bar.md) | Generic animated bar (XP, calibration, quiz progress).                              |
 
 ### Game — `components/game/` (⏳, see [docs/10](../../../docs/10-design-system.md))
 

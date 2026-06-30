@@ -44,8 +44,10 @@ test.describe("Input — accessibility contract", () => {
     const field = onNight(page).getByLabel("Email");
     await expect(field).toHaveAttribute("aria-invalid", "true");
 
+    // Headless UI's Field wires aria-describedby → the error Description in a
+    // post-mount effect; wait for it (retrying matcher) rather than reading once.
+    await expect(field).toHaveAttribute("aria-describedby", /.+/);
     const describedBy = await field.getAttribute("aria-describedby");
-    expect(describedBy).toBeTruthy();
     const message = page.locator(`#${describedBy}`);
     await expect(message).toContainText("doesn't look like an email");
   });
@@ -71,5 +73,214 @@ test.describe("Input — accessibility contract", () => {
       (el) => getComputedStyle(el).outlineWidth
     );
     expect(parseFloat(outlineWidth)).toBeGreaterThan(0);
+  });
+});
+
+test.describe("Button — accessibility contract", () => {
+  const onNight = (page: import("@playwright/test").Page) =>
+    page.getByTestId("button-night");
+
+  test("renders a real <button> defaulting to type=button", async ({
+    page,
+  }) => {
+    const btn = onNight(page).getByRole("button", { name: "Start exploring" });
+    await expect(btn).toHaveJSProperty("tagName", "BUTTON");
+    await expect(btn).toHaveAttribute("type", "button");
+  });
+
+  test("kid size meets the 56–64px target floor", async ({ page }) => {
+    const box = await onNight(page)
+      .getByRole("button", { name: "Start exploring" })
+      .boundingBox();
+    expect(box?.height ?? 0).toBeGreaterThanOrEqual(56);
+  });
+
+  test("link variant renders a real <a> with href", async ({ page }) => {
+    const link = onNight(page).getByRole("link", {
+      name: "Check system health",
+    });
+    await expect(link).toHaveJSProperty("tagName", "A");
+    await expect(link).toHaveAttribute("href", "/api/health");
+  });
+
+  test("icon-only button still has an accessible name", async ({ page }) => {
+    await expect(
+      onNight(page).getByRole("button", { name: "Search topics" })
+    ).toBeVisible();
+  });
+
+  test("disabled button is not operable", async ({ page }) => {
+    await expect(
+      onNight(page).getByRole("button", { name: "Can't click me" })
+    ).toBeDisabled();
+  });
+
+  test("shows a visible focus ring when focused (keyboard, no mouse)", async ({
+    page,
+  }) => {
+    const btn = onNight(page).getByRole("button", { name: "Start exploring" });
+    await btn.focus();
+    await expect(btn).toBeFocused();
+    const outlineWidth = await btn.evaluate(
+      (el) => getComputedStyle(el).outlineWidth
+    );
+    expect(parseFloat(outlineWidth)).toBeGreaterThan(0);
+  });
+});
+
+test.describe("Desktop affordances — cursors", () => {
+  // Touch-first, but mouse users still expect the right cursor on each control.
+  // Tailwind v4 drops the default button pointer, so this guards the restore in
+  // globals.css (+ Button's not-disabled gating) against silent regression.
+  const onNight = (page: import("@playwright/test").Page) =>
+    page.getByTestId("button-night");
+  const cursorOf = (locator: import("@playwright/test").Locator) =>
+    locator.evaluate((el) => getComputedStyle(el).cursor);
+
+  test("an enabled button shows the pointer (hand) cursor", async ({
+    page,
+  }) => {
+    const btn = onNight(page).getByRole("button", { name: "Start exploring" });
+    expect(await cursorOf(btn)).toBe("pointer");
+  });
+
+  test("an icon-only button shows the pointer cursor", async ({ page }) => {
+    const btn = onNight(page).getByRole("button", { name: "Search topics" });
+    expect(await cursorOf(btn)).toBe("pointer");
+  });
+
+  test("a disabled button shows the not-allowed cursor", async ({ page }) => {
+    const btn = onNight(page).getByRole("button", { name: "Can't click me" });
+    expect(await cursorOf(btn)).toBe("not-allowed");
+  });
+
+  test("the Modal close button shows the pointer cursor", async ({ page }) => {
+    await page
+      .getByTestId("modal-night")
+      .getByRole("button", { name: "Open dialog" })
+      .click();
+    const close = page.getByRole("button", { name: "Close" });
+    await expect(close).toBeVisible();
+    expect(await cursorOf(close)).toBe("pointer");
+  });
+});
+
+test.describe("Card — contract", () => {
+  test("renders a surface-aware container with its content", async ({
+    page,
+  }) => {
+    const card = page.getByTestId("card-night");
+    await expect(card.getByText("Volcanoes")).toBeVisible();
+    // Reads the panel token, not a hardcoded color.
+    const bg = await card
+      .getByText("Volcanoes")
+      .evaluate((el) => getComputedStyle(el.closest("div")!).backgroundColor);
+    expect(bg).not.toBe("rgba(0, 0, 0, 0)");
+  });
+});
+
+test.describe("Heading / Text — contract", () => {
+  const onNight = (page: import("@playwright/test").Page) =>
+    page.getByTestId("heading-night");
+
+  test("Heading renders the semantic level it's given", async ({ page }) => {
+    await expect(
+      onNight(page).getByRole("heading", { level: 1, name: "Page title" })
+    ).toBeVisible();
+    await expect(
+      onNight(page).getByRole("heading", { level: 3, name: "Subsection" })
+    ).toBeVisible();
+  });
+
+  test("Text renders body copy", async ({ page }) => {
+    await expect(onNight(page).getByText("Lead text introduces")).toBeVisible();
+  });
+});
+
+test.describe("Icon — accessibility contract", () => {
+  const onNight = (page: import("@playwright/test").Page) =>
+    page.getByTestId("icon-night");
+
+  test("labelled icon is exposed as an image with a name", async ({ page }) => {
+    await expect(
+      onNight(page).getByRole("img", { name: "Favorite" }).first()
+    ).toBeVisible();
+  });
+
+  test("decorative icon is hidden from assistive tech", async ({ page }) => {
+    // Three labelled (sizes) + zero from the decorative example.
+    await expect(
+      onNight(page).getByRole("img", { name: "Favorite" })
+    ).toHaveCount(3);
+  });
+});
+
+test.describe("ProgressBar — accessibility contract", () => {
+  const onNight = (page: import("@playwright/test").Page) =>
+    page.getByTestId("progressbar-night");
+
+  test("exposes the progressbar role with aria values", async ({ page }) => {
+    const bar = onNight(page).getByRole("progressbar", {
+      name: "Reading-level calibration",
+    });
+    await expect(bar).toHaveAttribute("aria-valuenow", "45");
+    await expect(bar).toHaveAttribute("aria-valuemin", "0");
+    await expect(bar).toHaveAttribute("aria-valuemax", "100");
+  });
+
+  test("clamps an out-of-100 value to a percentage", async ({ page }) => {
+    // 7 / 12 → 58%.
+    const bar = onNight(page).getByRole("progressbar", {
+      name: "XP to next level",
+    });
+    await expect(bar).toHaveAttribute("aria-valuenow", "58");
+  });
+});
+
+test.describe("Modal — accessibility contract", () => {
+  // Drive it on the night surface; touch + keyboard only, no mouse assumed.
+  const region = (page: import("@playwright/test").Page) =>
+    page.getByTestId("modal-night");
+
+  test("opens as a focus-trapped dialog and moves focus inside", async ({
+    page,
+  }) => {
+    await region(page).getByRole("button", { name: "Open dialog" }).click();
+    const dialog = page.getByRole("dialog", { name: "Ready to explore?" });
+    await expect(dialog).toBeVisible();
+    await expect(dialog).toHaveAttribute("aria-modal", "true");
+    // Focus has moved into the dialog.
+    const focusInside = await dialog.evaluate((el) =>
+      el.contains(document.activeElement)
+    );
+    expect(focusInside).toBe(true);
+  });
+
+  test("traps Tab within the dialog", async ({ page }) => {
+    await region(page).getByRole("button", { name: "Open dialog" }).click();
+    const dialog = page.getByRole("dialog", { name: "Ready to explore?" });
+    await expect(dialog).toBeVisible();
+    // Cycle through several tabs; focus must never escape the dialog.
+    for (let i = 0; i < 6; i++) {
+      await page.keyboard.press("Tab");
+      const inside = await dialog.evaluate((el) =>
+        el.contains(document.activeElement)
+      );
+      expect(inside).toBe(true);
+    }
+  });
+
+  test("Escape closes and returns focus to the trigger", async ({ page }) => {
+    const trigger = region(page).getByRole("button", { name: "Open dialog" });
+    await trigger.click();
+    await expect(
+      page.getByRole("dialog", { name: "Ready to explore?" })
+    ).toBeVisible();
+
+    await page.keyboard.press("Escape");
+    await expect(
+      page.getByRole("dialog", { name: "Ready to explore?" })
+    ).toBeHidden();
+    await expect(trigger).toBeFocused();
   });
 });
