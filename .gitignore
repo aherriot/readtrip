@@ -24,6 +24,10 @@ next-env.d.ts
 /test-results/
 /playwright-report/
 /playwright/.cache/
+# Visual baselines: only the CI (Linux) snapshots are tracked. Local runs on
+# macOS/Windows generate their own platform snapshots — don't commit those.
+e2e/**/*-darwin.png
+e2e/**/*-win32.png
 
 # misc
 .DS_Store

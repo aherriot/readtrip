@@ -45,21 +45,36 @@ npx playwright test design-system        # headless
 npm run test:e2e:ui                       # interactive runner
 ```
 
-## Visual regression (opt-in)
+## Visual regression (CI gate)
 
-Snapshot of the gallery, **off by default** — screenshot baselines are OS/font-specific, so
-generate and compare them in one environment (your machine, or CI's Linux/Chromium) to avoid
-flake.
+A snapshot of the gallery, enforced by the **`visual`** job in
+[`.github/workflows/test.yml`](../../../../.github/workflows/test.yml). It catches
+purely-visual changes that axe and the contract tests can't see — colors, spacing, radius,
+font shifts. The job runs on `ubuntu-latest` (no DB), so the committed baseline is the
+**Linux** snapshot (`gallery-chromium-linux.png`).
+
+How baselines work:
+
+- **First run on a branch with no baseline:** the job generates one and commits it back
+  (`[skip ci]`), then compares — so it goes green and seeds the baseline for everyone.
+- **After that:** strict compare. A real regression fails the job and uploads the
+  `expected` / `actual` / `diff` PNGs as a `visual-diff` artifact.
+- **To intentionally accept a visual change:** delete the baseline PNG in your PR; CI
+  regenerates it and the new image shows up in the PR diff for review. (Don't hand-edit
+  baselines.)
+
+A small `maxDiffPixelRatio` tolerance absorbs minor runner-image drift; if a runner update
+ever pushes drift past it, regenerate the baseline the same way (delete → CI reseeds).
+
+Run it locally (generates a snapshot for _your_ OS, which is git-ignored — only the Linux
+one is tracked):
 
 ```bash
-npm run test:visual:update   # generate/refresh baselines (run first)
+npm run test:visual:update   # generate/refresh your local baseline
 npm run test:visual          # compare
 ```
 
-Baselines live next to the spec (`e2e/design-system.visual.spec.ts-snapshots/`). Commit the
-ones for the environment you intend to compare in. If you adopt this in CI, generate Linux
-baselines there (e.g. `--update-snapshots` on a throwaway run) rather than committing macOS
-shots.
+Baselines live next to the spec (`e2e/design-system.visual.spec.ts-snapshots/`).
 
 ## Adding coverage for a new component
 
@@ -72,5 +87,29 @@ spec. To satisfy the last two:
 2. Add a `test.describe("Foo — accessibility contract", …)` block to
    `e2e/design-system.spec.ts` asserting its specific contract (e.g. for a `Modal`: focus
    trap, `Escape` closes, focus returns to trigger).
+
+## Reviewing & auditing a design-system change
+
+Because the system is **token-driven** and **enforced**, a reviewer can audit a change from
+a few high-signal places instead of reading every line:
+
+1. **Read the token diff first.** `git diff -- styles/tokens.css` shows every color / type /
+   radius / surface change in one place. A change here ripples to every component, so this is
+   the highest-leverage thing to review. Ask: does it still meet the contrast ratios noted in
+   the token comments? Is it on both surfaces?
+2. **Diff the component + its docs together.** The parity check guarantees a component change
+   ships with its reference doc, gallery entry, and test — so the docs in the diff tell you
+   the _intended_ behavior to review the code against.
+3. **Look at the visual diff.** The `visual` CI job fails on any unreviewed pixel change and
+   uploads `expected` / `actual` / `diff` PNGs — open the `diff` to see exactly what moved.
+   Locally: `npm run test:visual`.
+4. **Trust the gates.** Green CI means: types/lint/format pass, the parity check passed
+   (nothing undocumented/untested), axe found no WCAG A/AA violations on either surface, the
+   Input contract holds, and the gallery is pixel-identical. A red gate names the gap.
+5. **Spot-check by hand.** Open `/dev/components`, Tab through, run a screen reader — for the
+   things automation can't see (focus order, copy tone, motion).
+
+Audit trail: every token/component change lands via a PR (Conventional Commits), so
+`git log -- styles/tokens.css` is a readable history of how the visual language evolved.
 
 [axe DevTools]: https://www.deque.com/axe/devtools/

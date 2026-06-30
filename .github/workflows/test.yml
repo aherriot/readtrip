@@ -79,3 +79,60 @@ jobs:
           project_id: ${{ vars.NEON_PROJECT_ID }}
           branch: ci-${{ github.run_id }}-${{ github.run_attempt }}
           api_key: ${{ secrets.NEON_API_KEY }}
+
+  # Visual regression for the design system. Runs the opt-in snapshot suite
+  # against the component gallery. No DB needed: the gallery + landing routes
+  # never import lib/db. Baselines are this runner's (Linux) PNGs; the first run
+  # on a branch with no baseline seeds and commits one, after which it's a strict
+  # gate. To intentionally accept a visual change, delete the baseline PNG in
+  # your PR and CI will regenerate it (the new image shows up in the diff).
+  visual:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write # to commit the seeded baseline back to the branch
+    env:
+      # The visual suite never touches the DB, but lib/db reads this at import;
+      # a placeholder keeps any incidental import from throwing.
+      DATABASE_URL: "postgresql://user:pass@localhost:5432/placeholder"
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          # Check out the branch tip (not the PR merge ref) so a seeded baseline
+          # can be committed back to it.
+          ref: ${{ github.head_ref || github.ref_name }}
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version-file: ".nvmrc"
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps chromium
+
+      - name: Seed Linux baseline on first run
+        run: |
+          if ls e2e/*-snapshots/*-linux.png >/dev/null 2>&1; then
+            echo "Linux baseline present — comparing."
+          else
+            echo "No Linux baseline found — generating and committing one."
+            npm run test:visual:update
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git add e2e
+            git commit -m "test(design-system): seed Linux visual baseline [skip ci]"
+            git push origin HEAD:${{ github.head_ref || github.ref_name }}
+          fi
+
+      - name: Visual regression
+        run: npm run test:visual
+
+      - name: Upload visual diff on failure
+        if: ${{ failure() }}
+        uses: actions/upload-artifact@v7
+        with:
+          name: visual-diff
+          path: test-results/**
+          retention-days: 7
