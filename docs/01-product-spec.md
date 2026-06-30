@@ -34,7 +34,9 @@ your reading superpower!"), never as a test.
 
 The child either:
 
-- types/says a topic ("sharks", "black holes", "ancient Egypt"), or
+- types/says a topic ("sharks", "black holes", "ancient Egypt") **or asks a question**
+  ("Why is the sky blue?", "Tell me about grizzly bears") — the server normalizes either
+  into a topic before generating, or
 - taps a node on their **knowledge world map** — a dynamically generated, kid-interest
   graph of related topics they can wander.
 
