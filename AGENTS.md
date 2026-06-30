@@ -74,3 +74,7 @@ Don't re-derive these — invoke the skill:
 - **Security review of pending changes** → `/security-review`
 - **Claude API / model reference** (ids, pricing, tool use, caching) → `/claude-api`
 - **New visual UI work** (aesthetic direction, typography) → `/frontend-design`
+- **Building/styling any kid-facing UI** (which component, tokens, surfaces) → the
+  `design-system` skill (`.claude/skills/design-system`). It's the living usage guide for
+  `components/` + tokens and is parity-checked against the code
+  (`npm run check:design-system`), so a new component can't ship undocumented.

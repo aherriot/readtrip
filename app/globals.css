@@ -1,9 +1,76 @@
 @import "tailwindcss";
+@import "../styles/tokens.css";
 
-/* Design tokens (full system lands in M1 — see docs/10-design-system.md). */
-:root {
-  --bg-night: #1b1f3b;
-  --ink-on-night: #f4f2ff;
-  --sun: #ffc24b;
-  --aqua: #36d6c3;
+/*
+ * Map design tokens → Tailwind utilities. `inline` so the generated utilities
+ * reference the runtime `--surface-*` variables directly — switching a
+ * `data-surface` attribute re-themes everything underneath it with no JS.
+ * Tokens live in styles/tokens.css; this block only exposes them as utilities.
+ */
+@theme inline {
+  /* Accent palette */
+  --color-sun: var(--sun);
+  --color-coral: var(--coral);
+  --color-aqua: var(--aqua);
+  --color-leaf: var(--leaf);
+  --color-violet: var(--violet);
+
+  /* Fixed per-surface colors (use only when a color must ignore the surface) */
+  --color-night: var(--bg-night);
+  --color-night-panel: var(--bg-night-panel);
+  --color-ink-on-night: var(--ink-on-night);
+  --color-paper: var(--paper);
+  --color-ink: var(--ink);
+  --color-ink-soft: var(--ink-soft);
+  --color-rule: var(--rule);
+
+  /* Semantic */
+  --color-correct: var(--correct);
+  --color-retry: var(--retry);
+  --color-focus-ring: var(--focus-ring);
+
+  /* Surface-aware — the default a component should reach for */
+  --color-surface: var(--surface-bg);
+  --color-surface-panel: var(--surface-panel);
+  --color-surface-ink: var(--surface-ink);
+  --color-surface-ink-soft: var(--surface-ink-soft);
+  --color-surface-rule: var(--surface-rule);
+  --color-surface-accent: var(--surface-accent);
+  --color-surface-danger: var(--surface-danger);
+
+  /* Type families (the --font-fredoka/--font-lexend vars come from next/font) */
+  --font-display: var(--font-fredoka), system-ui, sans-serif;
+  --font-body: var(--font-lexend), system-ui, sans-serif;
+
+  /* Type scale */
+  --text-xs: var(--text-xs);
+  --text-sm: var(--text-sm);
+  --text-base: var(--text-base);
+  --text-lg: var(--text-lg);
+  --text-xl: var(--text-xl);
+  --text-2xl: var(--text-2xl);
+  --text-3xl: var(--text-3xl);
+
+  /* Radius (the 4-based spacing scale already matches Tailwind's default) */
+  --radius-sm: var(--radius-sm);
+  --radius-md: var(--radius-md);
+  --radius-lg: var(--radius-lg);
+  --radius-pill: var(--radius-pill);
+}
+
+@layer base {
+  body {
+    background-color: var(--surface-bg);
+    color: var(--surface-ink);
+    font-family: var(--font-body);
+    font-size: var(--text-base);
+    line-height: 1.6;
+  }
+
+  /* Accessibility floor: a visible, high-contrast focus ring on everything
+     interactive. Components may enhance this, but never remove the outline. */
+  :focus-visible {
+    outline: 3px solid var(--focus-ring);
+    outline-offset: 2px;
+  }
 }
