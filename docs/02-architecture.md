@@ -109,3 +109,41 @@ drizzle/                          # generated SQL migrations
 - **Caching** — prompt caching only helps if *we* control the prefix bytes across
   requests; doing it server-side lets us keep a stable, deterministic prefix.
 - **Safety** — output guardrails can inspect the stream before/while it reaches a child.
+
+## Environments & databases
+
+We isolate environments with **Neon branches** (copy-on-write clones), not separate
+projects. One Neon project, three logical environments:
+
+| Environment | Neon branch | Lifetime | Connection strings come from |
+|---|---|---|---|
+| **Production** | `production` (root branch) | permanent | Vercel env vars (Production scope) |
+| **Local dev** | `development` | permanent | `.env.local` (gitignored) |
+| **CI tests** | `ci-<run-id>` | created + deleted per CI run | GitHub Actions (Neon branch action) |
+| **PR previews** | auto per Vercel deploy | per preview deploy | Neon–Vercel integration (Preview scope) |
+
+Why branches: prod, dev, and CI must not share data (CI migrates and truncates
+aggressively; a shared branch would clobber your local work). Branches give that
+isolation instantly and cheaply, and CI branches are fully ephemeral.
+
+**The app stays environment-agnostic.** `lib/db/` and `drizzle.config.ts` only read
+`DATABASE_URL` (pooled) and `DIRECT_URL` (direct) from the environment — there is no
+`if (env === ...)` logic in code. Each environment just supplies different values:
+
+- **Local** — `.env.local`. Next.js loads it automatically; `drizzle.config.ts` also
+  loads it explicitly (drizzle-kit doesn't read `.env.local` on its own) so
+  `npm run db:migrate` works locally.
+- **CI** — `.github/workflows/test.yml` creates an ephemeral Neon branch, runs
+  `npm run db:migrate` against its `DIRECT_URL`, runs the Playwright suite against its
+  pooled `DATABASE_URL`, then deletes the branch. Requires repo secret `NEON_API_KEY`
+  and repo variable `NEON_PROJECT_ID`.
+- **Prod** — Vercel env vars point at the `production` branch; the `build` script runs
+  `drizzle-kit migrate` on deploy.
+
+## Testing
+
+End-to-end tests run on **Playwright** (`e2e/`, config in `playwright.config.ts`).
+Playwright boots the app via its `webServer` block. `e2e/home.spec.ts` is a static
+smoke test; `e2e/health.spec.ts` drives the full stack (route → Drizzle → Neon) and so
+needs a migrated DB — locally that means a populated `.env.local`, in CI the ephemeral
+branch. Run with `npm test` (or `npm run test:e2e:ui` for the interactive runner).
