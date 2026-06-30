@@ -8,7 +8,8 @@ export default function Home() {
         ReadTrip
       </h1>
       <p className="max-w-md text-lg">
-        A curiosity engine for kids. The skeleton is live — the expedition starts soon.
+        A curiosity engine for kids. The skeleton is live — the expedition
+        starts soon.
       </p>
       <a
         href="/api/health"

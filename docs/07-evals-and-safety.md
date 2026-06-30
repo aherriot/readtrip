@@ -9,7 +9,9 @@ observability proves you can run it.
 Two layers, both server-side:
 
 ### Input guardrails (before generation)
+
 Every child-entered topic / answer passes a check:
+
 - **Moderation / age-appropriateness** — reject or redirect topics that aren't suitable
   for children. A cheap `safety_precheck` call on Haiku
   ([`03-llm-integration.md`](03-llm-integration.md)) classifies the topic; obvious cases
@@ -18,6 +20,7 @@ Every child-entered topic / answer passes a check:
   something else cool!") rather than showing an error.
 
 ### Output guardrails (before content reaches the child)
+
 - The lesson/quiz **system prompt** instructs strict age-appropriateness even when a
   topic edges toward something sensitive (war, death, anatomy) — explain at a kid level
   or decline gracefully.
@@ -49,15 +52,16 @@ Kids will believe what ReadTrip tells them, so factual accuracy matters more tha
 Build a small, versioned eval harness (`lib/evals/`) with a fixed dataset of topics ×
 reading levels. Run it on every prompt/model change.
 
-| Eval | What it measures | How to score |
-|---|---|---|
-| **Reading-level match** | Does L2 content actually read at a ~2nd-grade level? | Automated readability metric (e.g. Flesch-Kincaid) + LLM judge |
-| **Factual accuracy** | Is the content correct? | LLM judge (Opus 4.8) against the grounding source / known facts |
-| **Quiz quality** | Are questions answerable from the lesson, unambiguous, with one correct answer? | LLM judge + schema/structural checks |
-| **Safety** | Does sensitive-topic input produce safe output? | Curated red-team topic set; assert safe handling |
-| **Grounding lift** (phase 2) | Accuracy with vs. without Simple Wikipedia | Run the accuracy eval both ways; report the delta |
+| Eval                         | What it measures                                                                | How to score                                                    |
+| ---------------------------- | ------------------------------------------------------------------------------- | --------------------------------------------------------------- |
+| **Reading-level match**      | Does L2 content actually read at a ~2nd-grade level?                            | Automated readability metric (e.g. Flesch-Kincaid) + LLM judge  |
+| **Factual accuracy**         | Is the content correct?                                                         | LLM judge (Opus 4.8) against the grounding source / known facts |
+| **Quiz quality**             | Are questions answerable from the lesson, unambiguous, with one correct answer? | LLM judge + schema/structural checks                            |
+| **Safety**                   | Does sensitive-topic input produce safe output?                                 | Curated red-team topic set; assert safe handling                |
+| **Grounding lift** (phase 2) | Accuracy with vs. without Simple Wikipedia                                      | Run the accuracy eval both ways; report the delta               |
 
 Notes:
+
 - The **judge model must be at least as capable** as the model it judges — use Opus 4.8
   as the judge for Sonnet-generated content.
 - Keep the dataset and prompts versioned so results are comparable over time and you can
@@ -71,6 +75,7 @@ Log **every** LLM call to `LlmCallLog` ([`06-data-model.md`](06-data-model.md)):
 model, task, token counts (incl. cache read/create), latency, computed cost, safety flag.
 
 From that, a simple dashboard shows:
+
 - **Cost per loop** and per child per day (proves the routing/caching is working).
 - **Cache hit rate** (`cacheReadTokens / total input`) — should be high on popular topics.
 - **p50/p95 latency** per task and per model.
@@ -82,6 +87,7 @@ This is the "I can run this in production, not just build a demo" evidence.
 ## Suggested headline results to produce
 
 When the project is done, aim to be able to say:
+
 - "Generated content matched its target reading level ~90% of the time (measured)."
 - "Grounding in Simple English Wikipedia reduced factual errors by ~X%."
 - "Model routing + prompt caching brought average cost per loop to ~$Y."

@@ -6,7 +6,7 @@ everywhere), the **motion** language, and a hard **accessibility floor**.
 
 ## Direction: "The ReadTripsity Expedition"
 
-ReadTrip's world is *exploration* — a child charting an unknown world of knowledge. So the
+ReadTrip's world is _exploration_ — a child charting an unknown world of knowledge. So the
 identity isn't generic primary-color "kids app" clip-art; it's an **explorer's star-chart
 / field-journal**. The child is an explorer; topics are glowing nodes on a map that light
 up as they're discovered; mastery earns **expedition stamps**.
@@ -19,7 +19,7 @@ child's actual cognitive mode:
 - **Reading surface — "Field journal."** Calm, warm, high-legibility paper. Used for
   lessons and quizzes, where focus and readability matter most.
 
-Switching surfaces by *task* (explore vs. focus) is grounded in the product, not
+Switching surfaces by _task_ (explore vs. focus) is grounded in the product, not
 decoration — and it keeps the reading experience calm without making the app feel flat.
 
 ## Color tokens
@@ -29,35 +29,38 @@ attribute. All pairings below meet **WCAG AA** (≥4.5:1 for body text, ≥3:1 f
 text / UI).
 
 ### Night-sky (play) surface
-| Token | Hex | Use |
-|---|---|---|
-| `--bg-night` | `#1B1F3B` | Map / play canvas |
-| `--bg-night-panel` | `#2A2F55` | Cards/panels on night |
-| `--ink-on-night` | `#F4F2FF` | Text on night (≈15:1 ✓) |
-| `--sun` | `#FFC24B` | Primary action, XP (marigold) |
-| `--coral` | `#FF6B5C` | Secondary / playful accent |
-| `--aqua` | `#36D6C3` | "Explored" / discovery |
-| `--leaf` | `#7BD66A` | Success / correct |
-| `--violet` | `#B388FF` | Tertiary accent / magic |
+
+| Token              | Hex       | Use                           |
+| ------------------ | --------- | ----------------------------- |
+| `--bg-night`       | `#1B1F3B` | Map / play canvas             |
+| `--bg-night-panel` | `#2A2F55` | Cards/panels on night         |
+| `--ink-on-night`   | `#F4F2FF` | Text on night (≈15:1 ✓)       |
+| `--sun`            | `#FFC24B` | Primary action, XP (marigold) |
+| `--coral`          | `#FF6B5C` | Secondary / playful accent    |
+| `--aqua`           | `#36D6C3` | "Explored" / discovery        |
+| `--leaf`           | `#7BD66A` | Success / correct             |
+| `--violet`         | `#B388FF` | Tertiary accent / magic       |
 
 > Bright accents are for **fills and large elements** on the dark canvas, not small text.
 > Buttons use a bright fill with **dark ink on top** (e.g. ink `#22263F` on `--sun` ≈9:1 ✓).
 
 ### Field-journal (reading) surface
-| Token | Hex | Use |
-|---|---|---|
-| `--paper` | `#FFFCF5` | Reading background (warm, but lighter than the cream cliché) |
-| `--ink` | `#22263F` | Body text (≈14:1 on paper ✓) |
-| `--ink-soft` | `#4A4F6B` | Secondary text (≈7:1 ✓) |
-| `--rule` | `#E7E0D0` | Hairlines / dividers |
-| accents | reuse `--coral`, `--aqua`, `--leaf` | Highlights; always with a non-color cue too |
+
+| Token        | Hex                                 | Use                                                          |
+| ------------ | ----------------------------------- | ------------------------------------------------------------ |
+| `--paper`    | `#FFFCF5`                           | Reading background (warm, but lighter than the cream cliché) |
+| `--ink`      | `#22263F`                           | Body text (≈14:1 on paper ✓)                                 |
+| `--ink-soft` | `#4A4F6B`                           | Secondary text (≈7:1 ✓)                                      |
+| `--rule`     | `#E7E0D0`                           | Hairlines / dividers                                         |
+| accents      | reuse `--coral`, `--aqua`, `--leaf` | Highlights; always with a non-color cue too                  |
 
 ### Semantic (works on both surfaces)
-| Token | Maps to | Meaning |
-|---|---|---|
-| `--correct` | `--leaf` | Right answer (always paired with ✓ icon + label) |
-| `--retry` | `--coral` | Try-again (never "wrong"/red-scary; paired with ↻ icon) |
-| `--focus-ring` | `#FFD24B` outer + `#1B1F3B` inner | High-contrast focus indicator |
+
+| Token          | Maps to                           | Meaning                                                 |
+| -------------- | --------------------------------- | ------------------------------------------------------- |
+| `--correct`    | `--leaf`                          | Right answer (always paired with ✓ icon + label)        |
+| `--retry`      | `--coral`                         | Try-again (never "wrong"/red-scary; paired with ↻ icon) |
+| `--focus-ring` | `#FFD24B` outer + `#1B1F3B` inner | High-contrast focus indicator                           |
 
 ## Typography
 
@@ -72,19 +75,20 @@ Two families, chosen for this brief — not defaults:
 
 ```css
 --font-display: "Fredoka", system-ui, sans-serif;
---font-body:    "Lexend", system-ui, sans-serif;
+--font-body: "Lexend", system-ui, sans-serif;
 ```
 
 **Type scale** (rem; respects user zoom). Reading base is larger for younger readers:
-| Token | Size | Use |
-|---|---|---|
-| `--text-xs` | 0.875rem | captions, meta |
-| `--text-sm` | 1rem | UI labels |
+
+| Token         | Size     | Use                                            |
+| ------------- | -------- | ---------------------------------------------- |
+| `--text-xs`   | 0.875rem | captions, meta                                 |
+| `--text-sm`   | 1rem     | UI labels                                      |
 | `--text-base` | 1.125rem | body (bump to 1.25rem at reading levels L1–L2) |
-| `--text-lg` | 1.375rem | lead text |
-| `--text-xl` | 1.75rem | section titles |
-| `--text-2xl` | 2.25rem | page titles |
-| `--text-3xl` | 3rem | hero / big numbers |
+| `--text-lg`   | 1.375rem | lead text                                      |
+| `--text-xl`   | 1.75rem  | section titles                                 |
+| `--text-2xl`  | 2.25rem  | page titles                                    |
+| `--text-3xl`  | 3rem     | hero / big numbers                             |
 
 **Reading rules:** line-height `1.6`, max line length `~62ch`, generous paragraph spacing.
 These are legibility settings, not stylistic — keep them on the reading surface always.
@@ -104,6 +108,7 @@ re-styling ad hoc.** Live in `components/ui` (primitives), `components/game`, an
 `components/reading`.
 
 ### Primitives — `components/ui/`
+
 - **`Button`** — variants: `primary` (sun fill), `secondary` (coral outline), `ghost`;
   sizes `md` and `kid` (min 56–64px tall). Always renders a visible focus ring; never
   removes the outline. Icon-only buttons require an `aria-label`.
@@ -114,6 +119,7 @@ re-styling ad hoc.** Live in `components/ui` (primitives), `components/game`, an
 - **`ProgressBar`** — generic animated bar (used by XP and the calibration game).
 
 ### Game — `components/game/`
+
 - **`TopicNode`** — the map node, the product's **signature element**. States:
   `locked` (dim, dotted outline), `suggested` (gentle pulse, aqua ring), `explored`
   (lit / aqua), `mastered` (gold glow + stamp). Each state has a shape/icon difference,
@@ -123,11 +129,12 @@ re-styling ad hoc.** Live in `components/ui` (primitives), `components/game`, an
 - **`ExpeditionStamp`** (Badge) — a "stamped into the journal" badge with a press animation.
 - **`Avatar`** — the explorer token ("you are here" on the map; cosmetic unlocks).
 - **`RewardBurst` / `LevelUpCelebration`** — overlay for XP gains, level-ups, badges.
-- **`Pip`** *(optional guide mascot)* — a small companion that gives the app a voice
+- **`Pip`** _(optional guide mascot)_ — a small companion that gives the app a voice
   ("Nice exploring! Want to try a tricky one?"). Personality drives kid engagement; keep
   it skippable and never blocking.
 
 ### Reading — `components/reading/`
+
 - **`ReadingView`** — the field-journal lesson surface (sets surface, max width, type).
 - **`LessonChunk`** — one short, visual block of explanation.
 - **`QuizChoice`** — big tappable answer. States: `default`, `selected`, `correct`
@@ -136,6 +143,7 @@ re-styling ad hoc.** Live in `components/ui` (primitives), `components/game`, an
 - **`QuizCard`** — wraps the question + choices + feedback.
 
 ### Shell
+
 - **`AppShell` / `TopBar`** — consistent header on every child page: avatar, level, XP bar,
   current surface. This is the main driver of cross-page consistency.
 
@@ -143,6 +151,7 @@ re-styling ad hoc.** Live in `components/ui` (primitives), `components/game`, an
 
 Motion sells "discovery," but restraint keeps it from feeling AI-generated or
 overstimulating:
+
 - **Map load:** a brief star-twinkle settle.
 - **Discovery:** a node "pops + glows" when first explored.
 - **Reward:** XP count-up; a contained `RewardBurst`; a badge "stamp" press.
@@ -157,7 +166,7 @@ state changes (no movement/parallax), keeping only essential feedback.
 2. **Never color-only:** correct/retry, node states, and all status use **icon + text +
    color** together.
 3. **Target size:** interactive targets ≥44px; kid-facing controls 56–64px.
-4. **Visible focus:** a high-contrast `--focus-ring` on *every* interactive element; the
+4. **Visible focus:** a high-contrast `--focus-ring` on _every_ interactive element; the
    outline is never removed. Tab order follows reading order.
 5. **Keyboard navigation:** everything operable without a mouse — buttons/links are real
    elements; `Enter`/`Space` activate; map nodes are focusable and arrow-key traversable;

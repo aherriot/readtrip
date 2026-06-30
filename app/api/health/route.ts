@@ -21,7 +21,7 @@ export async function GET() {
   } catch (error) {
     return Response.json(
       { ok: false, db: "error", message: (error as Error).message },
-      { status: 500 },
+      { status: 500 }
     );
   }
 }

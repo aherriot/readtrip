@@ -106,7 +106,7 @@ drizzle/                          # generated SQL migrations
 ## Why server-side streaming
 
 - **Security** — key stays on the server; we control rate limits and guardrails.
-- **Caching** — prompt caching only helps if *we* control the prefix bytes across
+- **Caching** — prompt caching only helps if _we_ control the prefix bytes across
   requests; doing it server-side lets us keep a stable, deterministic prefix.
 - **Safety** — output guardrails can inspect the stream before/while it reaches a child.
 
@@ -115,12 +115,12 @@ drizzle/                          # generated SQL migrations
 We isolate environments with **Neon branches** (copy-on-write clones), not separate
 projects. One Neon project, three logical environments:
 
-| Environment | Neon branch | Lifetime | Connection strings come from |
-|---|---|---|---|
-| **Production** | `production` (root branch) | permanent | Vercel env vars (Production scope) |
-| **Local dev** | `development` | permanent | `.env.local` (gitignored) |
-| **CI tests** | `ci-<run-id>` | created + deleted per CI run | GitHub Actions (Neon branch action) |
-| **PR previews** | auto per Vercel deploy | per preview deploy | Neon–Vercel integration (Preview scope) |
+| Environment     | Neon branch                | Lifetime                     | Connection strings come from            |
+| --------------- | -------------------------- | ---------------------------- | --------------------------------------- |
+| **Production**  | `production` (root branch) | permanent                    | Vercel env vars (Production scope)      |
+| **Local dev**   | `development`              | permanent                    | `.env.local` (gitignored)               |
+| **CI tests**    | `ci-<run-id>`              | created + deleted per CI run | GitHub Actions (Neon branch action)     |
+| **PR previews** | auto per Vercel deploy     | per preview deploy           | Neon–Vercel integration (Preview scope) |
 
 Why branches: prod, dev, and CI must not share data (CI migrates and truncates
 aggressively; a shared branch would clobber your local work). Branches give that

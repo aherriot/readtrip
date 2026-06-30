@@ -7,7 +7,7 @@ topics themselves driven by the child's own interests.
 ## 1. Points + levels (XP)
 
 - **Read XP** — awarded for finishing a lesson. Small, guaranteed reward for engaging.
-- **Quiz XP** — awarded per correct answer. The *bigger* reward: understanding beats
+- **Quiz XP** — awarded per correct answer. The _bigger_ reward: understanding beats
   consumption (a core principle, [`01-product-spec.md`](01-product-spec.md)).
 - **Level** — derived from cumulative XP. Leveling up triggers a celebration and unlocks
   new map regions and/or avatar customizations.
@@ -26,6 +26,7 @@ connected topics** — wander from "volcanoes" to "earthquakes" to "tectonic pla
   world to discover.
 
 ### Dynamic, interest-driven topics
+
 The map is **generated and personalized** by the LLM (`topic_map` task,
 [`03-llm-integration.md`](03-llm-integration.md)). Given the child's explored topics and
 interests, it proposes engaging, age-appropriate neighboring topics. So a dinosaur-loving
