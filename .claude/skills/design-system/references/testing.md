@@ -73,4 +73,30 @@ spec. To satisfy the last two:
    `e2e/design-system.spec.ts` asserting its specific contract (e.g. for a `Modal`: focus
    trap, `Escape` closes, focus returns to trigger).
 
+## Reviewing & auditing a design-system change
+
+Because the system is **token-driven** and **enforced**, a reviewer can audit a change from
+a few high-signal places instead of reading every line:
+
+1. **Read the token diff first.** `git diff -- styles/tokens.css` shows every color / type /
+   radius / surface change in one place. A change here ripples to every component, so this is
+   the highest-leverage thing to review. Ask: does it still meet the contrast ratios noted in
+   the token comments? Is it on both surfaces?
+2. **Diff the component + its docs together.** `git diff -- components/ui app/globals.css
+'.claude/skills/design-system/**'`. The parity check guarantees a component change ships
+   with its reference doc, gallery entry, and test — so the docs in the diff tell you the
+   _intended_ behavior to review the code against.
+3. **Look at the visual diff.** If the PR touched anything visual, run
+   `npm run test:visual` (or view the CI artifact once wired up). Playwright writes
+   `…-actual.png`, `…-expected.png`, and a red `…-diff.png` to `test-results/` — open the
+   diff to see exactly which pixels moved. A clean run means nothing rendered differently.
+4. **Trust the gates.** Green `npm run check` means: types/lint/format pass, the parity check
+   passed (nothing undocumented/untested), axe found no WCAG A/AA violations on either
+   surface, and the Input contract holds. A red gate names the specific gap.
+5. **Spot-check by hand.** Open `/dev/components`, Tab through, run a screen reader — for the
+   things automation can't see (focus order, copy tone, motion).
+
+Audit trail: every token/component change lands via a PR (Conventional Commits), so
+`git log -- styles/tokens.css` is a readable history of how the visual language evolved.
+
 [axe DevTools]: https://www.deque.com/axe/devtools/

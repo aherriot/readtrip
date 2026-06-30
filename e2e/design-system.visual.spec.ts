@@ -20,8 +20,9 @@ test.describe("design system — visual", () => {
 
   test("component gallery matches snapshot", async ({ page }) => {
     await page.goto("/dev/components");
-    // Wait for web fonts so glyphs don't shift the baseline.
-    await page.evaluate(() => document.fonts.ready);
+    // Wait for web fonts so glyphs don't shift the baseline. (Resolve to a
+    // serializable value — the FontFaceSet itself can't cross the bridge.)
+    await page.evaluate(() => document.fonts.ready.then(() => true));
     await expect(page.getByTestId("gallery")).toHaveScreenshot("gallery.png", {
       maxDiffPixelRatio: 0.01,
     });
