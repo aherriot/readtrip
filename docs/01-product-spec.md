@@ -2,7 +2,7 @@
 
 ## Vision
 
-A child is naturally curious. Curio turns "why is the sky blue?" into a guided,
+A child is naturally curious. ReadTrip turns "why is the sky blue?" into a guided,
 rewarding learning session: a clear explanation at exactly the right reading level, a
 quick check that they understood it, points and a badge for their effort, and an
 invitation to explore the next interesting thing. The child is always in the driver's
@@ -16,7 +16,7 @@ seat.
    genuinely different explanations — same curiosity, different words.
 3. **Understanding over consumption.** Reading is rewarded, but *demonstrated
    understanding* (quiz performance) is rewarded more.
-4. **Child agency.** The child chooses topics and steers depth. Curio suggests; it
+4. **Child agency.** The child chooses topics and steers depth. ReadTrip suggests; it
    never rails them down a fixed track.
 5. **Safe by construction.** Every input and output passes through guardrails. Parents
    and teachers should trust it by default.

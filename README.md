@@ -1,6 +1,6 @@
-# Curio — a curiosity engine for kids
+# ReadTrip — a curiosity engine for kids
 
-Curio is a web app that lets a child dive into any topic they're curious about. It
+ReadTrip is a web app that lets a child dive into any topic they're curious about. It
 serves **engaging, age-appropriate explanations**, checks understanding with
 **quizzes**, lets the child **steer where to explore next**, and wraps the whole
 loop in **gamification** (points, levels, a world map of knowledge, and badges for

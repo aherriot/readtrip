@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Curio — a curiosity engine for kids",
+  title: "ReadTrip — a curiosity engine for kids",
   description: "Dive into any topic, learn at your level, and explore a world of knowledge.",
 };
 

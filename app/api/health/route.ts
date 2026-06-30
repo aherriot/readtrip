@@ -1,17 +1,21 @@
-import { prisma } from "@/lib/db";
+import { count } from "drizzle-orm";
+import { db } from "@/lib/db";
+import { ping } from "@/lib/db/schema";
 
 // M0 end-to-end check: writes a row to Neon and reads the count back.
-// Confirms pooled connection, Prisma client, and the migration all work.
+// Confirms pooled connection, Drizzle client, and the migration all work.
 export const dynamic = "force-dynamic";
 
 export async function GET() {
   try {
-    const ping = await prisma.ping.create({ data: {} });
-    const totalPings = await prisma.ping.count();
+    const [inserted] = await db.insert(ping).values({}).returning();
+    const [{ value: totalPings }] = await db
+      .select({ value: count() })
+      .from(ping);
     return Response.json({
       ok: true,
       db: "connected",
-      lastPingId: ping.id,
+      lastPingId: inserted.id,
       totalPings,
     });
   } catch (error) {

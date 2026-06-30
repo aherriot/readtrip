@@ -1,6 +1,6 @@
 # 04 — Reading Levels (calibration + adaptation)
 
-Curio targets a wide age range (~5–12) with one adaptive product. The reading level is
+ReadTrip targets a wide age range (~5–12) with one adaptive product. The reading level is
 the dial that makes that possible. It's set by a **calibration mini-game** and then
 **continuously refined** from quiz performance.
 

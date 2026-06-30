@@ -9,7 +9,7 @@ caching for popular topics, and measurable cost control.
 
 ## Models we use
 
-| Model | Model ID | Context | Input $/MTok | Output $/MTok | Role in Curio |
+| Model | Model ID | Context | Input $/MTok | Output $/MTok | Role in ReadTrip |
 |---|---|---|---|---|---|
 | Claude Haiku 4.5 | `claude-haiku-4-5` | 200K | $1.00 | $5.00 | Fast/cheap path: calibration scoring, simple quizzes, classification, safety pre-checks |
 | Claude Sonnet 4.6 | `claude-sonnet-4-6` | 1M | $3.00 | $15.00 | **Default content engine**: lesson generation, quiz generation, topic-map branches |

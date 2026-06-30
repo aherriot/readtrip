@@ -6,11 +6,11 @@
   Vercel; great fit for a playful, animated frontend.
 - **Claude API** via the official `@anthropic-ai/sdk` — all content, quiz, and topic
   generation. See [`03-llm-integration.md`](03-llm-integration.md).
-- **Database** — **Neon** (serverless Postgres) via Prisma. Stores child profiles,
+- **Database** — **Neon** (serverless Postgres) via Drizzle ORM. Stores child profiles,
   progress, XP, badges, and the knowledge map. Neon's built-in PgBouncer pooler suits
   Vercel's serverless functions; use the **pooled** URL for the app and a **direct** URL
-  for migrations (`directUrl` in Prisma). See [`06-data-model.md`](06-data-model.md).
-- **Auth** — **Auth.js (NextAuth)** with the Prisma adapter. Only **parents** are auth
+  for migrations (`DIRECT_URL` in `drizzle.config.ts`). See [`06-data-model.md`](06-data-model.md).
+- **Auth** — **Auth.js (NextAuth)** with the Drizzle adapter. Only **parents** are auth
   users; child profiles are sub-records under a parent (Netflix-profile model), selected
   after the parent signs in. All user/child data lives in our own Postgres.
 - **Design system** — a shared, accessible, kid-friendly component library. See
@@ -47,7 +47,7 @@
 └───────┬───────────────────────┬──────────────┘
         │                       │
 ┌───────▼────────┐     ┌────────▼─────────┐
-│ Claude API     │     │ Postgres (Prisma) │
+│ Claude API     │     │ Postgres (Drizzle)│
 │ (Haiku/Sonnet/ │     │ profiles, progress│
 │  Opus routing) │     │ map, badges, logs │
 └────────────────┘     └──────────────────┘
@@ -87,8 +87,8 @@ components/
   game/                           # TopicNode, XPBar, ExpeditionStamp, RewardBurst
   reading/                        # ReadingView, LessonChunk, QuizChoice
 lib/
-  auth/                           # Auth.js config + Prisma adapter
-  db.ts                           # singleton Prisma client (serverless-safe)
+  auth/                           # Auth.js config + Drizzle adapter
+  db/                             # Drizzle schema + singleton client (serverless-safe)
   llm/
     client.ts                     # Anthropic client singleton
     router.ts                     # model selection per task
@@ -99,7 +99,8 @@ lib/
   progress/                       # XP, levels, badges, difficulty
 styles/
   tokens.css                      # design tokens as CSS variables
-prisma/schema.prisma
+drizzle.config.ts
+drizzle/                          # generated SQL migrations
 ```
 
 ## Why server-side streaming

@@ -2,7 +2,7 @@
 
 A sequenced, milestone-by-milestone build order. Where [`08-roadmap.md`](08-roadmap.md)
 is the phase-level narrative, this is the concrete engineering checklist. Stack is locked:
-**Next.js (App Router) + TypeScript on Vercel, Neon (serverless Postgres) + Prisma,
+**Next.js (App Router) + TypeScript on Vercel, Neon (serverless Postgres) + Drizzle ORM,
 Auth.js (NextAuth), Anthropic SDK**, with the design system in [`10`](10-design-system.md).
 
 Each milestone has a **Definition of Done (DoD)** so you know when to move on.
@@ -15,9 +15,10 @@ Goal: an empty-but-real app that deploys to Vercel and talks to Neon.
 
 - [ ] `create-next-app` (App Router, TypeScript, Tailwind).
 - [ ] Create a **Neon** project; grab the **pooled** and **direct** connection strings.
-- [ ] Add Prisma; configure `datasource` with `url` (pooled) + `directUrl` (direct).
-- [ ] `lib/db.ts` — singleton Prisma client (serverless-safe).
-- [ ] `package.json` build: `prisma generate && prisma migrate deploy && next build`.
+- [ ] Add Drizzle ORM + `drizzle-kit`; `drizzle.config.ts` uses `DIRECT_URL` for migrations,
+      the app uses pooled `DATABASE_URL`.
+- [ ] `lib/db/` — schema + singleton Drizzle client over Neon's HTTP driver (serverless-safe).
+- [ ] `package.json` build: `drizzle-kit migrate && next build`.
 - [ ] Connect repo to **Vercel**; add `DATABASE_URL`, `DIRECT_URL`, `ANTHROPIC_API_KEY`,
       and Auth.js secrets as env vars (preview + production).
 - [ ] First migration with a trivial model; confirm a deployed page can read/write Neon.
@@ -50,9 +51,9 @@ only way pages get styled (no ad-hoc CSS).
 
 Goal: a parent can sign in and manage child profiles.
 
-- [ ] Add Auth.js models to Prisma (`User`, `Account`, `Session`, `VerificationToken`) +
-      app models (`Child`, etc.) from [`06`](06-data-model.md); migrate.
-- [ ] `lib/auth/` — Auth.js config with the Prisma adapter; pick a provider (email magic
+- [ ] Add Auth.js tables to the Drizzle schema (`User`, `Account`, `Session`,
+      `VerificationToken`) + app tables (`Child`, etc.) from [`06`](06-data-model.md); migrate.
+- [ ] `lib/auth/` — Auth.js config with the Drizzle adapter; pick a provider (email magic
       link and/or one OAuth provider).
 - [ ] `app/api/auth/[...nextauth]/route.ts`.
 - [ ] `app/(auth)/sign-in` — parent sign-in (built from design-system components).
@@ -146,6 +147,7 @@ passes; the app is demo-ready.
 
 ## Suggested dependencies
 
-`@anthropic-ai/sdk`, `next-auth` + `@auth/prisma-adapter`, `prisma` / `@prisma/client`,
+`@anthropic-ai/sdk`, `next-auth` + `@auth/drizzle-adapter`, `drizzle-orm` +
+`@neondatabase/serverless` + `drizzle-kit`,
 `zod` (quiz schemas + structured output), `tailwindcss`. Optional: `@storybook/nextjs`,
 a charting lib for the observability dashboard.

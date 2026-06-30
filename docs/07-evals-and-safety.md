@@ -1,6 +1,6 @@
 # 07 — Evals, Safety & Observability
 
-This is the doc that turns Curio from "a cute app" into "evidence I can productionize
+This is the doc that turns ReadTrip from "a cute app" into "evidence I can productionize
 LLMs." Evals give you measurable results; safety is non-negotiable for a kids' product;
 observability proves you can run it.
 
@@ -29,9 +29,9 @@ Every child-entered topic / answer passes a check:
 
 ## Hallucination control
 
-Kids will believe what Curio tells them, so factual accuracy matters more than usual.
+Kids will believe what ReadTrip tells them, so factual accuracy matters more than usual.
 
-- **MVP (LLM knowledge only):** rely on the model's parametric knowledge. For Curio's
+- **MVP (LLM knowledge only):** rely on the model's parametric knowledge. For ReadTrip's
   evergreen, popular topics (dinosaurs, space, the body), this is genuinely reliable. The
   prompt instructs: "if unsure of a specific fact (a date, a number), keep it general and
   say so" rather than inventing.

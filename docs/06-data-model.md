@@ -1,9 +1,11 @@
 # 06 — Data Model
 
-Illustrative Prisma-style schema. The shape matters more than exact types.
+Illustrative schema (Prisma-style notation for readability). The shape matters
+more than exact types — the real implementation lives in `lib/db/schema.ts` using
+Drizzle ORM.
 
 ```prisma
-// --- Auth.js (NextAuth) Prisma adapter models ---
+// --- Auth.js (NextAuth) adapter models ---
 // A `User` is a PARENT account — the only kind of auth user. Children are
 // sub-profiles, not auth users (see Child below).
 model User {
@@ -153,7 +155,7 @@ model LlmCallLog {
 ## Notes
 
 - **`User` is the parent / auth account.** Auth.js (NextAuth) owns `User`, `Account`,
-  `Session`, and `VerificationToken` via its Prisma adapter. **Children are not auth
+  `Session`, and `VerificationToken` via its Drizzle adapter. **Children are not auth
   users** — they're `Child` rows under a `User`, selected after the parent signs in. This
   keeps auth simple (few users, low/no cost) and all child data in our own Postgres.
 - **`topicSlug`** is a normalized key (lowercased, deduped) so "Sharks", "sharks", and

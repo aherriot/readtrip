@@ -1,12 +1,12 @@
 # 10 — Design System
 
-A consistent, accessible, genuinely fun visual identity for Curio. This doc defines the
+A consistent, accessible, genuinely fun visual identity for ReadTrip. This doc defines the
 **direction**, the **tokens**, the **component library** (extracted and reused
 everywhere), the **motion** language, and a hard **accessibility floor**.
 
-## Direction: "The Curiosity Expedition"
+## Direction: "The ReadTripsity Expedition"
 
-Curio's world is *exploration* — a child charting an unknown world of knowledge. So the
+ReadTrip's world is *exploration* — a child charting an unknown world of knowledge. So the
 identity isn't generic primary-color "kids app" clip-art; it's an **explorer's star-chart
 / field-journal**. The child is an explorer; topics are glowing nodes on a map that light
 up as they're discovered; mastery earns **expedition stamps**.

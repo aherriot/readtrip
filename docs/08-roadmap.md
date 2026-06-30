@@ -5,7 +5,7 @@ The "start simple, then add grounding and measure it" arc is itself the narrativ
 makes this a strong portfolio piece.
 
 ## Phase 0 — Skeleton (½–1 day)
-- Next.js + TypeScript app, Postgres + Prisma, Anthropic SDK wired up server-side.
+- Next.js + TypeScript app, Postgres + Drizzle ORM, Anthropic SDK wired up server-side.
 - Env/secrets handling; Anthropic key server-only.
 - One end-to-end "hello": `/api/lesson` returns a streamed kid-friendly explanation.
 
@@ -45,7 +45,7 @@ demoable on its own.
 - Export of the knowledge map as a keepsake / progress report.
 
 ## Sequencing rationale
-- **LLM-only first** because Curio's topics are evergreen and popular, where parametric
+- **LLM-only first** because ReadTrip's topics are evergreen and popular, where parametric
   knowledge is reliable — grounding is a targeted upgrade, not a prerequisite.
 - **Routing + caching + observability from day one** because retrofitting them is painful
   and they're cheap to include early — and they're the production-skills evidence.

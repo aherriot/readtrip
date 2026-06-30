@@ -1,6 +1,6 @@
 # 05 — Gamification
 
-Fun is the retention engine. Curio's reward system combines **points + levels**, an
+Fun is the retention engine. ReadTrip's reward system combines **points + levels**, an
 **explorable world map of knowledge**, and **badges for mastering topics** — with the
 topics themselves driven by the child's own interests.
 
