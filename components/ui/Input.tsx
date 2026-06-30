@@ -1,7 +1,13 @@
 "use client";
 
-import { forwardRef, useId } from "react";
+import { forwardRef } from "react";
 import type { InputHTMLAttributes, ReactNode } from "react";
+import {
+  Description,
+  Field,
+  Input as HeadlessInput,
+  Label,
+} from "@headlessui/react";
 import { cn } from "@/lib/ui/cn";
 
 type InputSize = "md" | "kid";
@@ -40,6 +46,10 @@ const sizeStyles: Record<
  * renders correctly on both the night and paper surfaces. Never color-only:
  * errors carry an icon + text alongside the retry color.
  *
+ * Built on Headless UI's `Field`, which wires the `Label`, hint/error
+ * `Description`s, and the `Input` together (matching `id`/`htmlFor`,
+ * `aria-describedby`, disabled propagation) so the association can't drift.
+ *
  * See the design-system skill for usage guidance:
  * .claude/skills/design-system/references/input.md
  */
@@ -51,27 +61,18 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(function Input(
     size = "kid",
     leadingIcon,
     hideLabel = false,
-    id,
     required,
+    disabled,
     className,
     ...rest
   },
   ref
 ) {
-  const generatedId = useId();
-  const inputId = id ?? generatedId;
-  const hintId = `${inputId}-hint`;
-  const errorId = `${inputId}-error`;
   const styles = sizeStyles[size];
 
-  const describedBy =
-    [hint ? hintId : null, error ? errorId : null].filter(Boolean).join(" ") ||
-    undefined;
-
   return (
-    <div className="flex flex-col gap-1.5">
-      <label
-        htmlFor={inputId}
+    <Field disabled={disabled} className="flex flex-col gap-1.5">
+      <Label
         className={cn(
           "font-body text-sm font-medium text-surface-ink",
           hideLabel && "sr-only"
@@ -84,7 +85,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(function Input(
             *
           </span>
         )}
-      </label>
+      </Label>
 
       <div className="relative">
         {leadingIcon && (
@@ -98,18 +99,20 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(function Input(
             {leadingIcon}
           </span>
         )}
-        <input
+        <HeadlessInput
           ref={ref}
-          id={inputId}
           required={required}
+          invalid={Boolean(error)}
+          // Explicit too, so the contract holds regardless of how `invalid`
+          // surfaces in the DOM.
           aria-invalid={error ? true : undefined}
-          aria-describedby={describedBy}
           className={cn(
             "w-full rounded-md border-2 bg-surface-panel font-body text-surface-ink",
             "placeholder:text-surface-ink-soft",
             "transition-colors duration-150",
             // Focus affordance beyond the global focus-visible ring.
             "focus-visible:border-surface-accent",
+            "disabled:cursor-not-allowed disabled:opacity-60",
             styles.field,
             styles.pad,
             leadingIcon && styles.icon,
@@ -121,16 +124,13 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(function Input(
       </div>
 
       {hint && !error && (
-        <p id={hintId} className="font-body text-xs text-surface-ink-soft">
+        <Description className="font-body text-xs text-surface-ink-soft">
           {hint}
-        </p>
+        </Description>
       )}
 
       {error && (
-        <p
-          id={errorId}
-          className="flex items-center gap-1.5 font-body text-xs text-surface-danger"
-        >
+        <Description className="flex items-center gap-1.5 font-body text-xs text-surface-danger">
           <svg
             viewBox="0 0 20 20"
             className="h-4 w-4 shrink-0"
@@ -144,8 +144,8 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(function Input(
             />
           </svg>
           {error}
-        </p>
+        </Description>
       )}
-    </div>
+    </Field>
   );
 });

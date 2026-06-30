@@ -6,6 +6,7 @@ import type {
   ButtonHTMLAttributes,
   ReactNode,
 } from "react";
+import { Button as HeadlessButton } from "@headlessui/react";
 import { cn } from "@/lib/ui/cn";
 
 type ButtonVariant = "primary" | "secondary" | "ghost";
@@ -87,6 +88,11 @@ function buttonClasses({
  * ad-hoc CSS, so every button across pages matches. Icon-only buttons MUST pass
  * an `aria-label` (there's no visible text to name them).
  *
+ * The button case renders Headless UI's `Button` (a real `<button type="button">`
+ * with focus/hover/active state hooks); when `href` is set it's a real `<a>`
+ * instead, so links stay links. Either way keyboard + screen-reader behavior is
+ * native, never a clickable `<div>`.
+ *
  * Usage guidance: .claude/skills/design-system/references/button.md
  */
 export const Button = forwardRef<
@@ -131,14 +137,15 @@ export const Button = forwardRef<
   const { type, ...buttonRest } =
     rest as ButtonHTMLAttributes<HTMLButtonElement>;
   return (
-    <button
+    <HeadlessButton
       ref={ref as React.Ref<HTMLButtonElement>}
-      // Default to "button" so a Button inside a form doesn't submit by surprise.
-      type={type ?? "button"}
+      // Headless UI defaults to type="button", so a Button inside a form doesn't
+      // submit by surprise; pass an explicit type to override (e.g. submit).
+      type={type}
       className={classes}
       {...buttonRest}
     >
       {content}
-    </button>
+    </HeadlessButton>
   );
 });

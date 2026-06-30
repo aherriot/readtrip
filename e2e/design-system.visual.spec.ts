@@ -1,7 +1,13 @@
 import { test, expect } from "@playwright/test";
 
 /*
- * Visual-regression snapshot of the component gallery.
+ * Visual-regression snapshots of the design system, one per component.
+ *
+ * Each component gets its OWN snapshot (taken from its `section-<name>` block in
+ * the gallery) rather than a single full-page image. That keeps a diff scoped to
+ * the component that actually changed, and lets stateful components be captured
+ * in the state that matters — e.g. the Modal is opened so the dialog itself is in
+ * the baseline, not just its trigger button.
  *
  * OPT-IN: skipped unless VISUAL=1, because screenshot baselines are OS/font
  * specific — generate and run them in ONE environment (your machine, or CI's
@@ -18,17 +24,51 @@ test.describe("design system — visual", () => {
     "opt-in: set VISUAL=1 (see npm run test:visual)"
   );
 
-  test("component gallery matches snapshot", async ({ page }) => {
+  // Small tolerance so a runner-image bump (minor anti-aliasing drift) doesn't
+  // false-fail. Real regressions move far more; if drift ever exceeds this,
+  // regenerate the baseline rather than loosening further.
+  const SNAPSHOT = { maxDiffPixelRatio: 0.02 } as const;
+
+  // One snapshot per component, keyed off the gallery's `section-<name>` blocks.
+  const COMPONENTS = [
+    "button",
+    "card",
+    "heading",
+    "icon",
+    "progressbar",
+    "input",
+    "modal",
+  ];
+
+  test.beforeEach(async ({ page }) => {
+    // Deterministic snapshots: skip entrance/press animations (the global
+    // reduced-motion floor turns them into instant final-state renders).
+    await page.emulateMedia({ reducedMotion: "reduce" });
     await page.goto("/dev/components");
     // Wait for web fonts so glyphs don't shift the baseline. (Resolve to a
     // serializable value — the FontFaceSet itself can't cross the bridge.)
     await page.evaluate(() => document.fonts.ready.then(() => true));
-    await expect(page.getByTestId("gallery")).toHaveScreenshot("gallery.png", {
-      // Small tolerance so a runner-image bump (minor anti-aliasing drift)
-      // doesn't false-fail. Real regressions move far more (the yellow-fill
-      // demo moved 11% of pixels); if drift ever exceeds this, regenerate the
-      // baseline (see references/testing.md) rather than loosening further.
-      maxDiffPixelRatio: 0.02,
+  });
+
+  for (const name of COMPONENTS) {
+    test(`${name} — both surfaces`, async ({ page }) => {
+      await expect(page.getByTestId(`section-${name}`)).toHaveScreenshot(
+        `${name}.png`,
+        SNAPSHOT
+      );
     });
+  }
+
+  // The Modal section above only shows its triggers; capture the opened dialog
+  // (it portals to <body>, so snapshot the dialog itself) so the surface, layout,
+  // and close button are in the baseline.
+  test("modal — open dialog", async ({ page }) => {
+    await page
+      .getByTestId("modal-night")
+      .getByRole("button", { name: "Open dialog" })
+      .click();
+    const dialog = page.getByRole("dialog", { name: "Ready to explore?" });
+    await expect(dialog).toBeVisible();
+    await expect(dialog).toHaveScreenshot("modal-open.png", SNAPSHOT);
   });
 });

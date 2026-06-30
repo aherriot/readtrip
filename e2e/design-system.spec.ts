@@ -44,8 +44,10 @@ test.describe("Input — accessibility contract", () => {
     const field = onNight(page).getByLabel("Email");
     await expect(field).toHaveAttribute("aria-invalid", "true");
 
+    // Headless UI's Field wires aria-describedby → the error Description in a
+    // post-mount effect; wait for it (retrying matcher) rather than reading once.
+    await expect(field).toHaveAttribute("aria-describedby", /.+/);
     const describedBy = await field.getAttribute("aria-describedby");
-    expect(describedBy).toBeTruthy();
     const message = page.locator(`#${describedBy}`);
     await expect(message).toContainText("doesn't look like an email");
   });

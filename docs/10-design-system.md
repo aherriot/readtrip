@@ -224,6 +224,13 @@ mergeable.
   v4** (CSS-first; there is no `tailwind.config.ts`) — the mapping lives in an
   `@theme inline { … }` block in `app/globals.css`, not a JS config. Surface switching is a
   `data-surface="night|paper"` attribute that re-points the `--surface-*` variables.
+- **Behavior from Headless UI.** Interactive primitives wrap **Headless UI** (`@headlessui/react`)
+  rather than re-implementing accessibility behavior: `Modal` is a `Dialog` (focus trap, scroll
+  lock, portal, Escape/backdrop dismissal), `Input` is a `Field`/`Label`/`Input`/`Description`
+  (label + hint/error association), and `Button` is its `Button`. ReadTrip owns the **styling and
+  surface theming**; Headless UI owns the **behavior and ARIA wiring**, so there's less custom
+  a11y code to maintain. Purely presentational primitives (`Card`, `Heading`, `Text`, `Icon`,
+  `ProgressBar`) have no Headless UI equivalent and stay plain token-styled elements.
 - **No ad-hoc styling in pages.** Pages compose components; components own the styling.
   This is what guarantees consistency. The **`design-system` skill**
   (`.claude/skills/design-system`) is the operational "how & when to use" guide, and it's

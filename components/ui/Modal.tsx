@@ -1,10 +1,13 @@
 "use client";
 
-import { useEffect, useId, useRef, useSyncExternalStore } from "react";
 import type { ReactNode } from "react";
-import { createPortal } from "react-dom";
+import {
+  Dialog,
+  DialogBackdrop,
+  DialogPanel,
+  DialogTitle,
+} from "@headlessui/react";
 import { cn } from "@/lib/ui/cn";
-import { useCallbackRef } from "./useCallbackRef";
 
 export interface ModalProps {
   /** Whether the dialog is shown. Controlled — the parent owns the state. */
@@ -23,26 +26,15 @@ export interface ModalProps {
   hideCloseButton?: boolean;
 }
 
-const FOCUSABLE =
-  'a[href],button:not([disabled]),textarea,input,select,[tabindex]:not([tabindex="-1"])';
-
-// `false` on the server / during hydration, `true` once mounted on the client —
-// portals need a real `document`. useSyncExternalStore keeps this hydration-safe
-// without a setState-in-effect (which the cascading-render lint rule forbids).
-const emptySubscribe = () => () => {};
-function useIsClient() {
-  return useSyncExternalStore(
-    emptySubscribe,
-    () => true,
-    () => false
-  );
-}
-
 /**
  * Accessible, focus-trapped dialog. Opens centered on larger screens and as a
  * bottom sheet on phones (mobile-first). Escape and backdrop tap close it; focus
  * is trapped while open and returned to the trigger on close — all operable with
  * touch + keyboard, no mouse required.
+ *
+ * Built on Headless UI's `Dialog`, which owns the focus trap, scroll lock,
+ * portal, Escape/backdrop dismissal, and ARIA wiring; this component supplies
+ * ReadTrip's surface-aware styling and the bottom-sheet → centered layout.
  *
  * Usage guidance: .claude/skills/design-system/references/modal.md
  */
@@ -54,109 +46,40 @@ export function Modal({
   surface = "night",
   hideCloseButton = false,
 }: ModalProps) {
-  const titleId = useId();
-  const dialogRef = useRef<HTMLDivElement>(null);
-  // Stable handler so the focus/key effect doesn't re-run on every parent render.
-  const handleClose = useCallbackRef(onClose);
-
-  // Portals require a real document; render nothing until mounted (SSR-safe).
-  const mounted = useIsClient();
-
-  useEffect(() => {
-    if (!open) return;
-
-    // Remember what was focused so we can restore it on close (the trigger).
-    const previouslyFocused = document.activeElement as HTMLElement | null;
-
-    const dialog = dialogRef.current;
-    // Move focus into the dialog: first focusable element, else the dialog itself.
-    const focusables = dialog?.querySelectorAll<HTMLElement>(FOCUSABLE);
-    (focusables && focusables.length > 0 ? focusables[0] : dialog)?.focus();
-
-    // Lock background scroll while the dialog owns the viewport.
-    const prevOverflow = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
-
-    function onKeyDown(e: KeyboardEvent) {
-      if (e.key === "Escape") {
-        e.preventDefault();
-        handleClose();
-        return;
-      }
-      if (e.key !== "Tab" || !dialog) return;
-
-      // Trap Tab within the dialog: wrap from last→first and first→last.
-      const items = Array.from(
-        dialog.querySelectorAll<HTMLElement>(FOCUSABLE)
-      ).filter((el) => el.offsetParent !== null || el === dialog);
-      if (items.length === 0) {
-        e.preventDefault();
-        dialog.focus();
-        return;
-      }
-      const first = items[0];
-      const last = items[items.length - 1];
-      const active = document.activeElement;
-
-      if (e.shiftKey && active === first) {
-        e.preventDefault();
-        last.focus();
-      } else if (!e.shiftKey && active === last) {
-        e.preventDefault();
-        first.focus();
-      }
-    }
-
-    document.addEventListener("keydown", onKeyDown);
-    return () => {
-      document.removeEventListener("keydown", onKeyDown);
-      document.body.style.overflow = prevOverflow;
-      // Restore focus to whatever opened the dialog.
-      previouslyFocused?.focus?.();
-    };
-  }, [open, handleClose]);
-
-  if (!mounted || !open) return null;
-
-  return createPortal(
-    <div
+  return (
+    <Dialog
+      open={open}
+      onClose={onClose}
       data-surface={surface}
       // Bottom sheet on phones, centered on larger screens.
       className="fixed inset-0 z-50 flex items-end justify-center sm:items-center"
     >
-      {/* Backdrop — tap to dismiss. aria-hidden so SR users use Escape/buttons. */}
-      <button
-        type="button"
-        aria-label="Close dialog"
-        tabIndex={-1}
-        onClick={() => handleClose()}
-        className="absolute inset-0 cursor-default bg-[#0c0e1f]/70"
+      {/* Backdrop — tap to dismiss (Headless UI calls onClose). The entrance
+          fade is `transition`-driven; the global reduced-motion floor zeroes its
+          duration, so it's instant when the user opts out of motion. */}
+      <DialogBackdrop
+        transition
+        className="fixed inset-0 bg-[#0c0e1f]/70 transition-opacity duration-150 data-[closed]:opacity-0"
       />
-      <div
-        ref={dialogRef}
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby={titleId}
-        tabIndex={-1}
+      <DialogPanel
+        transition
         className={cn(
           "relative z-10 w-full max-w-lg bg-surface text-surface-ink",
           // Full-width sheet (rounded top) on phones; floating card above.
           "max-h-[90vh] overflow-y-auto rounded-t-lg p-6 sm:rounded-lg sm:p-8",
           "shadow-[var(--surface-elevation)]",
-          "motion-safe:animate-[modal-in_160ms_ease-out]"
+          // Rise + fade in; neutralized under prefers-reduced-motion.
+          "transition duration-200 ease-out data-[closed]:translate-y-2 data-[closed]:opacity-0"
         )}
       >
         <div className="mb-4 flex items-start justify-between gap-4">
-          <h2
-            id={titleId}
-            className="font-display text-2xl font-semibold text-surface-ink"
-          >
+          <DialogTitle className="font-display text-2xl font-semibold text-surface-ink">
             {title}
-          </h2>
+          </DialogTitle>
           {!hideCloseButton && (
             <button
               type="button"
-              onClick={() => handleClose()}
+              onClick={onClose}
               aria-label="Close"
               className="-mr-1 -mt-1 flex h-11 w-11 shrink-0 items-center justify-center rounded-pill text-surface-ink-soft hover:bg-surface-ink/10"
             >
@@ -175,8 +98,7 @@ export function Modal({
           )}
         </div>
         {children}
-      </div>
-    </div>,
-    document.body
+      </DialogPanel>
+    </Dialog>
   );
 }

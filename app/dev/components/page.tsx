@@ -218,8 +218,14 @@ function ProgressVariants() {
 
 /** Renders a component's variants on both surfaces, side by side. */
 function Section({ name, children }: { name: string; children: ReactNode }) {
+  const slug = name.toLowerCase();
   return (
-    <section className="flex flex-col gap-4">
+    <section
+      // Stable per-component hook so the visual suite can snapshot each
+      // component in isolation (see e2e/design-system.visual.spec.ts).
+      data-testid={`section-${slug}`}
+      className="flex flex-col gap-4"
+    >
       <h2 className="font-display text-2xl text-surface-ink">{name}</h2>
       <div className="grid gap-6 md:grid-cols-2">
         <div
@@ -332,7 +338,7 @@ export default function ComponentGallery() {
 
         {/* Modal manages its own open state, so it gets a bespoke section with
             one interactive trigger per surface (not the duplicated <Section>). */}
-        <section className="flex flex-col gap-4">
+        <section data-testid="section-modal" className="flex flex-col gap-4">
           <h2 className="font-display text-2xl text-surface-ink">Modal</h2>
           <div className="grid gap-6 md:grid-cols-2">
             <ModalDemo surface="night" />
