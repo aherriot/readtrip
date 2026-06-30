@@ -74,18 +74,18 @@
     outline-offset: 2px;
   }
 
-  /* Modal entrance — a small rise + fade. Only applied via Tailwind's
-     `motion-safe:` variant, and the reduced-motion floor below neutralizes it
-     even if it somehow runs. */
-  @keyframes modal-in {
-    from {
-      opacity: 0;
-      transform: translateY(8px);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
+  /* Desktop pointer affordance. ReadTrip is touch-first, but mouse users still
+     expect the hand cursor on anything actionable. Tailwind v4's Preflight no
+     longer sets `cursor: pointer` on buttons (it matches the bare UA default),
+     so restore it here for every enabled button / role=button. Links get it from
+     the UA stylesheet already; disabled buttons read as not-allowed. Touch users
+     never see a cursor, so this is purely a desktop nicety. */
+  button:not(:disabled),
+  [role="button"]:not([aria-disabled="true"]) {
+    cursor: pointer;
+  }
+  button:disabled {
+    cursor: not-allowed;
   }
 
   /* Reduced-motion floor: honor the OS setting everywhere. Components keep their

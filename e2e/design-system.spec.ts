@@ -128,6 +128,43 @@ test.describe("Button — accessibility contract", () => {
   });
 });
 
+test.describe("Desktop affordances — cursors", () => {
+  // Touch-first, but mouse users still expect the right cursor on each control.
+  // Tailwind v4 drops the default button pointer, so this guards the restore in
+  // globals.css (+ Button's not-disabled gating) against silent regression.
+  const onNight = (page: import("@playwright/test").Page) =>
+    page.getByTestId("button-night");
+  const cursorOf = (locator: import("@playwright/test").Locator) =>
+    locator.evaluate((el) => getComputedStyle(el).cursor);
+
+  test("an enabled button shows the pointer (hand) cursor", async ({
+    page,
+  }) => {
+    const btn = onNight(page).getByRole("button", { name: "Start exploring" });
+    expect(await cursorOf(btn)).toBe("pointer");
+  });
+
+  test("an icon-only button shows the pointer cursor", async ({ page }) => {
+    const btn = onNight(page).getByRole("button", { name: "Search topics" });
+    expect(await cursorOf(btn)).toBe("pointer");
+  });
+
+  test("a disabled button shows the not-allowed cursor", async ({ page }) => {
+    const btn = onNight(page).getByRole("button", { name: "Can't click me" });
+    expect(await cursorOf(btn)).toBe("not-allowed");
+  });
+
+  test("the Modal close button shows the pointer cursor", async ({ page }) => {
+    await page
+      .getByTestId("modal-night")
+      .getByRole("button", { name: "Open dialog" })
+      .click();
+    const close = page.getByRole("button", { name: "Close" });
+    await expect(close).toBeVisible();
+    expect(await cursorOf(close)).toBe("pointer");
+  });
+});
+
 test.describe("Card — contract", () => {
   test("renders a surface-aware container with its content", async ({
     page,

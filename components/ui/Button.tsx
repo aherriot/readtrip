@@ -40,23 +40,27 @@ const base = cn(
   "inline-flex items-center justify-center gap-2 rounded-pill font-display font-medium",
   "select-none whitespace-nowrap no-underline",
   // Press feedback; the global reduced-motion floor neutralizes the transition.
+  // Gated on :not(:disabled) so a disabled control never reacts to press/hover.
   "transition-[transform,background-color,border-color,box-shadow] duration-150",
-  "active:scale-[0.97]",
-  // Disabled covers both the native attribute and the link's aria-disabled.
-  "disabled:pointer-events-none disabled:opacity-50",
+  "not-disabled:active:scale-[0.97]",
+  // Native disabled stays inert via the `disabled` attribute (blocks click +
+  // focus) — no pointer-events-none, so the desktop `not-allowed` cursor from
+  // globals.css can show. Links can't be `:disabled`, so a disabled link uses
+  // aria-disabled + pointer-events-none to actually block navigation.
+  "disabled:opacity-50",
   "aria-disabled:pointer-events-none aria-disabled:opacity-50"
 );
 
 const variantStyles: Record<ButtonVariant, string> = {
   // Bright fill + dark ink (≈9:1) — the documented accessible pairing.
   primary:
-    "border-2 border-transparent bg-sun text-[var(--ink)] hover:brightness-95",
+    "border-2 border-transparent bg-sun text-[var(--ink)] not-disabled:hover:brightness-95",
   // Outline that reads on either surface; fills softly on hover (never hover-only meaning).
   secondary:
-    "border-2 border-coral text-surface-ink bg-transparent hover:bg-coral/15",
+    "border-2 border-coral text-surface-ink bg-transparent not-disabled:hover:bg-coral/15",
   // Quiet, for tertiary actions; still a real focusable button.
   ghost:
-    "border-2 border-transparent bg-transparent text-surface-ink hover:bg-surface-ink/10",
+    "border-2 border-transparent bg-transparent text-surface-ink not-disabled:hover:bg-surface-ink/10",
 };
 
 const sizeStyles: Record<ButtonSize, string> = {

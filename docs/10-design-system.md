@@ -11,6 +11,11 @@ everywhere), the **motion** language, and a hard **accessibility floor**.
    **Touch and keyboard are the primary inputs** — never depend on hover, right-click, or
    precise pointing to reveal or operate anything. Tap targets stay large (kid-facing
    controls 56–64px), and every interaction must work by tap and by keyboard alone.
+   When a mouse **is** present, controls still behave like proper desktop controls:
+   actionable elements show the pointer (hand) cursor and disabled ones `not-allowed`
+   (restored in `globals.css`, since Tailwind v4 drops the default button cursor), and
+   hover adds extra, never-essential feedback. The mouse is an enhancement, never a
+   requirement.
 2. **Everything is well tested.** No component is "done" until it ships with **unit, visual,
    and e2e tests** (see [Testing](#testing-every-component-is-well-tested)). This is the
    structural guarantee that the system stays consistent and accessible over time.
