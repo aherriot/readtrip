@@ -81,7 +81,8 @@ Goal: a parent can sign in and manage child profiles.
       (Full data model landed in one migration; `Account`/`Session`/`VerificationToken`
       follow the `@auth/drizzle-adapter` canonical shape.)
 - [x] `lib/auth/` — Auth.js (v5) config with the Drizzle adapter. Provider: **email magic
-      link** (Nodemailer) — dev logs the link to the server console; prod sends over SMTP.
+      link** (Resend) — dev logs the link to the server console; prod sends via Resend
+      (`AUTH_RESEND_KEY` required, else sign-in throws rather than faking success).
       A **dev-only Credentials** provider (gated to non-prod) enables local demo + e2e.
       Edge-safe split config (`config.ts`) drives middleware; full config (`index.ts`) adds
       the adapter + providers. JWT session strategy (required by Credentials + edge auth).

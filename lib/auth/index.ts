@@ -1,9 +1,8 @@
 import NextAuth from "next-auth";
 import Credentials from "next-auth/providers/credentials";
-import Nodemailer from "next-auth/providers/nodemailer";
+import Resend from "next-auth/providers/resend";
 import { DrizzleAdapter } from "@auth/drizzle-adapter";
 import { eq } from "drizzle-orm";
-import { createTransport } from "nodemailer";
 import { db } from "@/lib/db";
 import { accounts, sessions, users, verificationTokens } from "@/lib/db/schema";
 import { authConfig } from "./config";
@@ -13,7 +12,11 @@ import { authConfig } from "./config";
 // ONLY outside production — never ship it to a real deployment.
 const devCredentialsEnabled = process.env.NODE_ENV !== "production";
 
-const emailFrom = process.env.EMAIL_FROM ?? "ReadTrip <login@readtrip.app>";
+const resendApiKey = process.env.AUTH_RESEND_KEY;
+// Resend allows sending to your own account email from this address without
+// verifying a domain — handy for a first deploy. Override with a verified
+// sender via EMAIL_FROM.
+const emailFrom = process.env.EMAIL_FROM ?? "ReadTrip <onboarding@resend.dev>";
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
   ...authConfig,
@@ -24,31 +27,28 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     verificationTokensTable: verificationTokens,
   }),
   providers: [
-    // Email magic link. In dev (no SMTP configured) the link is logged to the
-    // server console so you can sign in without any email infrastructure; in
-    // production it is sent over SMTP from EMAIL_SERVER.
-    Nodemailer({
-      // The provider requires a truthy `server` at construction. When no SMTP is
-      // configured (dev), use a no-op JSON transport — sendVerificationRequest
-      // below short-circuits to console logging before it's ever used.
-      server: process.env.EMAIL_SERVER ?? { jsonTransport: true },
+    // Email magic link via Resend's HTTP API. With AUTH_RESEND_KEY set, the
+    // provider sends a real email. Without a key (typical local dev), we
+    // override to log the link to the server console so you can sign in with no
+    // email infrastructure — and in production we throw instead of silently
+    // pretending to send (the verify-request page would otherwise lie).
+    Resend({
+      apiKey: resendApiKey ?? "resend-key-unset",
       from: emailFrom,
-      async sendVerificationRequest({ identifier, url, provider }) {
-        if (!process.env.EMAIL_SERVER) {
-          console.log(
-            `\n🔗 ReadTrip sign-in link for ${identifier}:\n   ${url}\n`
-          );
-          return;
-        }
-        const transport = createTransport(provider.server);
-        await transport.sendMail({
-          to: identifier,
-          from: provider.from,
-          subject: "Sign in to ReadTrip",
-          text: `Sign in to ReadTrip:\n${url}\n\nIf you didn't request this, you can ignore this email.`,
-          html: `<p>Sign in to <strong>ReadTrip</strong>:</p><p><a href="${url}">Continue to ReadTrip →</a></p><p>If you didn't request this, you can safely ignore this email.</p>`,
-        });
-      },
+      ...(resendApiKey
+        ? {}
+        : {
+            async sendVerificationRequest({ identifier, url }) {
+              if (process.env.NODE_ENV === "production") {
+                throw new Error(
+                  "AUTH_RESEND_KEY is not set — cannot send the sign-in email."
+                );
+              }
+              console.log(
+                `\n🔗 ReadTrip sign-in link for ${identifier}:\n   ${url}\n`
+              );
+            },
+          }),
     }),
     // Dev-only: sign in with just an email (+ optional name). Upserts a real
     // parent User row so child profiles can be created against it.
