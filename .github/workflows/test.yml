@@ -124,7 +124,9 @@ jobs:
             git add e2e
             # --no-verify: skip the local husky pre-commit hook (npm run check,
             # which runs DB-dependent tests this job has no database for).
-            git commit --no-verify -m "test(design-system): seed Linux visual baseline [skip ci]"
+            # No skip-ci marker needed: pushes made with GITHUB_TOKEN don't
+            # trigger further workflow runs, so this can't loop.
+            git commit --no-verify -m "test(design-system): seed Linux visual baseline"
             git push origin HEAD:${{ github.head_ref || github.ref_name }}
           fi
 
