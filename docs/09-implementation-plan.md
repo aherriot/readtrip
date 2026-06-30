@@ -13,17 +13,22 @@ Each milestone has a **Definition of Done (DoD)** so you know when to move on.
 
 Goal: an empty-but-real app that deploys to Vercel and talks to Neon.
 
-- [ ] `create-next-app` (App Router, TypeScript, Tailwind).
-- [ ] Create a **Neon** project; grab the **pooled** and **direct** connection strings.
-- [ ] Add Drizzle ORM + `drizzle-kit`; `drizzle.config.ts` uses `DIRECT_URL` for migrations,
+- [x] `create-next-app` (App Router, TypeScript, Tailwind).
+- [x] Create a **Neon** project; grab the **pooled** and **direct** connection strings.
+- [x] Add Drizzle ORM + `drizzle-kit`; `drizzle.config.ts` uses `DIRECT_URL` for migrations,
       the app uses pooled `DATABASE_URL`.
-- [ ] `lib/db/` — schema + singleton Drizzle client over Neon's HTTP driver (serverless-safe).
-- [ ] `package.json` build: `drizzle-kit migrate && next build`.
-- [ ] Connect repo to **Vercel**; add `DATABASE_URL`, `DIRECT_URL`, `ANTHROPIC_API_KEY`,
+- [x] `lib/db/` — schema + singleton Drizzle client over Neon's HTTP driver (serverless-safe).
+- [x] `package.json` build: `drizzle-kit migrate && next build`.
+- [x] Connect repo to **Vercel**; add `DATABASE_URL`, `DIRECT_URL`, `ANTHROPIC_API_KEY`,
       and Auth.js secrets as env vars (preview + production).
-- [ ] First migration with a trivial model; confirm a deployed page can read/write Neon.
+- [x] First migration with a trivial model; confirm a deployed page can read/write Neon.
+
+Also landed early (not strictly required until later milestones): CI on GitHub Actions
+with ephemeral Neon branches, Playwright e2e tests, ESLint, and a typecheck/lint/test
+pre-commit hook.
 
 **DoD:** pushing to `main` deploys to Vercel; a deployed route round-trips to Neon.
+✅ Met — `https://readtripapp.vercel.app/api/health` returns `{ ok: true, db: "connected" }`.
 
 ---
 
