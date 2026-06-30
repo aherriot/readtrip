@@ -20,6 +20,11 @@ next-env.d.ts
 # drizzle
 /drizzle/*.db
 
+# playwright
+/test-results/
+/playwright-report/
+/playwright/.cache/
+
 # misc
 .DS_Store
 *.pem
