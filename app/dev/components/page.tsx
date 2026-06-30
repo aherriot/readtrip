@@ -1,6 +1,13 @@
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
+import { Button } from "@/components/ui/Button";
+import { Card } from "@/components/ui/Card";
+import { Heading } from "@/components/ui/Heading";
+import { Icon } from "@/components/ui/Icon";
 import { Input } from "@/components/ui/Input";
+import { ProgressBar } from "@/components/ui/ProgressBar";
+import { Text } from "@/components/ui/Text";
+import { ModalDemo } from "./ModalDemo";
 
 /*
  * Component gallery — the manual-check surface for the design system.
@@ -32,6 +39,24 @@ const SearchGlyph = () => (
   </svg>
 );
 
+const StarGlyph = () => (
+  <svg viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+    <path d="M10 1.5l2.6 5.3 5.9.9-4.3 4.1 1 5.8L10 14.9 4.8 17.6l1-5.8L1.5 7.7l5.9-.9L10 1.5z" />
+  </svg>
+);
+
+const ArrowGlyph = () => (
+  <svg viewBox="0 0 20 20" fill="none" aria-hidden="true">
+    <path
+      d="M4 10h11m0 0-4-4m4 4-4 4"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+  </svg>
+);
+
 /** One labelled example block. */
 function Variant({ title, children }: { title: string; children: ReactNode }) {
   return (
@@ -44,41 +69,148 @@ function Variant({ title, children }: { title: string; children: ReactNode }) {
   );
 }
 
-/**
- * The variants for a component, rendered once per surface by <Section>. Keep
- * every meaningful state here so manual review and the visual snapshot cover it.
- */
-function InputVariants() {
+function ButtonVariants() {
   return (
     <div className="flex flex-col gap-6">
-      <Variant title="Default (kid size)">
-        <Input
-          label="Display name"
-          hint="Use the name your grown-up gave you."
+      <Variant title="Variants (kid size)">
+        <div className="flex flex-wrap items-center gap-3">
+          <Button variant="primary">Start exploring</Button>
+          <Button variant="secondary">Maybe later</Button>
+          <Button variant="ghost">Skip</Button>
+        </div>
+      </Variant>
+      <Variant title="With icons">
+        <div className="flex flex-wrap items-center gap-3">
+          <Button leadingIcon={<StarGlyph />}>Earn a stamp</Button>
+          <Button variant="secondary" trailingIcon={<ArrowGlyph />}>
+            Next
+          </Button>
+        </div>
+      </Variant>
+      <Variant title="Icon-only (requires aria-label)">
+        <Button aria-label="Search topics" variant="ghost">
+          <Icon decorative>
+            <SearchGlyph />
+          </Icon>
+        </Button>
+      </Variant>
+      <Variant title="Link that looks like a button (renders an <a>)">
+        <Button href="/api/health" trailingIcon={<ArrowGlyph />}>
+          Check system health
+        </Button>
+      </Variant>
+      <Variant title="md size + disabled">
+        <div className="flex flex-wrap items-center gap-3">
+          <Button size="md" variant="secondary">
+            Dense action
+          </Button>
+          <Button disabled>Can&apos;t click me</Button>
+        </div>
+      </Variant>
+      <Variant title="Full width (thumb-friendly mobile action)">
+        <Button fullWidth>Continue</Button>
+      </Variant>
+    </div>
+  );
+}
+
+function CardVariants() {
+  return (
+    <div className="flex flex-col gap-6">
+      <Variant title="Default container">
+        <Card>
+          <Heading level={3}>Volcanoes</Heading>
+          <Text tone="soft">A glowing topic node, waiting to be explored.</Text>
+        </Card>
+      </Variant>
+      <Variant title="Elevated (the Panel look — glow on night, shadow on paper)">
+        <Card elevated>
+          <Heading level={3}>Today&apos;s expedition</Heading>
+          <Text tone="soft">Three topics lit up since yesterday.</Text>
+        </Card>
+      </Variant>
+    </div>
+  );
+}
+
+function TypographyVariants() {
+  return (
+    <div className="flex flex-col gap-4">
+      <Variant title="Heading levels">
+        <div className="flex flex-col gap-2">
+          <Heading level={1}>Page title</Heading>
+          <Heading level={2}>Section title</Heading>
+          <Heading level={3}>Subsection</Heading>
+        </div>
+      </Variant>
+      <Variant title="Text sizes + tone">
+        <div className="flex flex-col gap-2">
+          <Text size="lg">Lead text introduces a lesson.</Text>
+          <Text measure>
+            Body copy in Lexend with a capped reading measure so lines stay easy
+            to track for early readers. Line height and length are legibility
+            settings, not decoration.
+          </Text>
+          <Text size="sm" tone="soft">
+            Secondary, supporting detail.
+          </Text>
+        </div>
+      </Variant>
+    </div>
+  );
+}
+
+function IconVariants() {
+  return (
+    <div className="flex flex-col gap-6">
+      <Variant title="Sizes (labelled — exposed as role=img)">
+        <div className="flex items-center gap-4 text-surface-accent">
+          <Icon label="Favorite" size="sm">
+            <StarGlyph />
+          </Icon>
+          <Icon label="Favorite" size="md">
+            <StarGlyph />
+          </Icon>
+          <Icon label="Favorite" size="lg">
+            <StarGlyph />
+          </Icon>
+        </div>
+      </Variant>
+      <Variant title="Decorative (hidden from assistive tech)">
+        <span className="inline-flex items-center gap-2 text-surface-ink">
+          <Icon decorative>
+            <SearchGlyph />
+          </Icon>
+          <Text as="span">Search is labelled by this text</Text>
+        </span>
+      </Variant>
+    </div>
+  );
+}
+
+function ProgressVariants() {
+  return (
+    <div className="flex flex-col gap-6">
+      <Variant title="Accent fill">
+        <ProgressBar label="Reading-level calibration" value={45} />
+      </Variant>
+      <Variant title="XP (sun) with a value readout">
+        <ProgressBar
+          label="XP to next level"
+          value={7}
+          max={12}
+          tone="sun"
+          showValue
         />
       </Variant>
-      <Variant title="Error (icon + text + color)">
-        <Input
-          label="Email"
-          type="email"
-          defaultValue="not-an-email"
-          error="That doesn't look like an email yet."
+      <Variant title="Complete (leaf)">
+        <ProgressBar
+          label="Quiz progress"
+          value={5}
+          max={5}
+          tone="leaf"
+          showValue
         />
-      </Variant>
-      <Variant title="Required + leading icon">
-        <Input label="Search topics" leadingIcon={<SearchGlyph />} required />
-      </Variant>
-      <Variant title="Hidden label + md size (dense)">
-        <Input
-          label="Filter"
-          hideLabel
-          size="md"
-          type="search"
-          placeholder="Filter…"
-        />
-      </Variant>
-      <Variant title="Disabled">
-        <Input label="Locked field" defaultValue="Can't edit me" disabled />
       </Variant>
     </div>
   );
@@ -115,6 +247,42 @@ function Section({ name, children }: { name: string; children: ReactNode }) {
   );
 }
 
+function InputVariants() {
+  return (
+    <div className="flex flex-col gap-6">
+      <Variant title="Default (kid size)">
+        <Input
+          label="Display name"
+          hint="Use the name your grown-up gave you."
+        />
+      </Variant>
+      <Variant title="Error (icon + text + color)">
+        <Input
+          label="Email"
+          type="email"
+          defaultValue="not-an-email"
+          error="That doesn't look like an email yet."
+        />
+      </Variant>
+      <Variant title="Required + leading icon">
+        <Input label="Search topics" leadingIcon={<SearchGlyph />} required />
+      </Variant>
+      <Variant title="Hidden label + md size (dense)">
+        <Input
+          label="Filter"
+          hideLabel
+          size="md"
+          type="search"
+          placeholder="Filter…"
+        />
+      </Variant>
+      <Variant title="Disabled">
+        <Input label="Locked field" defaultValue="Can't edit me" disabled />
+      </Variant>
+    </div>
+  );
+}
+
 export default function ComponentGallery() {
   return (
     <main
@@ -130,16 +298,47 @@ export default function ComponentGallery() {
             Component gallery
           </h1>
           <p className="max-w-2xl font-body text-surface-ink-soft">
-            Every design-system component, every variant, on both surfaces. Tab
-            through to check focus rings; run axe DevTools or a screen reader
-            here to spot a11y issues. Dev-only — not indexed, not for production
-            routes.
+            Every design-system component, every variant, on both surfaces.
+            Mobile-first: resize narrow to check the touch layout. Tab through
+            to confirm focus rings; run axe DevTools or a screen reader here to
+            spot a11y issues. Dev-only — not indexed, not for production routes.
           </p>
         </header>
+
+        <Section name="Button">
+          <ButtonVariants />
+        </Section>
+
+        <Section name="Card">
+          <CardVariants />
+        </Section>
+
+        {/* Heading + Text share one section — both enforce the type scale. */}
+        <Section name="Heading">
+          <TypographyVariants />
+        </Section>
+
+        <Section name="Icon">
+          <IconVariants />
+        </Section>
+
+        <Section name="ProgressBar">
+          <ProgressVariants />
+        </Section>
 
         <Section name="Input">
           <InputVariants />
         </Section>
+
+        {/* Modal manages its own open state, so it gets a bespoke section with
+            one interactive trigger per surface (not the duplicated <Section>). */}
+        <section className="flex flex-col gap-4">
+          <h2 className="font-display text-2xl text-surface-ink">Modal</h2>
+          <div className="grid gap-6 md:grid-cols-2">
+            <ModalDemo surface="night" />
+            <ModalDemo surface="paper" />
+          </div>
+        </section>
       </div>
     </main>
   );

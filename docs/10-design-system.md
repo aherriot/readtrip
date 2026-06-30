@@ -4,6 +4,17 @@ A consistent, accessible, genuinely fun visual identity for ReadTrip. This doc d
 **direction**, the **tokens**, the **component library** (extracted and reused
 everywhere), the **motion** language, and a hard **accessibility floor**.
 
+## Two ground rules (apply to everything below)
+
+1. **Mobile-first, no-mouse.** Kids use this on phones and tablets, often with **no mouse at
+   all**. Design every screen and component at the **small viewport first**, then scale up.
+   **Touch and keyboard are the primary inputs** — never depend on hover, right-click, or
+   precise pointing to reveal or operate anything. Tap targets stay large (kid-facing
+   controls 56–64px), and every interaction must work by tap and by keyboard alone.
+2. **Everything is well tested.** No component is "done" until it ships with **unit, visual,
+   and e2e tests** (see [Testing](#testing-every-component-is-well-tested)). This is the
+   structural guarantee that the system stays consistent and accessible over time.
+
 ## Direction: "The ReadTripsity Expedition"
 
 ReadTrip's world is _exploration_ — a child charting an unknown world of knowledge. So the
@@ -165,7 +176,9 @@ state changes (no movement/parallax), keeping only essential feedback.
 1. **Contrast:** every text/UI pairing meets WCAG AA; token table above documents ratios.
 2. **Never color-only:** correct/retry, node states, and all status use **icon + text +
    color** together.
-3. **Target size:** interactive targets ≥44px; kid-facing controls 56–64px.
+3. **Target size & touch:** interactive targets ≥44px; kid-facing controls 56–64px. Layouts
+   are **mobile-first** and fully usable by **touch with no mouse** — nothing is gated behind
+   hover or right-click.
 4. **Visible focus:** a high-contrast `--focus-ring` on _every_ interactive element; the
    outline is never removed. Tab order follows reading order.
 5. **Keyboard navigation:** everything operable without a mouse — buttons/links are real
@@ -177,6 +190,32 @@ state changes (no movement/parallax), keeping only essential feedback.
 7. **Reading legibility:** Lexend, generous line-height, capped line length, rem-based
    sizing that honors browser zoom and text scaling.
 8. **Reduced motion:** honored everywhere (see Motion).
+
+## Testing (every component is well tested)
+
+Testing is **non-negotiable and part of the definition of done** for every primitive and
+composite component — not a follow-up task. Each component ships with all three layers, and
+they run in CI:
+
+The three layers are **split by what the test needs** (see AGENTS.md) — Vitest never renders
+components in jsdom, because it can't compute layout or styles; anything touching the DOM,
+ARIA, focus, or layout is a Playwright test against a real browser:
+
+- **Unit** (Vitest, node): **pure logic only** — value clamping (ProgressBar), variant/scale
+  resolution, validation, parsing. Fast, no DOM, no browser. Co-located `*.test.ts`.
+- **Visual** (Playwright snapshots): the component gallery (`/dev/components`) on **both
+  surfaces** (night + paper), capturing each component's states. Regenerate the baseline when
+  the gallery legitimately changes; it's a strict gate otherwise.
+- **e2e / contract** (Playwright, real browser): the DOM + a11y contract driven by **touch
+  and keyboard with no mouse** — `axe` over the gallery, ARIA roles/labels, keyboard
+  activation (`Enter`/`Space` to act, `Escape` to dismiss), visible focus rings, focus
+  trap/restore for overlays, tap targets, and tab order following reading order.
+
+**Coverage expectations:** every interactive component has a keyboard-operable path under
+test and meets the target-size floor; reduced-motion and both surfaces are exercised; and the
+gallery stays the single rendered surface all three layers point at. A component without its
+unit (where it has pure logic), gallery, and e2e coverage fails the parity check and is not
+mergeable.
 
 ## Implementation notes
 
