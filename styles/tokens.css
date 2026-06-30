@@ -28,7 +28,9 @@
 
   /* --- Field-journal (reading) palette --- */
   --paper: #fffcf5;
-  --paper-panel: #ffffff;
+  /* DEMO REGRESSION: was #ffffff — tinting the paper input/card fill to sun
+     yellow. Visual-only (still passes axe + the contract tests). */
+  --paper-panel: #ffd24b;
   --ink: #22263f;
   --ink-soft: #4a4f6b;
   --rule: #e7e0d0;
