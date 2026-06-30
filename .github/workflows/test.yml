@@ -14,9 +14,9 @@ jobs:
   test:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v6
         with:
           node-version-file: ".nvmrc"
           cache: npm
@@ -27,7 +27,7 @@ jobs:
       # Spin up a throwaway Neon branch off production for this run only.
       - name: Create Neon test branch
         id: neon
-        uses: neondatabase/create-branch-action@v5
+        uses: neondatabase/create-branch-action@v6
         with:
           project_id: ${{ vars.NEON_PROJECT_ID }}
           branch_name: ci-${{ github.run_id }}-${{ github.run_attempt }}
@@ -52,22 +52,26 @@ jobs:
         run: npm test
         env:
           # The app uses the pooled connection at runtime.
-          DATABASE_URL: ${{ steps.neon.outputs.db_url_with_pooler }}
+          # (v6 renamed this output from db_url_with_pooler.)
+          DATABASE_URL: ${{ steps.neon.outputs.db_url_pooled }}
           DIRECT_URL: ${{ steps.neon.outputs.db_url }}
           CI: "true"
 
       - name: Upload Playwright report
         if: ${{ !cancelled() }}
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: playwright-report
           path: playwright-report/
           retention-days: 7
 
       # Always tear the branch down, even if tests failed.
+      # Pinned to a main commit: the Node-24 fix isn't in a released tag yet
+      # (latest v3.2.1 still runs setup-node on the deprecated Node 20). Switch
+      # back to a version tag once Neon publishes one.
       - name: Delete Neon test branch
         if: always()
-        uses: neondatabase/delete-branch-action@v3
+        uses: neondatabase/delete-branch-action@aed9ab1ec86e380312c7b0a9e29942e41349adf6 # main (Node 24)
         with:
           project_id: ${{ vars.NEON_PROJECT_ID }}
           branch: ci-${{ github.run_id }}-${{ github.run_attempt }}
