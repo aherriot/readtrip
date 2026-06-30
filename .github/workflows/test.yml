@@ -122,7 +122,9 @@ jobs:
             git config user.name "github-actions[bot]"
             git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
             git add e2e
-            git commit -m "test(design-system): seed Linux visual baseline [skip ci]"
+            # --no-verify: skip the local husky pre-commit hook (npm run check,
+            # which runs DB-dependent tests this job has no database for).
+            git commit --no-verify -m "test(design-system): seed Linux visual baseline [skip ci]"
             git push origin HEAD:${{ github.head_ref || github.ref_name }}
           fi
 
