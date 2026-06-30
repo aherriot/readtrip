@@ -1,4 +1,5 @@
 import next from "eslint-config-next";
+import prettier from "eslint-config-prettier";
 
 const eslintConfig = [
   {
@@ -12,6 +13,7 @@ const eslintConfig = [
     ],
   },
   ...next,
+  prettier,
 ];
 
 export default eslintConfig;

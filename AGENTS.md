@@ -20,14 +20,14 @@ Auth.js (NextAuth) · Anthropic Claude API. Full rationale + diagrams in
 
 ## Where things live
 
-| Path | What |
-|---|---|
-| `app/` | Next.js App Router routes + API route handlers |
-| `lib/db/` | Drizzle schema (`schema.ts`) + singleton client (`index.ts`) |
-| `drizzle/` | Generated SQL migrations (never hand-edit) |
-| `e2e/` | Playwright tests |
-| `docs/` | Product spec, architecture, data model, milestone plan — the source of truth |
-| `.github/workflows/` | CI |
+| Path                 | What                                                                         |
+| -------------------- | ---------------------------------------------------------------------------- |
+| `app/`               | Next.js App Router routes + API route handlers                               |
+| `lib/db/`            | Drizzle schema (`schema.ts`) + singleton client (`index.ts`)                 |
+| `drizzle/`           | Generated SQL migrations (never hand-edit)                                   |
+| `e2e/`               | Playwright tests                                                             |
+| `docs/`              | Product spec, architecture, data model, milestone plan — the source of truth |
+| `.github/workflows/` | CI                                                                           |
 
 ## Non-obvious constraints (read before changing things)
 
@@ -48,7 +48,7 @@ Auth.js (NextAuth) · Anthropic Claude API. Full rationale + diagrams in
 
 Work the milestones in [`docs/09-implementation-plan.md`](docs/09-implementation-plan.md).
 M0 (foundations + deploy) is done; M1 (design system) is next — build the design system
-*before* feature UI.
+_before_ feature UI.
 
 ## Common commands
 

@@ -5,11 +5,13 @@ The "start simple, then add grounding and measure it" arc is itself the narrativ
 makes this a strong portfolio piece.
 
 ## Phase 0 — Skeleton (½–1 day)
+
 - Next.js + TypeScript app, Postgres + Drizzle ORM, Anthropic SDK wired up server-side.
 - Env/secrets handling; Anthropic key server-only.
 - One end-to-end "hello": `/api/lesson` returns a streamed kid-friendly explanation.
 
 ## Phase 1 — Core loop, LLM-only (the MVP)
+
 - **Calibration mini-game** → sets starting reading level
   ([`04`](04-reading-levels.md)).
 - **Explore → Read → Quiz → Steer** loop with streamed lessons and structured-output
@@ -26,6 +28,7 @@ At the end of Phase 1 you have a fully working, fun, safe product. This is shipp
 demoable on its own.
 
 ## Phase 2 — Grounding (the standout)
+
 - Add **Simple English Wikipedia** grounding for lessons (RAG-lite via the Wikimedia
   REST summary API): cite sources, handle "not covered," reduce hallucination.
 - Build the **eval harness** with a versioned dataset and an Opus-4.8 LLM judge.
@@ -33,6 +36,7 @@ demoable on its own.
   This produces the headline portfolio result.
 
 ## Phase 3 — Polish & retention
+
 - **Streaks & daily goals** ([`05`](05-gamification.md)).
 - Richer **avatar/world unlocks** spending XP.
 - Animations and sound for level-ups, correct answers, badge unlocks (fun first).
@@ -40,11 +44,13 @@ demoable on its own.
 - Performance: pre-warm caches for the top topics; tune effort levels.
 
 ## Phase 4 — Trust surfaces (fast follow)
+
 - **Parent/teacher dashboard:** what the child explored, progress, time spent.
 - Per-child content controls and topic allow/deny lists.
 - Export of the knowledge map as a keepsake / progress report.
 
 ## Sequencing rationale
+
 - **LLM-only first** because ReadTrip's topics are evergreen and popular, where parametric
   knowledge is reliable — grounding is a targeted upgrade, not a prerequisite.
 - **Routing + caching + observability from day one** because retrofitting them is painful

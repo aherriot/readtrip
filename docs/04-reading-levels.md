@@ -9,15 +9,15 @@ the dial that makes that possible. It's set by a **calibration mini-game** and t
 Use a small, ordered set of internal levels rather than ages (a 7-year-old may read like
 a 9-year-old). Five tiers cover the range:
 
-| Level | Rough band | Style guidance fed to the LLM |
-|---|---|---|
-| L1 | Early reader (~5–6) | Very short sentences, common words, lots of concrete imagery, one idea at a time |
-| L2 | Emerging (~6–7) | Short sentences, simple connectives, gentle new vocabulary with context |
-| L3 | Developing (~8–9) | Multi-sentence ideas, some domain words defined inline, simple cause/effect |
-| L4 | Fluent (~9–11) | Paragraphs, richer vocabulary, comparisons and analogies |
-| L5 | Advanced (~11–13) | Nuance, multiple linked ideas, light abstraction, precise terms |
+| Level | Rough band          | Style guidance fed to the LLM                                                    |
+| ----- | ------------------- | -------------------------------------------------------------------------------- |
+| L1    | Early reader (~5–6) | Very short sentences, common words, lots of concrete imagery, one idea at a time |
+| L2    | Emerging (~6–7)     | Short sentences, simple connectives, gentle new vocabulary with context          |
+| L3    | Developing (~8–9)   | Multi-sentence ideas, some domain words defined inline, simple cause/effect      |
+| L4    | Fluent (~9–11)      | Paragraphs, richer vocabulary, comparisons and analogies                         |
+| L5    | Advanced (~11–13)   | Nuance, multiple linked ideas, light abstraction, precise terms                  |
 
-The level is a parameter in every lesson/quiz prompt. The *content* adapts; the topic
+The level is a parameter in every lesson/quiz prompt. The _content_ adapts; the topic
 doesn't dumb down — a volcano is a volcano at every level.
 
 ## Calibration mini-game (first session)
@@ -30,7 +30,7 @@ Framed as "find your reading superpower," never as a test.
 4. Land on a starting level after 2–3 passages.
 
 It's a lightweight **binary-search**: correct + quick → step up; wrong or slow → step
-down. 2–3 rounds is enough for a confident *starting* point; the rest is handled by
+down. 2–3 rounds is enough for a confident _starting_ point; the rest is handled by
 ongoing adaptation.
 
 ```
@@ -58,7 +58,7 @@ Calibration sets the start; quiz results move the level over time. Keep it stabl
 
 Store the level and a short rolling history on the child profile
 ([`06-data-model.md`](06-data-model.md)). Never announce a "level down" to the child —
-just adjust quietly. Level *ups* can be celebrated.
+just adjust quietly. Level _ups_ can be celebrated.
 
 ## Why this is a good portfolio detail
 
