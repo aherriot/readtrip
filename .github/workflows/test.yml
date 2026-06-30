@@ -39,6 +39,9 @@ jobs:
       - name: Lint
         run: npm run lint
 
+      - name: Design-system skill parity
+        run: npm run check:design-system
+
       - name: Apply migrations
         run: npm run db:migrate
         env:

@@ -13,14 +13,23 @@ export default defineConfig({
   retries: process.env.CI ? 2 : 0,
   workers: process.env.CI ? 1 : undefined,
   reporter: process.env.CI ? [["html", { open: "never" }], ["list"]] : "list",
+  // Generous default so a cold Next dev compile (first hit to a route) doesn't
+  // flake when tests run alongside tsc/eslint/prettier under `npm run check`.
+  timeout: 60_000,
   use: {
     baseURL,
     trace: "on-first-retry",
+    navigationTimeout: 60_000,
   },
   projects: [
+    // Compiles dev-only routes (e.g. the component gallery) once before the
+    // real specs fan out across workers. See e2e/setup/warmup.setup.ts.
+    { name: "setup", testMatch: /.*\.setup\.ts$/ },
     {
       name: "chromium",
       use: { ...devices["Desktop Chrome"] },
+      dependencies: ["setup"],
+      testIgnore: /.*\.setup\.ts$/,
     },
   ],
   webServer: {

@@ -14,10 +14,13 @@
     "lint": "eslint .",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "check": "run-p --aggregate-output --continue-on-error typecheck lint format:check test",
+    "check:design-system": "node scripts/check-design-system-skill.mjs",
+    "check": "run-p --aggregate-output --continue-on-error typecheck lint format:check check:design-system test",
     "test": "playwright test",
     "test:e2e": "playwright test",
     "test:e2e:ui": "playwright test --ui",
+    "test:visual": "VISUAL=1 playwright test design-system.visual",
+    "test:visual:update": "VISUAL=1 playwright test design-system.visual --update-snapshots",
     "prepare": "husky"
   },
   "dependencies": {
@@ -28,6 +31,7 @@
     "react-dom": "^19.0.0"
   },
   "devDependencies": {
+    "@axe-core/playwright": "^4.12.1",
     "@playwright/test": "^1.61.1",
     "@tailwindcss/postcss": "^4.0.0",
     "@types/node": "^22.10.0",

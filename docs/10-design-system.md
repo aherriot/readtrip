@@ -181,11 +181,15 @@ state changes (no movement/parallax), keeping only essential feedback.
 ## Implementation notes
 
 - **Tokens → Tailwind:** put the tokens in `styles/tokens.css` as CSS variables and map
-  them into the Tailwind theme (`tailwind.config.ts`) so utilities stay token-driven.
-  Surface switching is a `data-surface="night|paper"` attribute that re-points the
-  variables.
+  them into the Tailwind theme so utilities stay token-driven. **The repo is on Tailwind
+  v4** (CSS-first; there is no `tailwind.config.ts`) — the mapping lives in an
+  `@theme inline { … }` block in `app/globals.css`, not a JS config. Surface switching is a
+  `data-surface="night|paper"` attribute that re-points the `--surface-*` variables.
 - **No ad-hoc styling in pages.** Pages compose components; components own the styling.
-  This is what guarantees consistency.
+  This is what guarantees consistency. The **`design-system` skill**
+  (`.claude/skills/design-system`) is the operational "how & when to use" guide, and it's
+  parity-checked against `components/ui/` by `npm run check:design-system` (pre-commit + CI)
+  so the docs can't silently drift from the code.
 - **Storybook (recommended, optional):** a Storybook of the component library doubles as a
   living style guide and is a strong portfolio artifact — it shows the design system as a
   deliberate, reusable system rather than one-off pages.

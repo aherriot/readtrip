@@ -1,0 +1,104 @@
+/*
+ * ReadTrip design tokens — the single source of truth for color, type, radius,
+ * and elevation. See docs/10-design-system.md for the rationale and the
+ * design-system skill (.claude/skills/design-system) for how to use them.
+ *
+ * Surfaces ("night" play canvas vs. "paper" reading canvas) switch at runtime
+ * via a `data-surface` attribute that re-points the `--surface-*` variables.
+ * Utilities (bg-surface, text-surface-ink, font-display, rounded-pill, …) are
+ * generated from these tokens by the `@theme inline` block in app/globals.css.
+ *
+ * Rule: pages never hardcode hex. Use the tokens — directly as `var(--token)`
+ * or, preferably, through the generated Tailwind utilities.
+ */
+
+:root {
+  /* --- Brand accent palette (surface-independent) --- */
+  --sun: #ffc24b; /* primary action, XP (marigold) */
+  --coral: #ff6b5c; /* secondary / playful accent */
+  --aqua: #36d6c3; /* "explored" / discovery */
+  --leaf: #7bd66a; /* success / correct */
+  --violet: #b388ff; /* tertiary accent / magic */
+
+  /* --- Night-sky (play) palette --- */
+  --bg-night: #1b1f3b;
+  --bg-night-panel: #2a2f55;
+  --ink-on-night: #f4f2ff;
+  --ink-soft-on-night: #c7c4e6; /* dimmed text on night (AA on --bg-night) */
+
+  /* --- Field-journal (reading) palette --- */
+  --paper: #fffcf5;
+  --paper-panel: #ffffff;
+  --ink: #22263f;
+  --ink-soft: #4a4f6b;
+  --rule: #e7e0d0;
+
+  /* --- Semantic (work on both surfaces; always paired with an icon + text) --- */
+  --correct: var(--leaf);
+  --retry: var(--coral);
+
+  /* Focus ring — high-contrast double ring (outer glow + inner contrast line) */
+  --focus-ring: #ffd24b;
+  --focus-ring-inner: #1b1f3b;
+
+  /* --- Type scale (rem; respects user zoom) --- */
+  --text-xs: 0.875rem; /* captions, meta */
+  --text-sm: 1rem; /* UI labels */
+  --text-base: 1.125rem; /* body (bump to 1.25rem at reading levels L1–L2) */
+  --text-lg: 1.375rem; /* lead text */
+  --text-xl: 1.75rem; /* section titles */
+  --text-2xl: 2.25rem; /* page titles */
+  --text-3xl: 3rem; /* hero / big numbers */
+
+  /* --- Radius (soft + friendly; buttons are pills) --- */
+  --radius-sm: 12px;
+  --radius-md: 20px;
+  --radius-lg: 28px;
+  --radius-pill: 999px;
+
+  /*
+   * --- Default surface = night ---
+   * `--surface-*` are the runtime-switchable tokens. Defined here as night,
+   * overridden by [data-surface="paper"] below. Components read these so a
+   * single component renders correctly on whichever surface contains it.
+   */
+  --surface-bg: var(--bg-night);
+  --surface-panel: var(--bg-night-panel);
+  --surface-ink: var(--ink-on-night);
+  --surface-ink-soft: var(--ink-soft-on-night);
+  --surface-rule: rgba(244, 242, 255, 0.16);
+  --surface-accent: var(--aqua);
+  /*
+   * Danger/retry as SMALL text + icons. `--retry` (coral) is a bright accent —
+   * great for large fills (QuizChoice) but fails AA at small sizes, so error
+   * messages use this contrast-safe, surface-tuned variant instead. See
+   * docs/10 ("accents are for fills/large elements, not small text").
+   */
+  --surface-danger: #ffa89e; /* ≈6.9:1 on the night panel ✓ */
+  /* On night, elevation is a colored glow, not a drop shadow. */
+  --surface-elevation: 0 0 24px rgba(54, 214, 195, 0.18);
+}
+
+/* Re-assert night (so a nested night region inside paper resets correctly). */
+[data-surface="night"] {
+  --surface-bg: var(--bg-night);
+  --surface-panel: var(--bg-night-panel);
+  --surface-ink: var(--ink-on-night);
+  --surface-ink-soft: var(--ink-soft-on-night);
+  --surface-rule: rgba(244, 242, 255, 0.16);
+  --surface-accent: var(--aqua);
+  --surface-danger: #ffa89e;
+  --surface-elevation: 0 0 24px rgba(54, 214, 195, 0.18);
+}
+
+/* Field-journal: calm, warm paper with soft low-contrast shadows. */
+[data-surface="paper"] {
+  --surface-bg: var(--paper);
+  --surface-panel: var(--paper-panel);
+  --surface-ink: var(--ink);
+  --surface-ink-soft: var(--ink-soft);
+  --surface-rule: var(--rule);
+  --surface-accent: var(--coral);
+  --surface-danger: #b23a2e; /* ≈5.8:1 on paper ✓ */
+  --surface-elevation: 0 2px 10px rgba(34, 38, 63, 0.08);
+}
