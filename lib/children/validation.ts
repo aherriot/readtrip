@@ -31,6 +31,22 @@ function isAvatarColor(value: unknown): value is AvatarColor {
   );
 }
 
+/** Avatar color used when a Child's stored avatarConfig is missing or malformed. */
+export const DEFAULT_AVATAR_COLOR: AvatarColor = "aqua";
+
+/**
+ * Coerce a Child's stored `avatarConfig` (jsonb, typed `unknown`) into a known
+ * avatar color, falling back to the default for missing, legacy, or malformed
+ * data so a hand-edited or pre-palette row can never crash a render.
+ */
+export function avatarColorFromConfig(config: unknown): AvatarColor {
+  const color =
+    typeof config === "object" && config !== null
+      ? (config as { color?: unknown }).color
+      : undefined;
+  return isAvatarColor(color) ? color : DEFAULT_AVATAR_COLOR;
+}
+
 /**
  * Validate + normalize raw form input into a `ChildInput`. Trims the name,
  * enforces a non-empty length cap, and checks the avatar color against the

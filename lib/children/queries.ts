@@ -2,7 +2,7 @@ import { and, asc, eq } from "drizzle-orm";
 import { db } from "@/lib/db";
 import { children } from "@/lib/db/schema";
 import type { AvatarColor, ChildInput } from "./validation";
-import { AVATAR_COLORS } from "./validation";
+import { avatarColorFromConfig } from "./validation";
 
 // View model handed to the UI — the raw row's jsonb avatarConfig flattened to a
 // known color.
@@ -17,19 +17,11 @@ export interface ChildProfile {
 
 type ChildRow = typeof children.$inferSelect;
 
-function avatarColorOf(row: ChildRow): AvatarColor {
-  const color = (row.avatarConfig as { color?: unknown } | null)?.color;
-  return typeof color === "string" &&
-    (AVATAR_COLORS as readonly string[]).includes(color)
-    ? (color as AvatarColor)
-    : "aqua";
-}
-
 function toProfile(row: ChildRow): ChildProfile {
   return {
     id: row.id,
     displayName: row.displayName,
-    avatarColor: avatarColorOf(row),
+    avatarColor: avatarColorFromConfig(row.avatarConfig),
     readingLevel: row.readingLevel,
     level: row.level,
     xp: row.xp,

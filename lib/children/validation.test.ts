@@ -1,7 +1,9 @@
 import { describe, expect, it } from "vitest";
 import {
   AVATAR_COLORS,
+  DEFAULT_AVATAR_COLOR,
   MAX_NAME_LENGTH,
+  avatarColorFromConfig,
   validateChildInput,
 } from "./validation";
 
@@ -57,6 +59,31 @@ describe("validateChildInput", () => {
     for (const avatarColor of ["puce", "", "AQUA", undefined]) {
       const result = validateChildInput({ displayName: "Mara", avatarColor });
       expect(result.ok).toBe(false);
+    }
+  });
+});
+
+describe("avatarColorFromConfig", () => {
+  it("returns the stored color when it's a valid palette color", () => {
+    for (const color of AVATAR_COLORS) {
+      expect(avatarColorFromConfig({ color })).toBe(color);
+    }
+  });
+
+  it("falls back to the default for missing, malformed, or legacy configs", () => {
+    const malformed = [
+      null,
+      undefined,
+      {},
+      { color: null },
+      { color: "puce" }, // not in palette
+      { color: "AQUA" }, // wrong case
+      { color: 123 },
+      "aqua", // not an object
+      ["aqua"],
+    ];
+    for (const config of malformed) {
+      expect(avatarColorFromConfig(config)).toBe(DEFAULT_AVATAR_COLOR);
     }
   });
 });
