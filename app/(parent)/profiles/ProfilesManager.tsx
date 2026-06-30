@@ -1,0 +1,264 @@
+"use client";
+
+import { useActionState, useEffect, useState } from "react";
+import { Button } from "@/components/ui/Button";
+import { Card } from "@/components/ui/Card";
+import { Heading } from "@/components/ui/Heading";
+import { Input } from "@/components/ui/Input";
+import { Modal } from "@/components/ui/Modal";
+import { Text } from "@/components/ui/Text";
+import { cn } from "@/lib/ui/cn";
+import type { ChildProfile } from "@/lib/children/queries";
+import { AVATAR_COLORS, type AvatarColor } from "@/lib/children/validation";
+import {
+  createChildAction,
+  deleteChildAction,
+  selectChildAction,
+  updateChildAction,
+  type ProfileFormState,
+} from "./actions";
+
+const FORM_IDLE: ProfileFormState = { status: "idle" };
+
+// Literal class map so Tailwind's scanner keeps these utilities (a dynamic
+// `bg-${color}` would be purged).
+const AVATAR_BG: Record<AvatarColor, string> = {
+  sun: "bg-sun",
+  coral: "bg-coral",
+  aqua: "bg-aqua",
+  leaf: "bg-leaf",
+  violet: "bg-violet",
+};
+
+function Avatar({
+  color,
+  name,
+  size = "lg",
+}: {
+  color: AvatarColor;
+  name: string;
+  size?: "sm" | "lg";
+}) {
+  return (
+    <span
+      aria-hidden="true"
+      className={cn(
+        "flex shrink-0 items-center justify-center rounded-full font-display font-semibold text-[var(--ink)]",
+        size === "lg" ? "h-16 w-16 text-2xl" : "h-9 w-9 text-base",
+        AVATAR_BG[color]
+      )}
+    >
+      {name.trim().charAt(0).toUpperCase() || "?"}
+    </span>
+  );
+}
+
+type Editing = { mode: "create" } | { mode: "edit"; child: ChildProfile };
+
+export function ProfilesManager({ profiles }: { profiles: ChildProfile[] }) {
+  const [editing, setEditing] = useState<Editing | null>(null);
+
+  return (
+    <>
+      <ul className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+        {profiles.map((child) => (
+          <li key={child.id}>
+            <ProfileCard
+              child={child}
+              onEdit={() => setEditing({ mode: "edit", child })}
+            />
+          </li>
+        ))}
+        <li>
+          <Card
+            elevated
+            className="flex h-full min-h-[140px] items-center justify-center"
+          >
+            <Button
+              variant="ghost"
+              onClick={() => setEditing({ mode: "create" })}
+              leadingIcon={<span aria-hidden="true">＋</span>}
+            >
+              Add an explorer
+            </Button>
+          </Card>
+        </li>
+      </ul>
+
+      <Modal
+        open={editing !== null}
+        onClose={() => setEditing(null)}
+        title={editing?.mode === "edit" ? "Edit explorer" : "Add an explorer"}
+      >
+        {editing && (
+          <ChildForm
+            key={editing.mode === "edit" ? editing.child.id : "new"}
+            editing={editing}
+            onDone={() => setEditing(null)}
+          />
+        )}
+      </Modal>
+    </>
+  );
+}
+
+function ProfileCard({
+  child,
+  onEdit,
+}: {
+  child: ChildProfile;
+  onEdit: () => void;
+}) {
+  return (
+    <Card elevated className="flex h-full flex-col gap-3">
+      <form action={selectChildAction}>
+        <input type="hidden" name="childId" value={child.id} />
+        <Button
+          type="submit"
+          variant="ghost"
+          fullWidth
+          className="h-auto flex-col gap-3 py-5"
+        >
+          <Avatar color={child.avatarColor} name={child.displayName} />
+          <span className="font-display text-lg">{child.displayName}</span>
+          <span className="text-sm text-surface-ink-soft">
+            Level {child.level} · Reading {child.readingLevel}
+          </span>
+        </Button>
+      </form>
+      <div className="flex justify-center">
+        <Button variant="ghost" size="md" onClick={onEdit}>
+          Edit
+        </Button>
+      </div>
+    </Card>
+  );
+}
+
+function ColorPicker({ defaultColor }: { defaultColor: AvatarColor }) {
+  return (
+    <fieldset className="flex flex-col gap-2">
+      <legend className="font-body text-sm font-medium text-surface-ink">
+        Avatar color
+      </legend>
+      <div
+        className="flex flex-wrap gap-3"
+        role="radiogroup"
+        aria-label="Avatar color"
+      >
+        {AVATAR_COLORS.map((color) => (
+          <label key={color} className="relative cursor-pointer" title={color}>
+            <input
+              type="radio"
+              name="avatarColor"
+              value={color}
+              defaultChecked={color === defaultColor}
+              className="peer sr-only"
+              required
+            />
+            <span
+              className={cn(
+                "block h-12 w-12 rounded-full border-2 border-transparent",
+                "peer-checked:border-surface-ink peer-focus-visible:outline peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-[var(--focus-ring)]",
+                AVATAR_BG[color]
+              )}
+            />
+            <span className="sr-only">{color}</span>
+          </label>
+        ))}
+      </div>
+    </fieldset>
+  );
+}
+
+function ChildForm({
+  editing,
+  onDone,
+}: {
+  editing: Editing;
+  onDone: () => void;
+}) {
+  const isEdit = editing.mode === "edit";
+  const child = isEdit ? editing.child : null;
+  const action = isEdit ? updateChildAction : createChildAction;
+
+  const [state, formAction, pending] = useActionState<
+    ProfileFormState,
+    FormData
+  >(action, FORM_IDLE);
+
+  // Close the modal once the server confirms the write succeeded.
+  useEffect(() => {
+    if (state.status === "success") onDone();
+  }, [state, onDone]);
+
+  return (
+    <form action={formAction} className="flex flex-col gap-5">
+      {child && <input type="hidden" name="childId" value={child.id} />}
+      <Input
+        label="Name"
+        name="displayName"
+        defaultValue={child?.displayName ?? ""}
+        autoComplete="off"
+        required
+        maxLength={40}
+        placeholder="e.g. Ada"
+        hint="The name your explorer will see."
+      />
+      <ColorPicker defaultColor={child?.avatarColor ?? "aqua"} />
+
+      {state.status === "error" && (
+        <Text role="alert" size="sm" className="text-surface-danger">
+          {state.error}
+        </Text>
+      )}
+
+      <div className="flex flex-col gap-3 sm:flex-row sm:justify-end">
+        {isEdit && (
+          <DeleteButton
+            childId={child!.id}
+            name={child!.displayName}
+            onDone={onDone}
+          />
+        )}
+        <Button type="submit" disabled={pending}>
+          {pending ? "Saving…" : isEdit ? "Save changes" : "Create explorer"}
+        </Button>
+      </div>
+    </form>
+  );
+}
+
+function DeleteButton({
+  childId,
+  name,
+  onDone,
+}: {
+  childId: string;
+  name: string;
+  onDone: () => void;
+}) {
+  const [confirming, setConfirming] = useState(false);
+
+  if (!confirming) {
+    return (
+      <Button
+        type="button"
+        variant="ghost"
+        onClick={() => setConfirming(true)}
+        className="sm:mr-auto"
+      >
+        Delete
+      </Button>
+    );
+  }
+
+  return (
+    <form action={deleteChildAction} onSubmit={onDone} className="sm:mr-auto">
+      <input type="hidden" name="childId" value={childId} />
+      <Button type="submit" variant="secondary">
+        Delete {name}?
+      </Button>
+    </form>
+  );
+}

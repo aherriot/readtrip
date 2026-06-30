@@ -1,0 +1,71 @@
+import { expect, test } from "@playwright/test";
+
+// Route protection is enforced by middleware.ts (the `authorized` callback in
+// lib/auth/config.ts). These specs hit a real Next server; the happy-path test
+// also needs a database (the dev-credentials provider upserts a parent User),
+// which CI provides via an ephemeral Neon branch.
+
+test.describe("route protection", () => {
+  test("unauthenticated /profiles redirects to sign-in", async ({ page }) => {
+    await page.goto("/profiles");
+    await expect(page).toHaveURL(/\/sign-in/);
+  });
+
+  test("unauthenticated /play redirects to sign-in", async ({ page }) => {
+    await page.goto("/play");
+    await expect(page).toHaveURL(/\/sign-in/);
+  });
+
+  test("sign-in page renders the magic-link form", async ({ page }) => {
+    await page.goto("/sign-in");
+    await expect(
+      page.getByRole("heading", { name: /welcome to readtrip/i })
+    ).toBeVisible();
+    await expect(page.getByLabel("Email address")).toBeVisible();
+    await expect(
+      page.getByRole("button", { name: /email me a sign-in link/i })
+    ).toBeVisible();
+  });
+});
+
+test("parent signs in, creates a child, and enters the child app", async ({
+  page,
+}) => {
+  // Unique email so this parent starts with zero profiles, independent of reruns.
+  const email = `e2e-${Date.now()}@example.com`;
+
+  await page.goto("/sign-in");
+
+  // Dev-only credentials form (only rendered outside production). Target by
+  // placeholder — the labels carry a "*" for required fields, and "Email" would
+  // otherwise also match the magic-link "Email address" field.
+  await page.getByPlaceholder("parent@example.com").fill(email);
+  await page.getByPlaceholder("Alex").fill("Test Parent");
+  await page.getByRole("button", { name: /dev sign-in/i }).click();
+
+  // Landed in the parent profiles area.
+  await expect(page).toHaveURL(/\/profiles/);
+  await expect(
+    page.getByRole("heading", { name: /who's exploring/i })
+  ).toBeVisible();
+
+  // Create a child profile via the modal.
+  await page.getByRole("button", { name: /add an explorer/i }).click();
+  const dialog = page.getByRole("dialog");
+  await expect(dialog).toBeVisible();
+  await dialog.getByLabel("Name").fill("Ada");
+  await dialog.getByRole("button", { name: /create explorer/i }).click();
+
+  // The new profile appears.
+  const adaTile = page.getByRole("button", { name: /Ada/ });
+  await expect(adaTile).toBeVisible();
+
+  // Select it → land in the (empty) child app.
+  await adaTile.click();
+  await expect(page).toHaveURL(/\/play/);
+  await expect(page.getByRole("heading", { name: /hi, ada/i })).toBeVisible();
+
+  // Switching profiles returns to the picker.
+  await page.getByRole("button", { name: /switch explorer/i }).click();
+  await expect(page).toHaveURL(/\/profiles/);
+});

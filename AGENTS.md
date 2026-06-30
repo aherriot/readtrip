@@ -54,8 +54,8 @@ Auth.js (NextAuth) · Anthropic Claude API. Full rationale + diagrams in
 ## Build order
 
 Work the milestones in [`docs/09-implementation-plan.md`](docs/09-implementation-plan.md).
-M0 (foundations + deploy) is done; M1 (design system) is next — build the design system
-_before_ feature UI.
+M0 (foundations + deploy), M1 (design system), and M2 (auth & profiles) are done; M3 (LLM
+service layer) is next.
 
 ## Common commands
 

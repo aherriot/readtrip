@@ -8,6 +8,13 @@
       "when": 1782779422759,
       "tag": "0000_light_felicia_hardy",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1782857528372,
+      "tag": "0001_wet_star_brand",
+      "breakpoints": true
     }
   ]
 }
