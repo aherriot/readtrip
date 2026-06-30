@@ -15,8 +15,10 @@
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "check:design-system": "node scripts/check-design-system-skill.mjs",
-    "check": "run-p --aggregate-output --continue-on-error typecheck lint format:check check:design-system test",
+    "check": "run-p --aggregate-output --continue-on-error typecheck lint format:check check:design-system test:unit",
     "test": "playwright test",
+    "test:unit": "vitest run",
+    "test:unit:watch": "vitest",
     "test:e2e": "playwright test",
     "test:e2e:ui": "playwright test --ui",
     "test:visual": "VISUAL=1 playwright test design-system.visual",
@@ -45,6 +47,7 @@
     "npm-run-all2": "^8.0.4",
     "prettier": "3.9.4",
     "tailwindcss": "^4.0.0",
-    "typescript": "^5.7.0"
+    "typescript": "^5.7.0",
+    "vitest": "^4.1.9"
   }
 }

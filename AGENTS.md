@@ -25,7 +25,8 @@ Auth.js (NextAuth) · Anthropic Claude API. Full rationale + diagrams in
 | `app/`               | Next.js App Router routes + API route handlers                               |
 | `lib/db/`            | Drizzle schema (`schema.ts`) + singleton client (`index.ts`)                 |
 | `drizzle/`           | Generated SQL migrations (never hand-edit)                                   |
-| `e2e/`               | Playwright tests                                                             |
+| `e2e/`               | Playwright tests (`*.spec.ts`) — real-browser behavior, a11y, visual         |
+| `**/*.test.ts`       | Vitest unit tests, co-located with source — pure logic only                  |
 | `docs/`              | Product spec, architecture, data model, milestone plan — the source of truth |
 | `.github/workflows/` | CI                                                                           |
 
@@ -40,6 +41,12 @@ Auth.js (NextAuth) · Anthropic Claude API. Full rationale + diagrams in
 - **Local secrets go in `.env.local`** (gitignored). `drizzle.config.ts` loads it explicitly.
 - **All LLM calls are server-side only** — the Anthropic key never reaches the browser.
   Default to the latest Claude models; see [`docs/03-llm-integration.md`](docs/03-llm-integration.md).
+- **Two test layers, split by what the test needs.** If it needs the DOM,
+  computed styles, or layout → **Playwright** (`e2e/`, `*.spec.ts`, real browser).
+  If it's a pure function (validation, math, parsing, schemas) → **Vitest**
+  (co-located `*.test.ts`, runs in node). Don't unit-test components in jsdom —
+  it can't compute layout/styles, so it gives weaker coverage than the Playwright
+  specs already do. Vitest never scans `e2e/`; Playwright only scans `e2e/`.
 - **Node is pinned** via `.nvmrc` (local and CI must match).
 - **Children are not auth users** — a parent `User` owns child sub-profiles. See
   [`docs/06-data-model.md`](docs/06-data-model.md).
@@ -58,11 +65,16 @@ npm run db:generate  # create a migration from schema changes
 npm run db:migrate   # apply migrations
 npm run typecheck    # tsc --noEmit
 npm run lint         # eslint
+npm run test:unit    # Vitest (pure logic)
 npm test             # Playwright e2e
+npm run check        # all of the above, in parallel
 ```
 
-A pre-commit hook runs typecheck + lint + tests; CI mirrors it. Don't bypass with
-`--no-verify` unless explicitly asked.
+`npm run check` is the fast gate — typecheck, lint, prettier, design-system parity, and
+unit tests, all in parallel, with **no DB or browser**. The husky pre-commit hook runs it,
+and CI runs it as the `static` job. The Playwright e2e suite (`npm test`) is its own leg:
+the CI `e2e` job (with a Neon branch) and the `visual` job, both running in parallel with
+`static`. Don't bypass the hook with `--no-verify` unless explicitly asked.
 
 ## Defer to skills
 
