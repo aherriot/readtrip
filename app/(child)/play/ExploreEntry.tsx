@@ -8,6 +8,7 @@ import { Card } from "@/components/ui/Card";
 import { Heading } from "@/components/ui/Heading";
 import { Input } from "@/components/ui/Input";
 import { Text } from "@/components/ui/Text";
+import { freshStarters } from "@/lib/explore/topics";
 import type { MapNodeView } from "@/lib/map/nodeState";
 import { LessonReader, type LessonTopic } from "./LessonReader";
 
@@ -92,15 +93,15 @@ export function ExploreEntry({
     void explore(query);
   }
 
-  // A map node is a known concept, so tapping it skips the safety + normalize
-  // round-trip and resolves straight away (like the old curated chips did).
-  function chooseNode(node: MapNodeView) {
+  // A map node or curated chip is a known concept, so tapping it skips the
+  // safety + normalize round-trip and resolves straight away.
+  function startTopic(topic: { title: string; topicSlug: string }) {
     if (busy) return;
     startReading({
-      title: node.title,
-      topicSlug: node.topicSlug,
+      title: topic.title,
+      topicSlug: topic.topicSlug,
       intent: "topic",
-      rawQuery: node.title,
+      rawQuery: topic.title,
       parentLoopId: null,
       parentContext: null,
     });
@@ -145,9 +146,44 @@ export function ExploreEntry({
     );
   }
 
+  // Curated starters the child doesn't already have on their map — a breadth
+  // counterweight to the map's narrow-and-deep growth. If the map is all bugs,
+  // this still offers weather, space, dinosaurs… (docs/05: interest-driven, but
+  // never a filter bubble). Empty for a brand-new explorer whose seeded map
+  // already *is* the starters.
+  const differentTopics = freshStarters(initialNodes.map((n) => n.topicSlug));
+
   return (
     <div className="flex w-full flex-col gap-8">
-      <WorldMap nodes={initialNodes} onSelect={chooseNode} />
+      <WorldMap nodes={initialNodes} onSelect={startTopic} />
+
+      {differentTopics.length > 0 && (
+        <div className="flex flex-col gap-3">
+          <Heading level={2}>Something completely different</Heading>
+          <Text tone="soft" size="sm">
+            Fresh ideas, nothing like your map so far — tap one to wander
+            somewhere new.
+          </Text>
+          <div
+            className="flex flex-wrap gap-3"
+            role="group"
+            aria-label="Something completely different"
+          >
+            {differentTopics.map((topic) => (
+              <Button
+                key={topic.topicSlug}
+                variant="secondary"
+                size="md"
+                disabled={busy}
+                onClick={() => startTopic(topic)}
+                leadingIcon={<span aria-hidden="true">{topic.emoji}</span>}
+              >
+                {topic.title}
+              </Button>
+            ))}
+          </div>
+        </div>
+      )}
 
       <form onSubmit={onSubmit} className="flex flex-col gap-4">
         <Text size="sm" tone="soft">
