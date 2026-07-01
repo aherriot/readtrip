@@ -237,6 +237,57 @@ test.describe("ProgressBar — accessibility contract", () => {
   });
 });
 
+test.describe("Quiz — accessibility contract", () => {
+  const region = (page: import("@playwright/test").Page) =>
+    page.getByTestId("quiz-paper");
+
+  test("choices are real buttons meeting the kid target floor", async ({
+    page,
+  }) => {
+    const choice = region(page).getByRole("button", {
+      name: "A quiet, unpicked choice",
+    });
+    await expect(choice).toHaveJSProperty("tagName", "BUTTON");
+    const box = await choice.boundingBox();
+    expect(box?.height ?? 0).toBeGreaterThanOrEqual(56);
+  });
+
+  test("feedback pairs color with an icon + word, not color alone", async ({
+    page,
+  }) => {
+    // The resolved states carry a visible status word, so meaning survives
+    // without color (a11y floor: never color-only).
+    await expect(region(page).getByText("Yes!")).toBeVisible();
+    await expect(region(page).getByText("Try again")).toBeVisible();
+  });
+
+  test("a correct tap reveals the explanation and advance action", async ({
+    page,
+  }) => {
+    await region(page)
+      .getByRole("button", { name: "It reflects the Sun's light" })
+      .click();
+    await expect(region(page).getByText(/catches sunlight/i)).toBeVisible();
+    await expect(
+      region(page).getByRole("button", { name: /next question/i })
+    ).toBeVisible();
+  });
+
+  test("shows a visible focus ring when a choice is focused", async ({
+    page,
+  }) => {
+    const choice = region(page).getByRole("button", {
+      name: "A quiet, unpicked choice",
+    });
+    await choice.focus();
+    await expect(choice).toBeFocused();
+    const outlineWidth = await choice.evaluate(
+      (el) => getComputedStyle(el).outlineWidth
+    );
+    expect(parseFloat(outlineWidth)).toBeGreaterThan(0);
+  });
+});
+
 test.describe("Modal — accessibility contract", () => {
   // Drive it on the night surface; touch + keyboard only, no mouse assumed.
   const region = (page: import("@playwright/test").Page) =>

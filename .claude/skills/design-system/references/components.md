@@ -43,10 +43,11 @@ the index in [`SKILL.md`](../SKILL.md).
 - **`ReadingView`** — the field-journal lesson surface (sets `data-surface="paper"`, max
   width, reading type). Wrap lessons/quizzes in this.
 - **`LessonChunk`** — one short, visual block of explanation.
-- **`QuizChoice`** — big tappable answer. States `default` / `selected` / `correct`
-  (leaf + ✓ + "Yes!") / `retry` (coral + ↻ + "Try again") — **icon + text + color**, never
-  color alone. Fully keyboard-operable.
-- **`QuizCard`** — wraps the question + choices + feedback.
+- **`QuizChoice`** ✅ [ref](quiz-choice.md) — big tappable answer. States `default` /
+  `selected` / `correct` (leaf + ✓ + "Yes!") / `retry` (coral + ↻ + "Try again") — **icon +
+  text + color**, never color alone. Fully keyboard-operable.
+- **`QuizCard`** ✅ [ref](quiz-card.md) — wraps the question + choices + feedback; unfailable
+  (wrong taps say "try again"), reports the first tap for scoring.
 
 ## Shell
 

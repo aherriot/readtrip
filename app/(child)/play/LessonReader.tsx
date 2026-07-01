@@ -8,6 +8,7 @@ import { Card } from "@/components/ui/Card";
 import { Heading } from "@/components/ui/Heading";
 import { Text } from "@/components/ui/Text";
 import { toLessonChunks } from "@/lib/reading/chunks";
+import { QuizRunner } from "./QuizRunner";
 
 // The resolved topic the reader generates a lesson for (from ExploreEntry).
 export interface LessonTopic {
@@ -29,6 +30,7 @@ export function LessonReader({
   const [text, setText] = useState("");
   const [status, setStatus] = useState<Status>("loading");
   const [redirect, setRedirect] = useState("");
+  const [showQuiz, setShowQuiz] = useState(false);
 
   useEffect(() => {
     // Each run owns its request; cleanup aborts it. Under React StrictMode (dev)
@@ -123,6 +125,12 @@ export function LessonReader({
     );
   }
 
+  // Once the child chooses to start, the quiz owns the screen (it POSTs the
+  // lesson text to /api/quiz, which is also where the Loop is finally persisted).
+  if (showQuiz) {
+    return <QuizRunner topic={topic} lessonText={text} onExplore={onExplore} />;
+  }
+
   if (status === "error") {
     return (
       <Card
@@ -165,11 +173,12 @@ export function LessonReader({
       </ReadingView>
 
       {status === "done" && (
-        <div className="flex flex-col items-center gap-2">
+        <div className="flex flex-col items-center gap-3">
           <Text size="sm" tone="soft">
-            Nice reading! A quiz to earn rewards is coming next.
+            Nice reading! Ready to earn some rewards?
           </Text>
-          <Button variant="secondary" onClick={onExplore}>
+          <Button onClick={() => setShowQuiz(true)}>Start the quiz</Button>
+          <Button variant="ghost" size="md" onClick={onExplore}>
             Explore something else
           </Button>
         </div>

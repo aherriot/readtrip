@@ -177,8 +177,19 @@ Goal: the playable Explore → Read → Quiz → Reward → Steer loop. This is 
       lesson onto a `Loop` is deferred to the quiz step: `Loop` requires both
       `lessonText` AND `quizJson` NOT NULL, so it's written once, valid, when the
       quiz exists.)
-- [ ] **Quiz** — `/api/quiz` (structured output) + `QuizChoice`/`QuizCard` with
+- [x] **Quiz** — `/api/quiz` (structured output) + `QuizChoice`/`QuizCard` with
       icon+text+color feedback.
+      (After the lesson, "Start the quiz" opens `QuizRunner`, which POSTs the
+      lesson text to `/api/quiz`. The route reads the child's reading level
+      server-side, calls `generateQuiz` (Zod-validated, Sonnet→Opus retry; a
+      deterministic canned quiz when `READTRIP_OFFLINE_LLM`/no key, as e2e uses),
+      and — because this is the first step where `lessonText` AND `quizJson` both
+      exist — finally persists the `Loop` via `lib/loops/queries.ts` (a DB failure
+      warns but still returns the quiz). `QuizCard` is unfailable: a wrong tap says
+      "↻ Try again" and lets the child retry; the correct tap reveals the
+      explanation. Grading is client-side (`scoreQuiz`) off the first tap per
+      question. `Loop.quizPct`, XP/levels/badges, and Steer follow-ups are deferred
+      to the next items.)
 - [ ] **Steer** — post-quiz topic choices; difficulty adjusts from rolling quiz scores. A
       **"go deeper" follow-up** spawns a new `Loop` with `parentLoopId` set, passing the
       parent topic as context to `normalize_topic` + lesson (threaded loops, not chat).
