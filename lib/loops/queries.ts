@@ -67,14 +67,18 @@ export interface LoopForScoring {
   id: string;
   /** The reading level the quiz was generated at — the adaptation signal. */
   readingLevel: number;
+  /** The normalized topic key this loop belongs to (keys TopicProgress/badges). */
+  topicSlug: string;
+  /** XP already granted for this loop — non-zero means Progress ran; don't re-award. */
+  xpAwarded: number;
   /** The stored quiz, re-graded server-side so the score can't be spoofed. */
   quiz: Quiz;
 }
 
 /**
- * Fetch the fields needed to score a loop, verifying it belongs to `childId`
- * (loop → session → child). Returns `null` when the loop doesn't exist or isn't
- * this child's, so callers can 404 rather than trust a client-supplied id.
+ * Fetch the fields needed to score and reward a loop, verifying it belongs to
+ * `childId` (loop → session → child). Returns `null` when the loop doesn't exist
+ * or isn't this child's, so callers can 404 rather than trust a client id.
  */
 export async function getLoopForChild(
   loopId: string,
@@ -84,6 +88,8 @@ export async function getLoopForChild(
     .select({
       id: loops.id,
       readingLevel: loops.readingLevel,
+      topicSlug: loops.topicSlug,
+      xpAwarded: loops.xpAwarded,
       quizJson: loops.quizJson,
     })
     .from(loops)
@@ -94,8 +100,18 @@ export async function getLoopForChild(
   return {
     id: row.id,
     readingLevel: row.readingLevel,
+    topicSlug: row.topicSlug,
+    xpAwarded: row.xpAwarded,
     quiz: row.quizJson as Quiz,
   };
+}
+
+/** Record the XP granted for a loop (the Progress step). */
+export async function setLoopXpAwarded(
+  loopId: string,
+  xpAwarded: number
+): Promise<void> {
+  await db.update(loops).set({ xpAwarded }).where(eq(loops.id, loopId));
 }
 
 /** Record the child's first-try quiz score on the loop (the Steer step). */
