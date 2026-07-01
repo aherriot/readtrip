@@ -6,11 +6,13 @@ import { eq } from "drizzle-orm";
 import { db } from "@/lib/db";
 import { accounts, sessions, users, verificationTokens } from "@/lib/db/schema";
 import { authConfig } from "./config";
+import { devAuthEnabled, isDevSignInAllowed } from "./dev-mode";
 
-// The dev Credentials provider is a local-only convenience (and what the e2e
-// route-protection tests sign in through). It is a backdoor, so it is enabled
-// ONLY outside production — never ship it to a real deployment.
-const devCredentialsEnabled = process.env.NODE_ENV !== "production";
+// The dev Credentials provider is a convenience for environments without a
+// reliable inbox (local, CI, Vercel previews) and is what the e2e
+// route-protection tests sign in through. It is a backdoor, so it is enabled
+// everywhere EXCEPT real production — see `./dev-mode`.
+const devCredentialsEnabled = devAuthEnabled;
 
 const resendApiKey = process.env.AUTH_RESEND_KEY;
 // Resend allows sending to your own account email from this address without
@@ -66,7 +68,9 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
                 typeof credentials?.email === "string"
                   ? credentials.email.trim().toLowerCase()
                   : "";
-              if (!email) return null;
+              // Authoritative allowlist check — the API route can be hit
+              // directly, so the UI's pre-check isn't enough on its own.
+              if (!isDevSignInAllowed(email)) return null;
               const name =
                 typeof credentials?.name === "string" && credentials.name.trim()
                   ? credentials.name.trim()

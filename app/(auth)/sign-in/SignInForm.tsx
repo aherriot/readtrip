@@ -50,7 +50,7 @@ export function SignInForm({ devEnabled }: { devEnabled: boolean }) {
       {devEnabled && (
         <div className="flex flex-col gap-4 border-t border-surface-rule pt-6">
           <Text size="sm" tone="soft">
-            Dev sign-in (local only) — skip the email round-trip.
+            Dev sign-in (non-production) — skip the email round-trip.
           </Text>
           <form action={devAction} className="flex flex-col gap-4">
             <Input

@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Card } from "@/components/ui/Card";
 import { Heading } from "@/components/ui/Heading";
 import { Text } from "@/components/ui/Text";
+import { devAuthEnabled } from "@/lib/auth/dev-mode";
 import { SignInForm } from "./SignInForm";
 
 export const metadata: Metadata = {
@@ -9,7 +10,7 @@ export const metadata: Metadata = {
 };
 
 export default function SignInPage() {
-  const devEnabled = process.env.NODE_ENV !== "production";
+  const devEnabled = devAuthEnabled;
 
   return (
     <main className="flex min-h-screen flex-col items-center justify-center p-6">
