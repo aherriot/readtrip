@@ -67,3 +67,32 @@ test("parent signs in, creates a child, and enters the child app", async ({
     page.getByRole("heading", { name: /find your reading superpower/i })
   ).toBeVisible();
 });
+
+test("parent deletes a child profile from the edit modal", async ({ page }) => {
+  const email = `e2e-del-${Date.now()}@example.com`;
+
+  await page.goto("/sign-in");
+  await page.getByPlaceholder("parent@example.com").fill(email);
+  await page.getByPlaceholder("Alex").fill("Test Parent");
+  await page.getByRole("button", { name: /dev sign-in/i }).click();
+  await expect(page).toHaveURL(/\/profiles/);
+
+  // Create a child to delete.
+  await page.getByRole("button", { name: /add an explorer/i }).click();
+  const createDialog = page.getByRole("dialog");
+  await createDialog.getByLabel("Name").fill("Bram");
+  await createDialog.getByRole("button", { name: /create explorer/i }).click();
+  const bramTile = page.getByRole("button", { name: /Bram/ });
+  await expect(bramTile).toBeVisible();
+
+  // Open the edit modal and delete it (two-step confirm). This must not throw
+  // "A React form was unexpectedly submitted" — the delete form is a sibling of
+  // the edit form, not nested inside it.
+  await page.getByRole("button", { name: /^edit$/i }).click();
+  const editDialog = page.getByRole("dialog");
+  await editDialog.getByRole("button", { name: /^delete$/i }).click();
+  await editDialog.getByRole("button", { name: /delete bram\?/i }).click();
+
+  // The profile is gone.
+  await expect(bramTile).toHaveCount(0);
+});
