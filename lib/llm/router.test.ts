@@ -16,17 +16,17 @@ describe("pickModel", () => {
     }
   });
 
-  it("routes content tasks to Sonnet by default and Opus when hard", () => {
+  it("routes content tasks to Haiku during the cost freeze", () => {
     const contentTasks: Task[] = ["lesson", "quiz_generate", "topic_map"];
     for (const task of contentTasks) {
-      expect(pickModel(task)).toBe(MODELS.sonnet);
-      expect(pickModel(task, { hard: true })).toBe(MODELS.opus);
+      expect(pickModel(task)).toBe(MODELS.haiku);
+      expect(pickModel(task, { hard: true })).toBe(MODELS.haiku);
     }
   });
 
-  it("always routes the eval judge to Opus", () => {
-    expect(pickModel("eval_judge")).toBe(MODELS.opus);
-    expect(pickModel("eval_judge", { hard: true })).toBe(MODELS.opus);
+  it("routes the eval judge to Haiku during the cost freeze", () => {
+    expect(pickModel("eval_judge")).toBe(MODELS.haiku);
+    expect(pickModel("eval_judge", { hard: true })).toBe(MODELS.haiku);
   });
 });
 
