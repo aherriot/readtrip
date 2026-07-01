@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState, useEffect, useState } from "react";
+import { useActionState, useEffect, useId, useState } from "react";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { Heading } from "@/components/ui/Heading";
@@ -187,31 +187,39 @@ function ChildForm({
     FormData
   >(action, FORM_IDLE);
 
+  // The delete action lives in its own <form>, so it can't be nested inside the
+  // edit form (nested <form> elements are invalid HTML and make React throw
+  // "A React form was unexpectedly submitted"). The edit form and the footer are
+  // siblings instead; the submit button reaches back to the edit form by id.
+  const formId = useId();
+
   // Close the modal once the server confirms the write succeeded.
   useEffect(() => {
     if (state.status === "success") onDone();
   }, [state, onDone]);
 
   return (
-    <form action={formAction} className="flex flex-col gap-5">
-      {child && <input type="hidden" name="childId" value={child.id} />}
-      <Input
-        label="Name"
-        name="displayName"
-        defaultValue={child?.displayName ?? ""}
-        autoComplete="off"
-        required
-        maxLength={40}
-        placeholder="e.g. Ada"
-        hint="The name your explorer will see."
-      />
-      <ColorPicker defaultColor={child?.avatarColor ?? "aqua"} />
+    <div className="flex flex-col gap-5">
+      <form id={formId} action={formAction} className="flex flex-col gap-5">
+        {child && <input type="hidden" name="childId" value={child.id} />}
+        <Input
+          label="Name"
+          name="displayName"
+          defaultValue={child?.displayName ?? ""}
+          autoComplete="off"
+          required
+          maxLength={40}
+          placeholder="e.g. Ada"
+          hint="The name your explorer will see."
+        />
+        <ColorPicker defaultColor={child?.avatarColor ?? "aqua"} />
 
-      {state.status === "error" && (
-        <Text role="alert" size="sm" className="text-surface-danger">
-          {state.error}
-        </Text>
-      )}
+        {state.status === "error" && (
+          <Text role="alert" size="sm" className="text-surface-danger">
+            {state.error}
+          </Text>
+        )}
+      </form>
 
       <div className="flex flex-col gap-3 sm:flex-row sm:justify-end">
         {isEdit && (
@@ -221,11 +229,11 @@ function ChildForm({
             onDone={onDone}
           />
         )}
-        <Button type="submit" disabled={pending}>
+        <Button type="submit" form={formId} disabled={pending}>
           {pending ? "Saving…" : isEdit ? "Save changes" : "Create explorer"}
         </Button>
       </div>
-    </form>
+    </div>
   );
 }
 
