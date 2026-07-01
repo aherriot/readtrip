@@ -8,9 +8,9 @@ it belongs.
 ## What this is
 
 **ReadTrip** — a kid-facing (ages ~5–12) curiosity engine: pick a topic, get an
-age-appropriate explanation, take a quiz, earn rewards, steer where to go next. It's a
-portfolio project demonstrating how to productionize LLMs (adaptive content, reading-level
-calibration, model routing, prompt caching, evals, content-safety guardrails).
+age-appropriate explanation, take a quiz, earn rewards, steer where to go next. Built with
+production-grade LLM integration: adaptive content, reading-level calibration, model
+routing, prompt caching, evals, and content-safety guardrails.
 
 ## Stack
 

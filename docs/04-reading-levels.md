@@ -60,10 +60,10 @@ Store the level and a short rolling history on the child profile
 ([`06-data-model.md`](06-data-model.md)). Never announce a "level down" to the child —
 just adjust quietly. Level _ups_ can be celebrated.
 
-## Why this is a good portfolio detail
+## Measurable results
 
-- It's a real **calibration + online-adaptation** problem, not a prompt trick.
-- It produces a clean **eval**: does generated content actually match its target level?
-  (Score with an automated readability metric and/or an LLM judge — see
-  [`07-evals-and-safety.md`](07-evals-and-safety.md).) "Generated L2 content scored at a
-  2nd-grade reading level 90% of the time" is an interview-ready result.
+Reading-level adaptation is a real **calibration + online-adaptation** problem that can be
+measured precisely. Score generated content with an automated readability metric and/or an
+LLM judge (see [`07-evals-and-safety.md`](07-evals-and-safety.md)): "Generated L2 content
+scores at a 2nd-grade reading level 90% of the time" is a concrete, verifiable claim about
+product quality.

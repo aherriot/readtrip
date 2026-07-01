@@ -1,8 +1,8 @@
 # 07 — Evals, Safety & Observability
 
-This is the doc that turns ReadTrip from "a cute app" into "evidence I can productionize
-LLMs." Evals give you measurable results; safety is non-negotiable for a kids' product;
-observability proves you can run it.
+Evals and observability are what separate a prototype from a production system. Evals give
+you measurable, verifiable results; safety is non-negotiable for a kids' product;
+observability proves the system can run reliably at scale.
 
 ## Content safety guardrails (kids product — table stakes)
 
@@ -44,8 +44,8 @@ Kids will believe what ReadTrip tells them, so factual accuracy matters more tha
   it as context, instruct the model to ground its explanation in it and cite it, and to
   say so if the topic isn't covered. This is **RAG-lite** — no vector DB needed.
 - **Measure the improvement.** Run the same eval set with and without grounding and
-  report the delta. "Grounding in Simple English Wikipedia cut factual errors by X%" is
-  the single best line for your portfolio.
+  report the delta. "Grounding in Simple English Wikipedia reduced factual errors by X%"
+  is a concrete, measurable improvement that proves the system works.
 
 ## Evals — the differentiator
 
