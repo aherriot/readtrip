@@ -37,5 +37,10 @@ export default defineConfig({
     url: baseURL,
     reuseExistingServer: !process.env.CI,
     timeout: 120_000,
+    // Force the LLM offline (canned lesson) so the loop's generative steps are
+    // deterministic and fast in e2e — no live model calls, no API key needed.
+    // Matches how CI already runs (no ANTHROPIC_API_KEY); the flag makes local
+    // runs behave the same even when .env.local has a real key.
+    env: { READTRIP_OFFLINE_LLM: "1" },
   },
 });

@@ -3,6 +3,7 @@
 // live behind these calls.
 export {
   generateLesson,
+  streamLesson,
   type LessonOptions,
   type LessonResult,
 } from "./lesson";

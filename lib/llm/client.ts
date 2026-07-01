@@ -1,10 +1,11 @@
-// Anthropic client singleton + the low-level call wrapper every generation path
+// Anthropic client singleton + the low-level call wrappers every generation path
 // goes through. Server-side only — the API key never reaches the browser.
 //
-// `callModel` is the one place we: build request params (conditionally attaching
-// adaptive thinking + effort only on models that support them), read token usage
-// off the response, and write an LlmCallLog row. Higher-level helpers (lesson,
-// quiz, normalize, safety) call this and never touch the SDK directly.
+// `callModel` (non-streaming) and `streamModel` (SSE-friendly) are the only two
+// places we: build request params (conditionally attaching adaptive thinking +
+// effort only on models that support them), read token usage off the response,
+// and write an LlmCallLog row. Higher-level helpers (lesson, quiz, normalize,
+// safety) call these and never touch the SDK directly.
 import Anthropic from "@anthropic-ai/sdk";
 import { cachedSystem } from "./cache";
 import { logLlmCall } from "./log";
@@ -16,14 +17,30 @@ import {
 } from "./models";
 import type { Task } from "./router";
 
-// Singleton across dev hot-reloads (mirrors the Drizzle client pattern). The SDK
-// reads ANTHROPIC_API_KEY from the environment.
+// Singleton across dev hot-reloads (mirrors the Drizzle client pattern). Built
+// lazily so merely importing this module never throws when ANTHROPIC_API_KEY is
+// absent (local dev / CI e2e run the loop's offline path — see hasAnthropicKey).
 const globalForLlm = globalThis as unknown as { anthropic?: Anthropic };
 
-export const anthropic = globalForLlm.anthropic ?? new Anthropic();
+function getClient(): Anthropic {
+  if (!globalForLlm.anthropic) {
+    // The SDK reads ANTHROPIC_API_KEY from the environment.
+    globalForLlm.anthropic = new Anthropic();
+  }
+  return globalForLlm.anthropic;
+}
 
-if (process.env.NODE_ENV !== "production") {
-  globalForLlm.anthropic = anthropic;
+/**
+ * Whether generation paths should skip the live API and use their offline/canned
+ * fallback. True when no Anthropic key is configured (local dev without a key, CI
+ * e2e) — so importing/using the client never throws — or when `READTRIP_OFFLINE_LLM`
+ * forces it (e2e sets this so the loop's generative steps stay deterministic and
+ * fast even when a real key is present). Real deploys leave the flag unset.
+ */
+export function isLlmOffline(): boolean {
+  return (
+    !process.env.ANTHROPIC_API_KEY || process.env.READTRIP_OFFLINE_LLM === "1"
+  );
 }
 
 export interface CallOptions {
@@ -64,48 +81,87 @@ function textFrom(content: Anthropic.ContentBlock[]): string {
     .join("");
 }
 
-/**
- * Make one Claude call, log it, and return the text + usage. Adaptive thinking
- * and `effort` are attached only on models that support them (Haiku 4.5 rejects
- * `effort` and doesn't need thinking for its low-stakes classification calls).
- */
-export async function callModel(opts: CallOptions): Promise<CallResult> {
-  const { task, model, system, user, maxTokens } = opts;
-
+// Adaptive thinking and `effort` are attached only on models that support them
+// (Haiku 4.5 rejects `effort` and doesn't need thinking for its low-stakes
+// classification calls). Shared by both the streaming and non-streaming paths.
+function buildParams(
+  opts: CallOptions
+): Anthropic.MessageCreateParamsNonStreaming {
   const params: Anthropic.MessageCreateParamsNonStreaming = {
-    model,
-    max_tokens: maxTokens,
-    system: cachedSystem(system),
-    messages: [{ role: "user", content: user }],
+    model: opts.model,
+    max_tokens: opts.maxTokens,
+    system: cachedSystem(opts.system),
+    messages: [{ role: "user", content: opts.user }],
   };
-
-  if (modelSupportsThinking(model)) {
+  if (modelSupportsThinking(opts.model)) {
     params.thinking = { type: "adaptive" };
   }
-  if (modelSupportsEffort(model) && opts.effort) {
+  if (modelSupportsEffort(opts.model) && opts.effort) {
     params.output_config = { effort: opts.effort };
   }
+  return params;
+}
 
-  const startedAt = Date.now();
-  const response = await anthropic.messages.create(params);
-  const latencyMs = Date.now() - startedAt;
-
-  const usage = toTokenUsage(response.usage);
-  const costUsd = computeCostUsd(model, usage);
-
-  // Never skip logging a call (docs/06). If the DB write fails (e.g. no DB in a
-  // throwaway script), warn but don't lose the generation the caller asked for.
+// Never skip logging a call (docs/06). If the DB write fails (e.g. no DB in a
+// throwaway script), warn but don't lose the generation the caller asked for.
+async function recordCall(
+  opts: CallOptions,
+  usage: TokenUsage,
+  latencyMs: number
+): Promise<void> {
   await logLlmCall({
-    task,
-    model,
+    task: opts.task,
+    model: opts.model,
     usage,
-    costUsd,
+    costUsd: computeCostUsd(opts.model, usage),
     latencyMs,
     childId: opts.childId ?? null,
     safetyFlag: opts.safetyFlag ?? null,
   }).catch((err) => {
-    console.error(`[llm] failed to log ${task} call:`, err);
+    console.error(`[llm] failed to log ${opts.task} call:`, err);
   });
+}
 
-  return { text: textFrom(response.content), usage, latencyMs, model };
+/** Make one Claude call, log it, and return the full text + usage. */
+export async function callModel(opts: CallOptions): Promise<CallResult> {
+  const startedAt = Date.now();
+  const response = await getClient().messages.create(buildParams(opts));
+  const latencyMs = Date.now() - startedAt;
+
+  const usage = toTokenUsage(response.usage);
+  await recordCall(opts, usage, latencyMs);
+
+  return {
+    text: textFrom(response.content),
+    usage,
+    latencyMs,
+    model: opts.model,
+  };
+}
+
+/**
+ * Stream one Claude call, invoking `onDelta` with each text fragment as it
+ * arrives, then log the call from the final assembled message. Used by the
+ * lesson route to relay a progressive reveal over SSE. Only *text* deltas reach
+ * `onDelta` — any thinking blocks stay server-side.
+ */
+export async function streamModel(
+  opts: CallOptions,
+  onDelta: (text: string) => void
+): Promise<CallResult> {
+  const startedAt = Date.now();
+  const stream = getClient().messages.stream(buildParams(opts));
+  stream.on("text", (delta) => onDelta(delta));
+  const message = await stream.finalMessage();
+  const latencyMs = Date.now() - startedAt;
+
+  const usage = toTokenUsage(message.usage);
+  await recordCall(opts, usage, latencyMs);
+
+  return {
+    text: textFrom(message.content),
+    usage,
+    latencyMs,
+    model: opts.model,
+  };
 }
