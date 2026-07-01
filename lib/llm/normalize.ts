@@ -2,7 +2,7 @@
 // into a stable { title, topicSlug, intent }. Keyed on by progress, badges, and
 // map nodes so question phrasings dedupe to one concept (docs/03, docs/06).
 // Runs on Haiku, after safety_precheck.
-import { callModel } from "./client";
+import { callModel, isLlmOffline } from "./client";
 import {
   NORMALIZE_SYSTEM,
   type NormalizeRequest,
@@ -29,6 +29,11 @@ export interface NormalizeOptions extends NormalizeRequest {
 export async function normalizeTopic(
   opts: NormalizeOptions
 ): Promise<NormalizedTopic> {
+  // No API key (local dev / CI / keyless preview): skip the model and derive a
+  // concept from the raw query. Free-form Explore still resolves to a usable
+  // topic instead of 500ing — the lesson step is offline (canned) here too.
+  if (isLlmOffline()) return offlineNormalize(opts);
+
   const model = pickModel("normalize_topic");
   const { text } = await callModel({
     task: "normalize_topic",
@@ -42,7 +47,13 @@ export async function normalizeTopic(
   const parsed = NormalizeSchema.safeParse(extractJson(text));
   if (parsed.success) return parsed.data;
 
-  // Fallback: derive a concept from the raw query so progression never breaks.
+  // Malformed model response: fall back so progression never breaks.
+  return offlineNormalize(opts);
+}
+
+// Derive a concept from the raw query without the model: slugified title +
+// heuristic intent. Shared by the offline path and the malformed-response guard.
+function offlineNormalize(opts: NormalizeOptions): NormalizedTopic {
   const trimmed = opts.rawQuery.trim();
   return {
     title: trimmed.slice(0, 80) || "Something new",
