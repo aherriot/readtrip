@@ -240,10 +240,26 @@ Goal: the playable Explore → Read → Quiz → Reward → Steer loop. This is 
       the global reduced-motion floor leaves each on its final frame — a still, correct state
       with no JS opt-out. Reward keyframes live in `app/globals.css`; every component ships a
       gallery entry, an e2e a11y contract, and a design-system reference.)
-- [ ] **Safety** wired into lesson, quiz, **and** topic-map suggestions.
+- [x] **Safety** wired into lesson, quiz, **and** topic-map suggestions.
+      (Input safety already gated Explore + the lesson topic; this closes the output side —
+      the generated content, not just the request. The streamed **lesson** is output-scanned
+      as it streams (`app/api/lesson`): an unsafe fragment is withheld before it's ever sent
+      and the whole lesson is swapped for a gentle redirect. The **quiz** is scanned across
+      every prompt/choice/explanation before it's shown or the `Loop` persisted
+      (`checkQuizOutput`); a blocked quiz returns a redirect instead of an error, and no loop
+      or map node is written for content we won't show. **Topic-map suggestions** — LLM output
+      too (docs/07) — are run through `filterSafeTopics` in `lib/map/suggest.ts` before any
+      node is saved. New pure helpers (`quizScanText`, `filterSafeTopics`) live in
+      `lib/safety/rules.ts` and are unit-tested; the guardrails run rules-only offline so the
+      loop stays exercisable in CI/e2e. Child-facing safety is now documented up front in the
+      README.)
 
 **DoD:** a child completes full loops end-to-end; difficulty adapts; XP/levels/badges and
 the map update and persist; everything is keyboard-navigable and on-theme.
+✅ Met — the Explore → Read → Quiz → Reward → Steer loop runs end-to-end (offline in
+CI/e2e, live with a key); difficulty adapts from rolling quiz scores; XP/levels/badges and
+the world map persist; rewards animate reduced-motion-safe; and every generation path is
+guarded on input **and** output. `npm run check` and the Playwright e2e suites are green.
 
 ---
 

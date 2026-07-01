@@ -11,6 +11,7 @@ import { generateQuiz } from "@/lib/llm";
 import { clampReadingLevel } from "@/lib/llm/prompts/readingLevel";
 import { getLoopForChild, recordLoop } from "@/lib/loops/queries";
 import { recordExploredTopic } from "@/lib/map/queries";
+import { checkQuizOutput, REDIRECT_MESSAGE } from "@/lib/safety";
 
 const MAX_QUERY_LENGTH = 200;
 const MAX_LESSON_LENGTH = 8000;
@@ -105,6 +106,17 @@ export async function POST(request: Request) {
   } catch (err) {
     console.error("[quiz] generation failed:", err);
     return Response.json({ error: "quiz-failed" }, { status: 502 });
+  }
+
+  // Output guardrail (defense in depth): scan the generated quiz — every prompt,
+  // choice, and explanation — before it's shown or the loop persisted. If it
+  // drifted unsafe, drop it entirely and steer the child on gently, and don't
+  // record a Loop/map node for content we won't show (docs/07: redirect, don't
+  // scold). The lesson it came from already passed its own checks, so this is
+  // rare, but the quiz is separate model output and gets its own backstop.
+  if (!checkQuizOutput(quiz).ok) {
+    console.warn("[quiz] output scan blocked generated quiz");
+    return Response.json({ blocked: true, redirect: REDIRECT_MESSAGE });
   }
 
   // For a "go deeper" follow-up, only thread the parent link if the loop really

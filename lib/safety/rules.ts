@@ -65,3 +65,33 @@ export function rulePrecheck(input: string): RuleVerdict {
 export function ruleOutputScan(text: string): RuleVerdict {
   return rulePrecheck(text);
 }
+
+/**
+ * Flatten a generated quiz to the text a child would actually see — every
+ * prompt, choice, and explanation — so the output scan covers all of it, not
+ * just one field. Structural (not tied to the Zod `Quiz` type) so it stays pure
+ * and unit-testable without pulling in the LLM layer.
+ */
+export function quizScanText(quiz: {
+  questions: { prompt: string; choices: string[]; explanation: string }[];
+}): string {
+  return quiz.questions
+    .flatMap((q) => [q.prompt, ...q.choices, q.explanation])
+    .join("\n");
+}
+
+/**
+ * Filter LLM-suggested map topics through the output scan, dropping any whose
+ * label trips a rule. Topic-map suggestions are model output too (docs/07), so
+ * they get the same backstop as lessons/quizzes before they're ever saved or
+ * shown — the `topic_map` prompt is the primary guardrail; this is the cheap,
+ * synchronous last line. Scans title *and* slug so neither can smuggle a term
+ * past the other.
+ */
+export function filterSafeTopics<
+  T extends { title: string; topicSlug: string },
+>(topics: T[]): T[] {
+  return topics.filter(
+    (t) => !ruleOutputScan(`${t.title} ${t.topicSlug}`).blocked
+  );
+}

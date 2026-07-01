@@ -19,6 +19,7 @@ import type { LessonTopic, SteerHandlers } from "./LessonReader";
 type Phase =
   | { name: "loading" }
   | { name: "error" }
+  | { name: "blocked"; redirect: string }
   | { name: "playing"; quiz: Quiz; index: number }
   | { name: "done"; score: QuizScore; loopId: string | null };
 
@@ -84,11 +85,16 @@ export function QuizRunner({
             }),
           });
           if (!res.ok) throw new Error(`quiz failed: ${res.status}`);
-          const data = (await res.json()) as {
-            quiz: Quiz;
-            loopId: string | null;
-          };
+          const data = (await res.json()) as
+            | { quiz: Quiz; loopId: string | null }
+            | { blocked: true; redirect: string };
           if (!activeRef.current) return;
+          // Safety steered the generated quiz away — show a gentle redirect
+          // rather than a scary error, and don't try to play a missing quiz.
+          if ("blocked" in data) {
+            setPhase({ name: "blocked", redirect: data.redirect });
+            return;
+          }
           loopId.current = data.loopId;
           firstChoices.current = new Array(data.quiz.questions.length).fill(
             null
@@ -130,6 +136,21 @@ export function QuizRunner({
           Something went wrong making your quiz. Your reading still counts!
         </Text>
         <Button onClick={onExplore}>Explore something else</Button>
+      </ResultShell>
+    );
+  }
+
+  if (phase.name === "blocked") {
+    return (
+      <ResultShell>
+        <span className="text-5xl" aria-hidden="true">
+          🌈
+        </span>
+        <Heading level={2}>Let&apos;s find something else</Heading>
+        <Text tone="soft" measure aria-live="polite">
+          {phase.redirect}
+        </Text>
+        <Button onClick={onExplore}>Try another idea</Button>
       </ResultShell>
     );
   }

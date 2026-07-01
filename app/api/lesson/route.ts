@@ -15,7 +15,7 @@ import { getChild } from "@/lib/children/queries";
 import { getSelectedChildId } from "@/lib/children/selection";
 import { streamLesson } from "@/lib/llm";
 import { clampReadingLevel } from "@/lib/llm/prompts/readingLevel";
-import { safetyPrecheck } from "@/lib/safety";
+import { outputCheck, REDIRECT_MESSAGE, safetyPrecheck } from "@/lib/safety";
 
 const MAX_QUERY_LENGTH = 200;
 
@@ -118,6 +118,15 @@ export async function POST(request: Request) {
           return;
         }
 
+        // Output guardrail on the *generated* text (defense in depth — the
+        // system prompt is the primary defense; the topic already cleared the
+        // input check). We scan the running text before forwarding each delta,
+        // so an unsafe fragment is never sent: on a trip we withhold it, stop
+        // forwarding, and replace the whole lesson with a gentle redirect (the
+        // client swaps to the redirect card on `blocked`). Blank-line-delimited
+        // paragraphs mean a flagged term completes within a delta, not across.
+        let full = "";
+        let blocked = false;
         await streamLesson(
           {
             title: body.title,
@@ -127,10 +136,24 @@ export async function POST(request: Request) {
             parentContext: body.parentContext,
             childId,
           },
-          (text) => send({ type: "chunk", text })
+          (text) => {
+            if (blocked) return;
+            const next = full + text;
+            if (!outputCheck(next).ok) {
+              blocked = true;
+              return;
+            }
+            full = next;
+            send({ type: "chunk", text });
+          }
         );
 
-        send({ type: "done" });
+        if (blocked) {
+          console.warn("[lesson] output scan blocked generated text");
+          send({ type: "blocked", redirect: REDIRECT_MESSAGE });
+        } else {
+          send({ type: "done" });
+        }
       } catch (err) {
         console.error("[lesson] stream failed:", err);
         send({ type: "error" });
