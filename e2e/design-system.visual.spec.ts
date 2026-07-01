@@ -60,15 +60,19 @@ test.describe("design system — visual", () => {
   }
 
   // The Modal section above only shows its triggers; capture the opened dialog
-  // (it portals to <body>, so snapshot the dialog itself) so the surface, layout,
-  // and close button are in the baseline.
+  // (it portals to <body>) so the surface, layout, and close button are in the
+  // baseline. Snapshot the opaque *panel*, not the full-viewport Dialog root —
+  // the root's translucent backdrop would bleed the page behind it into the
+  // image, making the baseline depend on scroll position / gallery layout.
   test("modal — open dialog", async ({ page }) => {
     await page
       .getByTestId("modal-night")
       .getByRole("button", { name: "Open dialog" })
       .click();
-    const dialog = page.getByRole("dialog", { name: "Ready to explore?" });
-    await expect(dialog).toBeVisible();
-    await expect(dialog).toHaveScreenshot("modal-open.png", SNAPSHOT);
+    await expect(
+      page.getByRole("dialog", { name: "Ready to explore?" })
+    ).toBeVisible();
+    const panel = page.getByTestId("modal-panel");
+    await expect(panel).toHaveScreenshot("modal-open.png", SNAPSHOT);
   });
 });

@@ -7,21 +7,17 @@ import { Heading } from "@/components/ui/Heading";
 import { Input } from "@/components/ui/Input";
 import { Text } from "@/components/ui/Text";
 import { SUGGESTED_TOPICS, type SuggestedTopic } from "@/lib/explore/topics";
+import { LessonReader, type LessonTopic } from "./LessonReader";
 
 // What /api/explore resolves free-form input into (mirrors NormalizedTopic +
 // the original phrasing). Defined locally so this client island doesn't pull the
 // server schema module into the browser bundle.
-interface ResolvedTopic {
-  title: string;
-  topicSlug: string;
-  intent: "topic" | "question";
-  rawQuery: string;
-}
+type ResolvedTopic = LessonTopic;
 
 type Phase =
   | { name: "idle" }
   | { name: "resolving" }
-  | { name: "resolved"; topic: ResolvedTopic }
+  | { name: "reading"; topic: ResolvedTopic }
   | { name: "blocked"; redirect: string };
 
 export function ExploreEntry() {
@@ -46,7 +42,7 @@ export function ExploreEntry() {
       const data = (await res.json()) as
         { ok: true; topic: ResolvedTopic } | { ok: false; redirect: string };
       if (data.ok) {
-        setPhase({ name: "resolved", topic: data.topic });
+        setPhase({ name: "reading", topic: data.topic });
       } else {
         setPhase({ name: "blocked", redirect: data.redirect });
       }
@@ -66,7 +62,7 @@ export function ExploreEntry() {
   function chooseSuggestion(topic: SuggestedTopic) {
     if (busy) return;
     setPhase({
-      name: "resolved",
+      name: "reading",
       topic: {
         title: topic.title,
         topicSlug: topic.topicSlug,
@@ -82,25 +78,13 @@ export function ExploreEntry() {
     setError(null);
   }
 
-  if (phase.name === "resolved") {
+  if (phase.name === "reading") {
     return (
-      <Card
-        elevated
-        padding="lg"
-        className="flex w-full flex-col items-center gap-4 text-center"
-      >
-        <span className="text-5xl" aria-hidden="true">
-          🧭
-        </span>
-        <Heading level={2}>Charting your trip to {phase.topic.title}!</Heading>
-        <Text tone="soft" measure aria-live="polite">
-          Your lesson is being prepared. Soon you&apos;ll read all about it,
-          take a quick quiz, and earn rewards.
-        </Text>
-        <Button variant="secondary" onClick={reset}>
-          Explore something else
-        </Button>
-      </Card>
+      <LessonReader
+        key={phase.topic.topicSlug}
+        topic={phase.topic}
+        onExplore={reset}
+      />
     );
   }
 

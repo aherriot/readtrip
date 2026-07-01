@@ -7,6 +7,8 @@ import { Icon } from "@/components/ui/Icon";
 import { Input } from "@/components/ui/Input";
 import { ProgressBar } from "@/components/ui/ProgressBar";
 import { Text } from "@/components/ui/Text";
+import { LessonChunk } from "@/components/reading/LessonChunk";
+import { ReadingView } from "@/components/reading/ReadingView";
 import { ModalDemo } from "./ModalDemo";
 
 /*
@@ -344,6 +346,32 @@ export default function ComponentGallery() {
             <ModalDemo surface="night" />
             <ModalDemo surface="paper" />
           </div>
+        </section>
+
+        {/* ReadingView forces its own paper surface (the field journal), so it
+            gets a bespoke section rather than the two-surface <Section>. */}
+        <section
+          data-testid="section-readingview"
+          className="flex flex-col gap-4"
+        >
+          <h2 className="font-display text-2xl text-surface-ink">
+            ReadingView + LessonChunk
+          </h2>
+          <ReadingView aria-label="Lesson about the Moon">
+            <Heading level={1}>The Moon</Heading>
+            <LessonChunk>
+              Look up at night and you might see it glowing — the Moon, our
+              closest neighbour in space!
+            </LessonChunk>
+            <LessonChunk>
+              The Moon travels all the way around Earth about once a month. It
+              has no light of its own; it shines by catching sunlight, like a
+              mirror.
+            </LessonChunk>
+            <LessonChunk>
+              What do you think it would feel like to bounce across the Moon?
+            </LessonChunk>
+          </ReadingView>
         </section>
       </div>
     </main>

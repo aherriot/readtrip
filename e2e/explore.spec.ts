@@ -78,16 +78,18 @@ test("the Explore button stays disabled until something is typed", async ({
   await expect(exploreButton).toBeEnabled();
 });
 
-test("tapping a suggestion resolves straight to that topic", async ({
+test("tapping a suggestion resolves straight into a lesson", async ({
   page,
 }) => {
   await reachExplore(page);
 
   await page.getByRole("button", { name: /dinosaurs/i }).click();
 
-  // Known concept → resolves client-side, no model round-trip.
+  // Known concept → resolves client-side (no /api/explore model round-trip) and
+  // opens the reading surface for that topic. (Lesson content itself comes from
+  // /api/lesson — covered in lesson.spec.ts.)
   await expect(
-    page.getByRole("heading", { name: /charting your trip to dinosaurs/i })
+    page.getByRole("region", { name: /lesson about dinosaurs/i })
   ).toBeVisible();
 
   // And we can back out to explore something else.

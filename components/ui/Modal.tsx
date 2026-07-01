@@ -63,6 +63,10 @@ export function Modal({
       />
       <DialogPanel
         transition
+        // Stable hook for the visual suite to snapshot the opaque panel itself,
+        // not the full-viewport Dialog root (whose translucent backdrop would
+        // otherwise bleed the page behind it into the baseline).
+        data-testid="modal-panel"
         className={cn(
           "relative z-10 w-full max-w-lg bg-surface text-surface-ink",
           // Full-width sheet (rounded top) on phones; floating card above.

@@ -4,7 +4,7 @@
 //   - Output check    — a lightweight rules scan of generated text.
 // The philosophy is "redirect, don't scold": a blocked topic gets a gentle
 // steer toward something else, never a cold error.
-import { callModel } from "@/lib/llm/client";
+import { callModel, isLlmOffline } from "@/lib/llm/client";
 import { pickModel } from "@/lib/llm/router";
 import { extractJson } from "@/lib/llm/schemas";
 import {
@@ -51,6 +51,11 @@ export async function safetyPrecheck(
       redirect: REDIRECT_MESSAGE,
     };
   }
+
+  // Offline (local dev / CI / e2e): the rules layer is the whole guardrail. It
+  // already passed above, so treat the input as safe rather than throwing on a
+  // classifier call we can't make. Real environments run the classifier.
+  if (isLlmOffline()) return { ok: true };
 
   const { text } = await callModel({
     task: "safety_precheck",

@@ -162,8 +162,21 @@ Goal: the playable Explore → Read → Quiz → Reward → Steer loop. This is 
       redirect on a blocked topic). Persisting the resolved topic onto a `Loop` is deferred
       to the lesson step, which owns the NOT-NULL `lessonText` — the world map isn't built
       yet, so the map-node shortcut reuses the same curated-slug path.)
-- [ ] **Lesson** — `/api/lesson` (streamed) + `components/reading/ReadingView` +
+- [x] **Lesson** — `/api/lesson` (streamed) + `components/reading/ReadingView` +
       `LessonChunk` on the field-journal surface.
+      (Resolving a topic opens `LessonReader`, which streams `/api/lesson` over
+      SSE and renders each blank-line chunk as a `LessonChunk` inside a paper
+      `ReadingView`. The route reads the child's reading level server-side (never
+      trusted from the client) and re-runs `safety_precheck` as defense in depth
+      — a curated suggestion skips `/api/explore`, and the body is client-supplied.
+      The service layer gains `streamLesson`/`streamModel` (real token streaming,
+      still logging usage). When no Anthropic key is configured — or
+      `READTRIP_OFFLINE_LLM=1`, which e2e sets — generation falls back to a
+      deterministic canned lesson and safety runs rules-only, so the loop is
+      exercisable end-to-end without the API. Persisting the resolved topic +
+      lesson onto a `Loop` is deferred to the quiz step: `Loop` requires both
+      `lessonText` AND `quizJson` NOT NULL, so it's written once, valid, when the
+      quiz exists.)
 - [ ] **Quiz** — `/api/quiz` (structured output) + `QuizChoice`/`QuizCard` with
       icon+text+color feedback.
 - [ ] **Steer** — post-quiz topic choices; difficulty adjusts from rolling quiz scores. A
