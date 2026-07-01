@@ -10,6 +10,7 @@ import { Text } from "@/components/ui/Text";
 import { LessonChunk } from "@/components/reading/LessonChunk";
 import { ReadingView } from "@/components/reading/ReadingView";
 import { ModalDemo } from "./ModalDemo";
+import { QuizDemo } from "./QuizDemo";
 
 /*
  * Component gallery — the manual-check surface for the design system.
@@ -372,6 +373,16 @@ export default function ComponentGallery() {
               What do you think it would feel like to bounce across the Moon?
             </LessonChunk>
           </ReadingView>
+        </section>
+
+        {/* QuizChoice + QuizCard are field-journal (paper) components and manage
+            their own answer state, so — like ReadingView — they get a bespoke
+            single-surface section with an interactive demo island. */}
+        <section data-testid="section-quiz" className="flex flex-col gap-4">
+          <h2 className="font-display text-2xl text-surface-ink">
+            QuizChoice + QuizCard
+          </h2>
+          <QuizDemo />
         </section>
       </div>
     </main>

@@ -1,0 +1,115 @@
+// Quiz endpoint (docs/09 M4). Generates a schema-valid multiple-choice quiz from
+// the lesson the child just read, and — because this is the first step where both
+// `lessonText` and `quizJson` exist — persists the completed `Loop`. The reading
+// level is read from the child server-side (never trusted from the client); the
+// quiz's `correctIndex`/`explanation` are returned so the client can give instant
+// icon+text+color feedback (a low-stakes learning quiz, not a graded test).
+import { auth } from "@/lib/auth";
+import { getChild } from "@/lib/children/queries";
+import { getSelectedChildId } from "@/lib/children/selection";
+import { generateQuiz } from "@/lib/llm";
+import { clampReadingLevel } from "@/lib/llm/prompts/readingLevel";
+import { recordLoop } from "@/lib/loops/queries";
+
+const MAX_QUERY_LENGTH = 200;
+const MAX_LESSON_LENGTH = 8000;
+
+interface QuizBody {
+  title: string;
+  topicSlug: string;
+  intent: "topic" | "question";
+  rawQuery: string | null;
+  lessonText: string;
+}
+
+function parseBody(body: unknown): QuizBody | null {
+  if (typeof body !== "object" || body === null) return null;
+  const { title, topicSlug, intent, rawQuery, lessonText } = body as Record<
+    string,
+    unknown
+  >;
+  if (typeof title !== "string" || title.trim().length === 0) return null;
+  if (typeof topicSlug !== "string" || topicSlug.trim().length === 0)
+    return null;
+  if (intent !== "topic" && intent !== "question") return null;
+  if (typeof lessonText !== "string" || lessonText.trim().length === 0)
+    return null;
+  if (
+    rawQuery !== undefined &&
+    rawQuery !== null &&
+    typeof rawQuery !== "string"
+  ) {
+    return null;
+  }
+  const raw = typeof rawQuery === "string" ? rawQuery.trim() : null;
+  if (raw !== null && raw.length > MAX_QUERY_LENGTH) return null;
+  return {
+    title: title.trim().slice(0, MAX_QUERY_LENGTH),
+    topicSlug: topicSlug.trim(),
+    intent,
+    rawQuery: raw && raw.length > 0 ? raw : null,
+    lessonText: lessonText.trim().slice(0, MAX_LESSON_LENGTH),
+  };
+}
+
+export async function POST(request: Request) {
+  const session = await auth();
+  if (!session?.user?.id) {
+    return Response.json({ error: "unauthorized" }, { status: 401 });
+  }
+
+  const childId = await getSelectedChildId();
+  if (!childId) {
+    return Response.json({ error: "no-child-selected" }, { status: 400 });
+  }
+  const child = await getChild(session.user.id, childId);
+  if (!child) {
+    return Response.json({ error: "child-not-found" }, { status: 404 });
+  }
+
+  let json: unknown;
+  try {
+    json = await request.json();
+  } catch {
+    return Response.json({ error: "invalid-json" }, { status: 400 });
+  }
+
+  const body = parseBody(json);
+  if (body === null) {
+    return Response.json({ error: "invalid-body" }, { status: 400 });
+  }
+
+  const readingLevel = clampReadingLevel(child.readingLevel);
+
+  let quiz;
+  try {
+    ({ quiz } = await generateQuiz({
+      lessonText: body.lessonText,
+      readingLevel,
+      childId,
+      topicTitle: body.title,
+    }));
+  } catch (err) {
+    console.error("[quiz] generation failed:", err);
+    return Response.json({ error: "quiz-failed" }, { status: 502 });
+  }
+
+  // Persist the completed loop. A DB failure shouldn't rob the child of the quiz
+  // they can already play — warn and carry on (mirrors the LlmCallLog stance).
+  let loopId: string | null = null;
+  try {
+    loopId = await recordLoop({
+      childId,
+      topicSlug: body.topicSlug,
+      intent: body.intent,
+      rawQuery: body.rawQuery,
+      readingLevel,
+      lessonText: body.lessonText,
+      quizJson: quiz,
+    });
+  } catch (err) {
+    console.error("[quiz] failed to persist loop:", err);
+  }
+
+  return Response.json({ quiz, loopId });
+}
