@@ -33,6 +33,7 @@ e2e/**/*-win32.png
 .DS_Store
 *.pem
 /coverage
+/.claude/worktrees
 
 # vercel
 .vercel
