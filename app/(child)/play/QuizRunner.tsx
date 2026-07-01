@@ -191,6 +191,15 @@ export function QuizRunner({
         console.error("[progress] failed:", err);
       }
     })();
+
+    // Grow the world map: the explored node is already saved at quiz time, so
+    // this just refreshes the interest-driven neighbour suggestions for next
+    // time (docs/05). Fire-and-forget — it doesn't affect this screen.
+    void fetch("/api/map", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ topicSlug: topic.topicSlug, title: topic.title }),
+    }).catch((err) => console.error("[map] failed:", err));
   }
 
   function advance() {

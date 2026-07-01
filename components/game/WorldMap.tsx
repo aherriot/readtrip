@@ -1,0 +1,51 @@
+"use client";
+
+import { Heading } from "@/components/ui/Heading";
+import { Text } from "@/components/ui/Text";
+import { orderNodes, toNodeState, type MapNodeView } from "@/lib/map/nodeState";
+import { TopicNode } from "./TopicNode";
+
+export interface WorldMapProps {
+  /** The child's map: explored topics + suggested neighbours. */
+  nodes: readonly MapNodeView[];
+  /** Fired with the chosen node when the child taps one. */
+  onSelect: (node: MapNodeView) => void;
+}
+
+/**
+ * The child's personalized world map of knowledge (docs/05). Explored topics are
+ * lit, mastered ones stamped, and suggested neighbours invite the next tap. The
+ * "map" is rendered as a real list of buttons in a meaningful order (explored
+ * first), which doubles as the screen-reader-friendly list view — it's never
+ * purely spatial (a11y floor, docs/10). Lives on the night/play surface.
+ */
+export function WorldMap({ nodes, onSelect }: WorldMapProps) {
+  if (nodes.length === 0) return null;
+
+  const ordered = orderNodes(nodes);
+  return (
+    <section
+      aria-labelledby="world-map-heading"
+      className="flex w-full flex-col gap-3"
+    >
+      <Heading id="world-map-heading" level={2}>
+        Your world map
+      </Heading>
+      <Text tone="soft" size="sm">
+        Tap a glowing spot to explore it — new places appear as you discover
+        more.
+      </Text>
+      <ul className="grid list-none grid-cols-2 gap-4 sm:grid-cols-3">
+        {ordered.map((node) => (
+          <li key={node.topicSlug} className="flex">
+            <TopicNode
+              title={node.title}
+              state={toNodeState(node)}
+              onSelect={() => onSelect(node)}
+            />
+          </li>
+        ))}
+      </ul>
+    </section>
+  );
+}
