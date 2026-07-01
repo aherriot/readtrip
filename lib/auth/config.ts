@@ -1,8 +1,8 @@
 import type { NextAuthConfig } from "next-auth";
 
 /**
- * Edge-safe base config. Contains NO database adapter and NO providers that pull
- * in Node-only deps (nodemailer, the pg driver) — so it can run in the Next.js
+ * Edge-safe base config. Contains NO database adapter (the Drizzle adapter + pg
+ * driver are Node-only) and no providers — so it can run in the Next.js
  * middleware (Edge runtime). The full config in `./index.ts` spreads this and
  * adds the adapter + providers for the Node runtime (API route, server actions).
  *

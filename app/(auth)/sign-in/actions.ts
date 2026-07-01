@@ -24,7 +24,7 @@ export async function sendMagicLinkAction(
   if (!email) return { error: "Enter your email address." };
 
   try {
-    await signIn("nodemailer", { email, redirectTo: "/profiles" });
+    await signIn("resend", { email, redirectTo: "/profiles" });
     return null;
   } catch (error) {
     if (error instanceof AuthError) {
