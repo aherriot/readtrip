@@ -106,21 +106,36 @@ is the empty child landing.)
 
 Goal: the server-side LLM plumbing, independent of UI, so feature pages just call it.
 
-- [ ] `lib/llm/client.ts` — Anthropic client singleton.
-- [ ] `lib/llm/router.ts` — model routing per task (Haiku/Sonnet/Opus) from
-      [`03`](03-llm-integration.md).
-- [ ] `lib/llm/cache.ts` — stable cached system prefix + volatile suffix helpers.
-- [ ] `lib/llm/prompts/` — versioned lesson, quiz, and topic-map prompts (reading level as
-      a parameter).
-- [ ] `lib/llm/normalize.ts` — `normalize_topic` (Haiku): free-form input (topic noun
+- [x] `lib/llm/client.ts` — Anthropic client singleton. Its `callModel` wrapper is the one
+      path every generation goes through: it attaches adaptive thinking + `effort` only on
+      models that support them (Haiku 4.5 would 400 on `effort`), reads token usage off the
+      response, and writes the `LlmCallLog` row.
+- [x] `lib/llm/router.ts` — model routing per task (Haiku/Sonnet/Opus) from
+      [`03`](03-llm-integration.md), plus `pickEffort`. IDs + capabilities + pricing live in
+      `lib/llm/models.ts`.
+- [x] `lib/llm/cache.ts` — `cachedSystem` marks the stable system prefix `cache_control`;
+      the volatile topic/reading-level goes in the user message, after the breakpoint.
+- [x] `lib/llm/prompts/` — versioned lesson, quiz, topic-map, and normalize prompts (each
+      with a `*_PROMPT_VERSION`); reading level is a parameter injected into the volatile
+      user message (`readingLevel.ts`) so the cached system prefix stays byte-stable.
+- [x] `lib/llm/normalize.ts` — `normalize_topic` (Haiku): free-form input (topic noun
       **or** question like "Why is the sky blue?") → `{ title, topicSlug, intent }`, so
       question phrasings dedupe to a stable concept ([`03`](03-llm-integration.md),
-      [`06`](06-data-model.md)).
-- [ ] `lib/safety/` — input precheck + output check (used by every generation path).
-- [ ] `LlmCallLog` writes on every call (model, tokens, cache hits, latency, cost).
+      [`06`](06-data-model.md)). Pure `slug.ts` fallback keeps progression working on a
+      malformed model response.
+- [x] `lib/safety/` — input precheck (pure rules layer → Haiku classifier) + output check,
+      used by every generation path; blocks redirect gently rather than scolding.
+- [x] `LlmCallLog` writes on every call (model, tokens, cache read/create, latency, cost).
+      Quiz validity is enforced with a Zod schema (Sonnet 4.6 isn't in the structured-output
+      model set), with a one-shot Opus retry on invalid output.
 
 **DoD:** a script can generate a level-appropriate lesson + a schema-valid quiz, with the
 call logged and the system prefix caching (verify `cache_read_input_tokens > 0` on repeat).
+✅ Met — `npm run llm:verify -- "why is the sky blue?" 2` runs the full
+safety → normalize → lesson → quiz pipeline against the live API, prints the schema-valid
+quiz and the logged `LlmCallLog` rows, and confirms `cache_read_input_tokens > 0` on the
+repeat lesson call. `npm run check` (typecheck/lint/prettier/design-system + 51 unit tests)
+is green.
 
 ---
 
