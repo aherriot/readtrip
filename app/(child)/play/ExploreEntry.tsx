@@ -1,12 +1,15 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { useState, type FormEvent } from "react";
+import { WorldMap } from "@/components/game/WorldMap";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { Heading } from "@/components/ui/Heading";
 import { Input } from "@/components/ui/Input";
 import { Text } from "@/components/ui/Text";
-import { SUGGESTED_TOPICS, type SuggestedTopic } from "@/lib/explore/topics";
+import { freshStarters } from "@/lib/explore/topics";
+import type { MapNodeView } from "@/lib/map/nodeState";
 import { LessonReader, type LessonTopic } from "./LessonReader";
 
 // What /api/explore resolves free-form input into (mirrors NormalizedTopic +
@@ -20,7 +23,12 @@ type Phase =
   | { name: "reading"; topic: ResolvedTopic }
   | { name: "blocked"; redirect: string };
 
-export function ExploreEntry() {
+export function ExploreEntry({
+  initialNodes,
+}: {
+  initialNodes: MapNodeView[];
+}) {
+  const router = useRouter();
   const [phase, setPhase] = useState<Phase>({ name: "idle" });
   const [query, setQuery] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -85,9 +93,9 @@ export function ExploreEntry() {
     void explore(query);
   }
 
-  // A curated suggestion is a known concept, so it skips the safety + normalize
-  // round-trip and resolves straight away (like tapping a world-map node).
-  function chooseSuggestion(topic: SuggestedTopic) {
+  // A map node or curated chip is a known concept, so tapping it skips the
+  // safety + normalize round-trip and resolves straight away.
+  function startTopic(topic: { title: string; topicSlug: string }) {
     if (busy) return;
     startReading({
       title: topic.title,
@@ -103,6 +111,9 @@ export function ExploreEntry() {
     setPhase({ name: "idle" });
     setQuery("");
     setError(null);
+    // Re-fetch the server-rendered map so a topic just explored shows as lit and
+    // any new suggested neighbours appear.
+    router.refresh();
   }
 
   if (phase.name === "reading") {
@@ -135,9 +146,49 @@ export function ExploreEntry() {
     );
   }
 
+  // Curated starters the child doesn't already have on their map — a breadth
+  // counterweight to the map's narrow-and-deep growth. If the map is all bugs,
+  // this still offers weather, space, dinosaurs… (docs/05: interest-driven, but
+  // never a filter bubble). Empty for a brand-new explorer whose seeded map
+  // already *is* the starters.
+  const differentTopics = freshStarters(initialNodes.map((n) => n.topicSlug));
+
   return (
     <div className="flex w-full flex-col gap-8">
+      <WorldMap nodes={initialNodes} onSelect={startTopic} />
+
+      {differentTopics.length > 0 && (
+        <div className="flex flex-col gap-3">
+          <Heading level={2}>Something completely different</Heading>
+          <Text tone="soft" size="sm">
+            Fresh ideas, nothing like your map so far — tap one to wander
+            somewhere new.
+          </Text>
+          <div
+            className="flex flex-wrap gap-3"
+            role="group"
+            aria-label="Something completely different"
+          >
+            {differentTopics.map((topic) => (
+              <Button
+                key={topic.topicSlug}
+                variant="secondary"
+                size="md"
+                disabled={busy}
+                onClick={() => startTopic(topic)}
+                leadingIcon={<span aria-hidden="true">{topic.emoji}</span>}
+              >
+                {topic.title}
+              </Button>
+            ))}
+          </div>
+        </div>
+      )}
+
       <form onSubmit={onSubmit} className="flex flex-col gap-4">
+        <Text size="sm" tone="soft">
+          Or type your own idea:
+        </Text>
         <Input
           label="What do you want to explore?"
           name="rawQuery"
@@ -157,30 +208,6 @@ export function ExploreEntry() {
           </Text>
         )}
       </form>
-
-      <div className="flex flex-col gap-3">
-        <Text size="sm" tone="soft">
-          Or jump into one of these:
-        </Text>
-        <div
-          className="flex flex-wrap gap-3"
-          role="group"
-          aria-label="Suggested topics"
-        >
-          {SUGGESTED_TOPICS.map((topic) => (
-            <Button
-              key={topic.topicSlug}
-              variant="secondary"
-              size="md"
-              disabled={busy}
-              onClick={() => chooseSuggestion(topic)}
-              leadingIcon={<span aria-hidden="true">{topic.emoji}</span>}
-            >
-              {topic.title}
-            </Button>
-          ))}
-        </div>
-      </div>
     </div>
   );
 }

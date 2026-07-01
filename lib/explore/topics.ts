@@ -32,3 +32,19 @@ const TOPICS: ReadonlyArray<Omit<SuggestedTopic, "topicSlug">> = [
 export const SUGGESTED_TOPICS: readonly SuggestedTopic[] = TOPICS.map(
   (topic) => ({ ...topic, topicSlug: slugify(topic.title) })
 );
+
+/**
+ * Curated starters the child *doesn't* already have on their map — the "explore
+ * something completely different" pool. The world map grows narrow and deep
+ * around a child's interests (bugs → beetles → metamorphosis); this keeps a few
+ * unrelated, evergreen topics (weather, space, dinosaurs…) always on offer for
+ * breadth, filtering out anything already explored or suggested there so it
+ * genuinely differs from the map.
+ */
+export function freshStarters(
+  excludeSlugs: Iterable<string>,
+  limit = 4
+): SuggestedTopic[] {
+  const skip = new Set(excludeSlugs);
+  return SUGGESTED_TOPICS.filter((t) => !skip.has(t.topicSlug)).slice(0, limit);
+}

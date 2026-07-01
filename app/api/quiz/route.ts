@@ -10,6 +10,7 @@ import { getSelectedChildId } from "@/lib/children/selection";
 import { generateQuiz } from "@/lib/llm";
 import { clampReadingLevel } from "@/lib/llm/prompts/readingLevel";
 import { getLoopForChild, recordLoop } from "@/lib/loops/queries";
+import { recordExploredTopic } from "@/lib/map/queries";
 
 const MAX_QUERY_LENGTH = 200;
 const MAX_LESSON_LENGTH = 8000;
@@ -130,6 +131,20 @@ export async function POST(request: Request) {
     });
   } catch (err) {
     console.error("[quiz] failed to persist loop:", err);
+  }
+
+  // Light the topic up on the child's world map (docs/05). Reaching the quiz
+  // means the lesson was read, so the node is "explored" now — writing it here
+  // (not the fire-and-forget /api/map) makes it deterministic. Best-effort:
+  // a map failure must not break the quiz. Neighbour suggestions are the
+  // separate, eventual /api/map step.
+  try {
+    await recordExploredTopic(childId, {
+      topicSlug: body.topicSlug,
+      title: body.title,
+    });
+  } catch (err) {
+    console.error("[quiz] failed to record map node:", err);
   }
 
   return Response.json({ quiz, loopId });

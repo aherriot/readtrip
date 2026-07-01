@@ -55,10 +55,12 @@ into `components/` and replace its row with a reference when you do).
 | `Modal`          | ✅ [ref](references/modal.md)        | Focus-trapped dialog; `Escape`/backdrop close; returns focus to trigger.            |
 | `ProgressBar`    | ✅ [ref](references/progress-bar.md) | Generic animated bar (XP, calibration, quiz progress).                              |
 
-### Game — `components/game/` (⏳, see [docs/10](../../../docs/10-design-system.md))
+### Game — `components/game/`
 
-`TopicNode` (signature map node), `WorldMap`, `XPBar`, `ExpeditionStamp`, `Avatar`,
-`RewardBurst` / `LevelUpCelebration`, `Pip` (optional mascot).
+Built: `TopicNode` ✅ [ref](references/topic-node.md) (signature map node),
+`WorldMap` ✅ [ref](references/world-map.md).
+Planned (⏳, see [docs/10](../../../docs/10-design-system.md)): `XPBar`, `ExpeditionStamp`,
+`Avatar`, `RewardBurst` / `LevelUpCelebration`, `Pip` (optional mascot).
 
 ### Reading — `components/reading/` (⏳, see [docs/10](../../../docs/10-design-system.md))
 

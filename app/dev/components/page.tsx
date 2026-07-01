@@ -11,6 +11,7 @@ import { LessonChunk } from "@/components/reading/LessonChunk";
 import { ReadingView } from "@/components/reading/ReadingView";
 import { ModalDemo } from "./ModalDemo";
 import { QuizDemo } from "./QuizDemo";
+import { WorldMapDemo } from "./WorldMapDemo";
 
 /*
  * Component gallery — the manual-check surface for the design system.
@@ -383,6 +384,16 @@ export default function ComponentGallery() {
             QuizChoice + QuizCard
           </h2>
           <QuizDemo />
+        </section>
+
+        {/* TopicNode + WorldMap are night/play-surface game components with tap
+            handlers, so — like QuizDemo — they get a bespoke single-surface
+            section driven by a client demo island. */}
+        <section data-testid="section-worldmap" className="flex flex-col gap-4">
+          <h2 className="font-display text-2xl text-surface-ink">
+            TopicNode + WorldMap
+          </h2>
+          <WorldMapDemo />
         </section>
       </div>
     </main>

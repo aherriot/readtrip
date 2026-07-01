@@ -213,8 +213,23 @@ Goal: the playable Explore → Read → Quiz → Reward → Steer loop. This is 
       so a client retry can't double-count. The Steer result screen surfaces XP earned, any
       level-up, and a new badge as plain text; the animated `XPBar`/`RewardBurst`/
       `LevelUpCelebration` and the world map remain their own M4 items.)
-- [ ] **World map** — `WorldMap` + `TopicNode` (the signature element) with dynamic,
+- [x] **World map** — `WorldMap` + `TopicNode` (the signature element) with dynamic,
       interest-driven suggestions ([`05`](05-gamification.md)); list-view fallback for SRs.
+      (The `/play` home is now the child's personalized map. `components/game/TopicNode`
+      is the signature node — a real `<button>` with locked/suggested/explored/mastered
+      states, each an icon + word + color (never color-only), clearing the kid target
+      floor; `components/game/WorldMap` renders the nodes as an ordered `<ul>`
+      (explored first) that doubles as the screen-reader list view. `MapNode` rows persist
+      per child (`lib/map/queries.ts`): the explored node is written at quiz time (so it's
+      deterministic) and mastery is folded in from `TopicProgress` at read time. After a
+      loop, `/api/map` refreshes interest-driven neighbours via the `topic_map` task
+      (`lib/map/suggest.ts`, with a curated offline fallback so the map still grows without
+      the API); a new explorer's map is seeded with curated starters. Alongside the map (which
+      grows narrow and deep around interests) a separate "Something completely different"
+      section (`freshStarters`) always offers a few unrelated evergreen starters not on the
+      map — breadth as a counterweight to a filter bubble. Node/ordering/starter logic is
+      unit-tested; the component a11y contract + a map-flow e2e cover the rest. Deeper
+      topic-map safety wiring remains the separate Safety item.)
 - [ ] **Rewards** — `XPBar`, `ExpeditionStamp`, `RewardBurst`/`LevelUpCelebration`
       (reduced-motion safe).
 - [ ] **Safety** wired into lesson, quiz, **and** topic-map suggestions.

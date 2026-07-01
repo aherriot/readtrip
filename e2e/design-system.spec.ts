@@ -335,3 +335,56 @@ test.describe("Modal — accessibility contract", () => {
     await expect(trigger).toBeFocused();
   });
 });
+
+test.describe("WorldMap / TopicNode — accessibility contract", () => {
+  const region = (page: import("@playwright/test").Page) =>
+    page.getByTestId("worldmap-demo");
+
+  test("a node is a real button meeting the kid target floor", async ({
+    page,
+  }) => {
+    const node = region(page).getByRole("button", {
+      name: "Dinosaurs Mastered",
+    });
+    await expect(node).toHaveJSProperty("tagName", "BUTTON");
+    const box = await node.boundingBox();
+    expect(box?.height ?? 0).toBeGreaterThanOrEqual(56);
+  });
+
+  test("a locked node is disabled", async ({ page }) => {
+    await expect(
+      region(page).getByRole("button", { name: "Volcanoes Locked" })
+    ).toBeDisabled();
+  });
+
+  test("each state carries a word, not color alone", async ({ page }) => {
+    // The status word is part of the node's accessible name, so state survives
+    // without color (a11y floor: never color-only).
+    for (const word of ["Locked", "Tap to explore", "Explored", "Mastered"]) {
+      await expect(
+        region(page).getByText(word, { exact: true }).first()
+      ).toBeVisible();
+    }
+  });
+
+  test("the map is a real list — the screen-reader-friendly equivalent", async ({
+    page,
+  }) => {
+    const list = region(page).getByRole("list");
+    await expect(list).toBeVisible();
+    // The four sample nodes are list items, in DOM order (not purely spatial).
+    await expect(list.getByRole("listitem")).toHaveCount(4);
+  });
+
+  test("a node shows a visible focus ring when focused", async ({ page }) => {
+    const node = region(page).getByRole("button", {
+      name: "Outer Space Tap to explore",
+    });
+    await node.focus();
+    await expect(node).toBeFocused();
+    const outlineWidth = await node.evaluate(
+      (el) => getComputedStyle(el).outlineWidth
+    );
+    expect(parseFloat(outlineWidth)).toBeGreaterThan(0);
+  });
+});
