@@ -2,6 +2,7 @@
 
 import { AuthError } from "next-auth";
 import { signIn } from "@/lib/auth";
+import { isDevSignInAllowed } from "@/lib/auth/dev-mode";
 
 export type SignInState = { error: string } | null;
 
@@ -42,6 +43,9 @@ export async function devSignInAction(
   const email = emailFrom(formData);
   const name = String(formData.get("name") ?? "").trim();
   if (!email) return { error: "Enter an email address." };
+  if (!isDevSignInAllowed(email)) {
+    return { error: "This email isn't allowed to use dev sign-in here." };
+  }
 
   try {
     await signIn("dev-credentials", { email, name, redirectTo: "/profiles" });
