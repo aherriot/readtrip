@@ -26,6 +26,34 @@ Calibrate → Explore → Read → Quiz → Reward → Steer → (back to Explor
 5. **Reward** — points + XP for reading and correct answers; badges for topic mastery.
 6. **Steer** — the child chooses where to go next; difficulty adapts from quiz results.
 
+## Child safety
+
+This is a product **for children**, so safety is a first-class concern, not an
+afterthought. Every path that generates or surfaces content is guarded, and every
+guardrail runs **server-side** (the Claude API key never reaches the browser).
+
+- **Layered guardrails, defense in depth.** A free, deterministic **rules layer**
+  catches obvious cases before spending a model call; a **Haiku classifier** handles
+  nuance on free-form input. The generation **system prompts** are the primary defense;
+  a lightweight **output scan** is the backstop on everything the model produces.
+- **Every generation path is covered — input _and_ output:**
+  - **Explore** — free-form topic input is prechecked before anything is generated.
+  - **Read (lesson)** — the topic is re-checked (defense in depth), and the streamed
+    lesson is **output-scanned as it streams**: an unsafe fragment is withheld, never
+    sent, and the whole lesson is replaced with a gentle redirect.
+  - **Quiz** — the generated quiz (every prompt, choice, and explanation) is scanned
+    before it's shown or persisted; an unsafe quiz is dropped, not stored.
+  - **World-map suggestions** — the map's topic suggestions are LLM output too, so they
+    pass the **same guardrails** before a single node is saved or displayed.
+- **Redirect, don't scold.** A blocked topic gets a warm "let's explore something else"
+  steer — never a cold error or a lecture. Struggling or curiosity is never punished.
+- **Auditable.** Every safety-relevant model call is logged (`LlmCallLog`) so decisions
+  can be reviewed and tuned.
+
+The rationale and the red-team eval plan live in
+[`docs/07-evals-and-safety.md`](docs/07-evals-and-safety.md); the guardrail code is in
+[`lib/safety/`](lib/safety).
+
 ## Audience
 
 Wide and adaptive: **ages ~5–12**. The same product spans early readers and tweens by

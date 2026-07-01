@@ -12,6 +12,7 @@ import {
   type SafetyCategory,
   rulePrecheck,
   ruleOutputScan,
+  quizScanText,
 } from "./rules";
 
 export type PrecheckResult =
@@ -93,4 +94,15 @@ export function outputCheck(text: string): OutputCheckResult {
     : { ok: true };
 }
 
-export { REDIRECT_MESSAGE } from "./rules";
+/**
+ * Output guardrail for a generated quiz — scans every prompt, choice, and
+ * explanation the child would see (not just one field). Used by /api/quiz before
+ * the quiz is returned or the loop persisted.
+ */
+export function checkQuizOutput(quiz: {
+  questions: { prompt: string; choices: string[]; explanation: string }[];
+}): OutputCheckResult {
+  return outputCheck(quizScanText(quiz));
+}
+
+export { REDIRECT_MESSAGE, filterSafeTopics } from "./rules";

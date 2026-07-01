@@ -7,6 +7,7 @@
 import { SUGGESTED_TOPICS } from "@/lib/explore/topics";
 import { suggestTopics } from "@/lib/llm";
 import { isLlmOffline } from "@/lib/llm/client";
+import { filterSafeTopics } from "@/lib/safety";
 import { getChildMap, saveSuggestedNeighbors } from "./queries";
 
 /** Cap how many neighbours we surface per topic so the map stays scannable. */
@@ -36,11 +37,18 @@ export async function refreshSuggestions(input: {
         childId: input.childId,
       });
 
-  if (suggestions.length === 0) return;
+  // Safety backstop before anything is saved/shown: topic-map suggestions are
+  // LLM output too (docs/07), so filter them through the same output rules as
+  // lessons and quizzes. The topic_map prompt is the primary guardrail; this
+  // drops any suggestion that drifts age-inappropriate. (Offline suggestions are
+  // curated + safe, so this is a no-op there.)
+  const safe = filterSafeTopics(suggestions);
+
+  if (safe.length === 0) return;
   await saveSuggestedNeighbors(
     input.childId,
     input.topicSlug,
-    suggestions.slice(0, MAX_SUGGESTIONS)
+    safe.slice(0, MAX_SUGGESTIONS)
   );
 }
 
