@@ -7,6 +7,29 @@ import { expect, test, type Page } from "@playwright/test";
 // spec this drives the offline (canned) loop, so it never calls a live LLM but
 // needs a real Next server + DB. Mirrors e2e/quiz.spec.ts.
 
+// From the (hydrated) Explore screen: tap Dinosaurs, read the lesson, and answer
+// the 2-question canned quiz correctly through to its result screen. Reusable so
+// a test can replay the *same* topic to build up per-topic progress.
+async function playDinosaursToDone(page: Page) {
+  await page.getByRole("button", { name: /dinosaurs/i }).click();
+  await expect(
+    page.getByRole("button", { name: /start the quiz/i })
+  ).toBeVisible();
+  await page.getByRole("button", { name: /start the quiz/i }).click();
+
+  await expect(
+    page.getByRole("heading", { name: /quiz: dinosaurs/i })
+  ).toBeVisible();
+  await page.getByRole("button", { name: /^dinosaurs$/i }).click();
+  await page.getByRole("button", { name: /next question/i }).click();
+  await page
+    .getByRole("button", { name: /reading and asking questions/i })
+    .click();
+  await page.getByRole("button", { name: /finish/i }).click();
+
+  await expect(page.getByText(/2 of 2 on the first try/i)).toBeVisible();
+}
+
 // Sign in → add a child → calibrate → land on Explore → tap Dinosaurs → read →
 // play the 2-question canned quiz to its result screen.
 async function reachQuizDone(page: Page) {
@@ -43,24 +66,7 @@ async function reachQuizDone(page: Page) {
   }).toPass();
   await input.fill("");
 
-  await page.getByRole("button", { name: /dinosaurs/i }).click();
-  await expect(
-    page.getByRole("button", { name: /start the quiz/i })
-  ).toBeVisible();
-  await page.getByRole("button", { name: /start the quiz/i }).click();
-
-  // Answer both canned questions correctly and finish.
-  await expect(
-    page.getByRole("heading", { name: /quiz: dinosaurs/i })
-  ).toBeVisible();
-  await page.getByRole("button", { name: /^dinosaurs$/i }).click();
-  await page.getByRole("button", { name: /next question/i }).click();
-  await page
-    .getByRole("button", { name: /reading and asking questions/i })
-    .click();
-  await page.getByRole("button", { name: /finish/i }).click();
-
-  await expect(page.getByText(/2 of 2 on the first try/i)).toBeVisible();
+  await playDinosaursToDone(page);
 }
 
 test("a child can go deeper into the topic they just finished", async ({
@@ -99,4 +105,25 @@ test("finishing a quiz awards XP (Progress)", async ({ page }) => {
   // Both canned questions right on the first try → the read reward + 2 bonuses.
   // First visit to the topic, so no badge/level-up yet — just the XP payout.
   await expect(page.getByText(/earned 20 xp/i)).toBeVisible();
+  await expect(page.getByText(/new badge/i)).toBeHidden();
+  await expect(page.getByText(/reached level/i)).toBeHidden();
+});
+
+test("replaying a topic masters it and levels up (Progress)", async ({
+  page,
+}) => {
+  // Visit 1 earns 20 XP; the topic isn't mastered yet (needs a revisit).
+  await reachQuizDone(page);
+  await expect(page.getByText(/new badge/i)).toBeHidden();
+
+  // Steer back to Explore and play the *same* topic again.
+  await page.getByRole("button", { name: /explore something new/i }).click();
+  await expect(page.getByLabel(/what do you want to explore/i)).toBeVisible();
+  await playDinosaursToDone(page);
+
+  // Visit 2: a second strong score masters Dinosaurs (badge) and the cumulative
+  // 40 XP crosses the Level 2 threshold — both are announced on the Steer screen.
+  await expect(page.getByText(/earned 20 xp/i)).toBeVisible();
+  await expect(page.getByText(/new badge: dinosaurs master/i)).toBeVisible();
+  await expect(page.getByText(/reached level 2/i)).toBeVisible();
 });
