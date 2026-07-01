@@ -20,7 +20,14 @@ export interface RouteOpts {
   hard?: boolean;
 }
 
-/** Resolve the model for a task. The only place task → model is decided. */
+/**
+ * Resolve the model for a task. The only place task → model is decided.
+ *
+ * COST FREEZE: every task currently routes to Haiku regardless of `opts.hard`,
+ * pending a review of spend. To restore per-task routing (Sonnet content
+ * engines, Opus escalation/judge), change the returns below back to
+ * `MODELS.sonnet` / `MODELS.opus` as annotated.
+ */
 export function pickModel(task: Task, opts: RouteOpts = {}): ModelId {
   switch (task) {
     // Cheap, fast, individually low-stakes classification calls.
@@ -31,15 +38,15 @@ export function pickModel(task: Task, opts: RouteOpts = {}): ModelId {
     case "quiz_grade_freeform":
       return MODELS.haiku;
 
-    // The content engines: Sonnet by default, Opus on escalation.
+    // The content engines: normally Sonnet by default, Opus on escalation.
     case "lesson":
     case "quiz_generate":
     case "topic_map":
-      return opts.hard ? MODELS.opus : MODELS.sonnet;
+      return MODELS.haiku; // was: opts.hard ? MODELS.opus : MODELS.sonnet;
 
-    // The judge should be at least as capable as the model it judges.
+    // The judge should normally be at least as capable as the model it judges.
     case "eval_judge":
-      return MODELS.opus;
+      return MODELS.haiku; // was: MODELS.opus;
   }
 }
 
