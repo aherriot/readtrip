@@ -230,8 +230,16 @@ Goal: the playable Explore → Read → Quiz → Reward → Steer loop. This is 
       map — breadth as a counterweight to a filter bubble. Node/ordering/starter logic is
       unit-tested; the component a11y contract + a map-flow e2e cover the rest. Deeper
       topic-map safety wiring remains the separate Safety item.)
-- [ ] **Rewards** — `XPBar`, `ExpeditionStamp`, `RewardBurst`/`LevelUpCelebration`
+- [x] **Rewards** — `XPBar`, `ExpeditionStamp`, `RewardBurst`/`LevelUpCelebration`
       (reduced-motion safe).
+      (The Steer result screen now pays out with the real reward components instead of
+      plain text: `RewardBurst` pops the "+N XP" gain, `XPBar` fills toward the next level
+      (a pure `levelProgress` over cumulative XP, unit-tested), `ExpeditionStamp` presses in
+      a mastery badge, and a `leveledUp` result opens the focus-trapped `LevelUpCelebration`
+      overlay (built on `Modal`). All motion is `motion-safe:` with `both`-fill keyframes, so
+      the global reduced-motion floor leaves each on its final frame — a still, correct state
+      with no JS opt-out. Reward keyframes live in `app/globals.css`; every component ships a
+      gallery entry, an e2e a11y contract, and a design-system reference.)
 - [ ] **Safety** wired into lesson, quiz, **and** topic-map suggestions.
 
 **DoD:** a child completes full loops end-to-end; difficulty adapts; XP/levels/badges and

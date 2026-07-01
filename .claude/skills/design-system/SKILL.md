@@ -58,9 +58,13 @@ into `components/` and replace its row with a reference when you do).
 ### Game — `components/game/`
 
 Built: `TopicNode` ✅ [ref](references/topic-node.md) (signature map node),
-`WorldMap` ✅ [ref](references/world-map.md).
-Planned (⏳, see [docs/10](../../../docs/10-design-system.md)): `XPBar`, `ExpeditionStamp`,
-`Avatar`, `RewardBurst` / `LevelUpCelebration`, `Pip` (optional mascot).
+`WorldMap` ✅ [ref](references/world-map.md),
+`XPBar` ✅ [ref](references/xp-bar.md) (level + XP progress),
+`RewardBurst` ✅ [ref](references/reward-burst.md) (an XP gain),
+`ExpeditionStamp` ✅ [ref](references/expedition-stamp.md) (a mastery badge),
+`LevelUpCelebration` ✅ [ref](references/level-up-celebration.md) (the level-up overlay).
+Planned (⏳, see [docs/10](../../../docs/10-design-system.md)): `Avatar`, `Pip`
+(optional mascot).
 
 ### Reading — `components/reading/` (⏳, see [docs/10](../../../docs/10-design-system.md))
 

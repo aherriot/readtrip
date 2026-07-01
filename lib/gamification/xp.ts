@@ -34,3 +34,31 @@ export function levelForXp(xp: number): number {
   while (xp >= xpToReach(level + 1)) level += 1;
   return level;
 }
+
+/** How far a cumulative XP total sits within its current level. */
+export interface LevelProgress {
+  /** The level this XP total corresponds to. */
+  level: number;
+  /** XP earned since reaching `level` (0…`xpForLevel`). */
+  xpIntoLevel: number;
+  /** XP the whole of `level` spans (reaching the next level costs this much). */
+  xpForLevel: number;
+  /** Progress through the current level, 0–100 (rounded). */
+  pct: number;
+}
+
+/**
+ * Break a cumulative XP total into its position within the current level — what
+ * the `XPBar` renders (the "N XP to go" fill). Pure so it's unit-tested; the bar
+ * is just a view over it.
+ */
+export function levelProgress(xp: number): LevelProgress {
+  const clamped = Math.max(0, xp);
+  const level = levelForXp(clamped);
+  const floor = xpToReach(level);
+  const ceil = xpToReach(level + 1);
+  const xpForLevel = ceil - floor;
+  const xpIntoLevel = clamped - floor;
+  const pct = xpForLevel > 0 ? Math.round((xpIntoLevel / xpForLevel) * 100) : 0;
+  return { level, xpIntoLevel, xpForLevel, pct };
+}
