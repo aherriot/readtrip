@@ -151,10 +151,17 @@ Goal: the playable Explore → Read → Quiz → Reward → Steer loop. This is 
       answers server-side against the hidden key and persists `Child.readingLevel` +
       `calibratedAt`. First entry to `/play` routes new children through
       `/play/calibrate`.)
-- [ ] **Explore** — free-form entry (type/say a topic noun **or** a question like "Why is
+- [x] **Explore** — free-form entry (type/say a topic noun **or** a question like "Why is
       the sky blue?"); `/api/explore` runs `safety_precheck` → `normalize_topic` →
       `{ title, topicSlug, intent }`, persisting `rawQuery` + `intent` on the `Loop`.
       Tapping a map node skips straight to a known slug.
+      (The `/play` home is now the Explore screen: a free-form `Input` plus curated
+      `SUGGESTED_TOPICS` chips — each a known concept that resolves client-side without a
+      model call, the same shortcut a map node uses. `/api/explore` runs the
+      safety → normalize pipeline and returns `{ title, topicSlug, intent }` (or a gentle
+      redirect on a blocked topic). Persisting the resolved topic onto a `Loop` is deferred
+      to the lesson step, which owns the NOT-NULL `lessonText` — the world map isn't built
+      yet, so the map-node shortcut reuses the same curated-slug path.)
 - [ ] **Lesson** — `/api/lesson` (streamed) + `components/reading/ReadingView` +
       `LessonChunk` on the field-journal surface.
 - [ ] **Quiz** — `/api/quiz` (structured output) + `QuizChoice`/`QuizCard` with
