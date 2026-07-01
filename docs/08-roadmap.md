@@ -1,8 +1,8 @@
 # 08 — Roadmap
 
 Build in phases. Ship the core loop first; layer the production-engineering story on top.
-The "start simple, then add grounding and measure it" arc is itself the narrative that
-makes this a strong portfolio piece.
+The "start simple, then add grounding and measure it" arc demonstrates how a product
+evolves from working prototype to measurable, grounded system.
 
 ## Phase 0 — Skeleton (½–1 day)
 
@@ -33,7 +33,7 @@ demoable on its own.
   REST summary API): cite sources, handle "not covered," reduce hallucination.
 - Build the **eval harness** with a versioned dataset and an Opus-4.8 LLM judge.
 - **Measure the lift:** run accuracy evals with and without grounding; record the delta.
-  This produces the headline portfolio result.
+  This is the measurable proof that grounding works.
 
 ## Phase 3 — Polish & retention
 

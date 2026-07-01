@@ -272,7 +272,7 @@ Goal: reduce hallucination with grounding and **measure** it.
 - [ ] **Eval harness** in `lib/evals/`: versioned dataset (topics × reading levels);
       scorers for reading-level match, factual accuracy (Opus judge), quiz quality, safety.
 - [ ] **Measure grounding lift**: run accuracy evals with vs. without grounding; record the
-      delta (the headline portfolio result).
+      delta to quantify the improvement.
 
 **DoD:** `npm run eval` produces scores; the grounding before/after delta is documented.
 

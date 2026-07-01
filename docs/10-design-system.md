@@ -241,7 +241,7 @@ mergeable.
   (`.claude/skills/design-system`) is the operational "how & when to use" guide, and it's
   parity-checked against `components/ui/` by `npm run check:design-system` (pre-commit + CI)
   so the docs can't silently drift from the code.
-- **Storybook (recommended, optional):** a Storybook of the component library doubles as a
-  living style guide and is a strong portfolio artifact — it shows the design system as a
-  deliberate, reusable system rather than one-off pages.
+- **Storybook (recommended, optional):** a Storybook of the component library serves as a
+  living style guide and showcases the design system as a deliberate, reusable system rather
+  than one-off pages — useful for team collaboration and future development.
 - **Fonts:** load Fredoka + Lexend via `next/font` (self-hosted, no layout shift).
