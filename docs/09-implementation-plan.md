@@ -202,7 +202,17 @@ Goal: the playable Explore → Read → Quiz → Reward → Steer loop. This is 
       consistent ~85%+ steps up, ~50%- steps down, at most one level and never yo-yoing. A
       step _up_ shows a quiet "leveling up!" note; a step down stays silent. XP/levels/badges
       remain the separate Progress item; related-branch suggestions land with the World map.)
-- [ ] **Progress** — `/api/progress`: award XP, level-ups, mastery → badges.
+- [x] **Progress** — `/api/progress`: award XP, level-ups, mastery → badges.
+      (On quiz finish the client calls `/api/progress` alongside `/api/steer`; it re-grades
+      the child's first-try answers against the stored `quizJson` (XP can't be spoofed), then
+      awards XP — a read reward plus a per-correct-answer bonus (`lib/gamification/xp.ts`) —
+      recomputes `Child.level` from cumulative XP on a gentle-early curve, upserts
+      `TopicProgress` (visits, best score, mastery), and mints a one-per-topic mastery `Badge`
+      the first time a topic clears `MASTERY_PCT` across `MASTERY_MIN_VISITS` visits
+      (`lib/gamification/mastery.ts`). The award is idempotent per loop via `Loop.xpAwarded`,
+      so a client retry can't double-count. The Steer result screen surfaces XP earned, any
+      level-up, and a new badge as plain text; the animated `XPBar`/`RewardBurst`/
+      `LevelUpCelebration` and the world map remain their own M4 items.)
 - [ ] **World map** — `WorldMap` + `TopicNode` (the signature element) with dynamic,
       interest-driven suggestions ([`05`](05-gamification.md)); list-view fallback for SRs.
 - [ ] **Rewards** — `XPBar`, `ExpeditionStamp`, `RewardBurst`/`LevelUpCelebration`

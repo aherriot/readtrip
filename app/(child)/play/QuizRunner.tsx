@@ -22,6 +22,14 @@ type Phase =
 // we announce (a step *down* stays quiet, docs/04). `null` until Steer replies.
 type Adaptation = { leveledUp: boolean } | null;
 
+// The XP / level / badge payout for this loop — shown once /api/progress replies.
+type Reward = {
+  xpAwarded: number;
+  level: number;
+  leveledUp: boolean;
+  badgeTitle: string | null;
+} | null;
+
 // Warm, level-agnostic praise keyed off how the child did — never a "you failed".
 function resultMessage(score: QuizScore): string {
   if (score.total === 0) return "Great exploring!";
@@ -38,6 +46,7 @@ export function QuizRunner({
 }: { topic: LessonTopic; lessonText: string } & SteerHandlers) {
   const [phase, setPhase] = useState<Phase>({ name: "loading" });
   const [adaptation, setAdaptation] = useState<Adaptation>(null);
+  const [reward, setReward] = useState<Reward>(null);
   // First tapped choice per question — the score signal (retries don't count).
   const firstChoices = useRef<(number | null)[]>([]);
   // The persisted loop this quiz belongs to (null if the DB write failed). Steer
@@ -125,6 +134,7 @@ export function QuizRunner({
         topic={topic}
         score={phase.score}
         adaptation={adaptation}
+        reward={reward}
         loopId={phase.loopId}
         onExplore={onExplore}
         onGoDeeper={onGoDeeper}
@@ -138,29 +148,49 @@ export function QuizRunner({
 
   function finish(quiz: Quiz) {
     const score = scoreQuiz(firstChoices.current, quiz);
-    setPhase({ name: "done", score, loopId: loopId.current });
-    // Steer: record the score and adapt the reading level (docs/04). Best-effort
-    // — a failure here shouldn't block the child from steering onward. Only
-    // possible once the loop was persisted; otherwise there's nothing to score.
-    if (loopId.current) {
-      void (async () => {
-        try {
-          const res = await fetch("/api/steer", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              loopId: loopId.current,
-              firstChoices: firstChoices.current,
-            }),
-          });
-          if (!res.ok) return;
-          const data = (await res.json()) as { leveledUp: boolean };
-          setAdaptation({ leveledUp: data.leveledUp });
-        } catch (err) {
-          console.error("[steer] failed:", err);
-        }
-      })();
-    }
+    const id = loopId.current;
+    setPhase({ name: "done", score, loopId: id });
+
+    // Close out the loop once it's persisted: Steer adapts difficulty (docs/04),
+    // Progress awards XP + badges (docs/05). Both re-grade server-side from the
+    // stored quiz; fire in parallel and fail quietly — neither should block the
+    // child from steering onward, and there's nothing to score without a loop.
+    if (!id) return;
+    const choices = firstChoices.current;
+
+    void (async () => {
+      try {
+        const res = await fetch("/api/steer", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ loopId: id, firstChoices: choices }),
+        });
+        if (!res.ok) return;
+        const data = (await res.json()) as { leveledUp: boolean };
+        setAdaptation({ leveledUp: data.leveledUp });
+      } catch (err) {
+        console.error("[steer] failed:", err);
+      }
+    })();
+
+    void (async () => {
+      try {
+        const res = await fetch("/api/progress", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            loopId: id,
+            firstChoices: choices,
+            title: topic.title,
+          }),
+        });
+        if (!res.ok) return;
+        const data = (await res.json()) as NonNullable<Reward>;
+        setReward(data);
+      } catch (err) {
+        console.error("[progress] failed:", err);
+      }
+    })();
   }
 
   function advance() {
@@ -203,6 +233,7 @@ function SteerResult({
   topic,
   score,
   adaptation,
+  reward,
   loopId,
   onExplore,
   onGoDeeper,
@@ -210,6 +241,7 @@ function SteerResult({
   topic: LessonTopic;
   score: QuizScore;
   adaptation: Adaptation;
+  reward: Reward;
   loopId: string | null;
 } & SteerHandlers) {
   const [deepening, setDeepening] = useState(false);
@@ -233,9 +265,26 @@ function SteerResult({
       <Text tone="soft" measure aria-live="polite">
         You got {score.correct} of {score.total} on the first try.
       </Text>
+      {reward && (
+        <div className="flex flex-col items-center gap-1" aria-live="polite">
+          <Text size="sm" className="font-semibold">
+            ✨ You earned {reward.xpAwarded} XP!
+          </Text>
+          {reward.leveledUp && (
+            <Text size="sm" className="font-semibold">
+              🎉 You reached Level {reward.level}!
+            </Text>
+          )}
+          {reward.badgeTitle && (
+            <Text size="sm" className="font-semibold">
+              🏅 New badge: {reward.badgeTitle} Master!
+            </Text>
+          )}
+        </div>
+      )}
       {adaptation?.leveledUp && (
         <Text size="sm" aria-live="polite" className="font-semibold">
-          ⬆️ You&apos;re reading like a pro — leveling up!
+          ⬆️ You&apos;re reading like a pro now!
         </Text>
       )}
 

@@ -92,3 +92,11 @@ test("a child can steer to a brand-new expedition", async ({ page }) => {
   await page.getByRole("button", { name: /explore something new/i }).click();
   await expect(page.getByLabel(/what do you want to explore/i)).toBeVisible();
 });
+
+test("finishing a quiz awards XP (Progress)", async ({ page }) => {
+  await reachQuizDone(page);
+
+  // Both canned questions right on the first try → the read reward + 2 bonuses.
+  // First visit to the topic, so no badge/level-up yet — just the XP payout.
+  await expect(page.getByText(/earned 20 xp/i)).toBeVisible();
+});
