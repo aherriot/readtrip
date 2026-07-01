@@ -60,12 +60,10 @@ test("parent signs in, creates a child, and enters the child app", async ({
   const adaTile = page.getByRole("button", { name: /Ada/ });
   await expect(adaTile).toBeVisible();
 
-  // Select it → land in the (empty) child app.
+  // Select it → a brand-new child calibrates their reading level first.
   await adaTile.click();
-  await expect(page).toHaveURL(/\/play/);
-  await expect(page.getByRole("heading", { name: /hi, ada/i })).toBeVisible();
-
-  // Switching profiles returns to the picker.
-  await page.getByRole("button", { name: /switch explorer/i }).click();
-  await expect(page).toHaveURL(/\/profiles/);
+  await expect(page).toHaveURL(/\/play\/calibrate/);
+  await expect(
+    page.getByRole("heading", { name: /find your reading superpower/i })
+  ).toBeVisible();
 });

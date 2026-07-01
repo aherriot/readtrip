@@ -143,8 +143,14 @@ is green.
 
 Goal: the playable Explore → Read → Quiz → Reward → Steer loop. This is the MVP.
 
-- [ ] **Calibration mini-game** + `/api/calibrate` → sets starting reading level
+- [x] **Calibration mini-game** + `/api/calibrate` → sets starting reading level
       ([`04`](04-reading-levels.md)). Pre-generate/cache passages per level.
+      (Hand-authored passages cached per level in `lib/calibration/passages.ts` — no
+      LLM call at calibration time; a pure binary-search engine (`engine.ts`) shows 2–3
+      passages and lands on a starting level; the stateless `/api/calibrate` grades
+      answers server-side against the hidden key and persists `Child.readingLevel` +
+      `calibratedAt`. First entry to `/play` routes new children through
+      `/play/calibrate`.)
 - [ ] **Explore** — free-form entry (type/say a topic noun **or** a question like "Why is
       the sky blue?"); `/api/explore` runs `safety_precheck` → `normalize_topic` →
       `{ title, topicSlug, intent }`, persisting `rawQuery` + `intent` on the `Loop`.
