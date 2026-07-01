@@ -103,10 +103,11 @@ test("finishing a quiz awards XP (Progress)", async ({ page }) => {
   await reachQuizDone(page);
 
   // Both canned questions right on the first try → the read reward + 2 bonuses.
-  // First visit to the topic, so no badge/level-up yet — just the XP payout.
-  await expect(page.getByText(/earned 20 xp/i)).toBeVisible();
-  await expect(page.getByText(/new badge/i)).toBeHidden();
-  await expect(page.getByText(/reached level/i)).toBeHidden();
+  // The RewardBurst pops the "+20 XP" gain. First visit to the topic, so no
+  // mastery stamp and no level-up overlay yet — just the XP payout.
+  await expect(page.getByText("+20 XP")).toBeVisible();
+  await expect(page.getByRole("img", { name: /master badge/i })).toBeHidden();
+  await expect(page.getByRole("dialog", { name: /level/i })).toBeHidden();
 });
 
 test("replaying a topic masters it and levels up (Progress)", async ({
@@ -114,16 +115,26 @@ test("replaying a topic masters it and levels up (Progress)", async ({
 }) => {
   // Visit 1 earns 20 XP; the topic isn't mastered yet (needs a revisit).
   await reachQuizDone(page);
-  await expect(page.getByText(/new badge/i)).toBeHidden();
+  await expect(page.getByRole("img", { name: /master badge/i })).toBeHidden();
 
-  // Steer back to Explore and play the *same* topic again.
+  // Dismiss any celebration overlay, then steer back to Explore and replay the
+  // *same* topic. (Visit 1 doesn't level up, but the dismiss is harmless.)
   await page.getByRole("button", { name: /explore something new/i }).click();
   await expect(page.getByLabel(/what do you want to explore/i)).toBeVisible();
   await playDinosaursToDone(page);
 
-  // Visit 2: a second strong score masters Dinosaurs (badge) and the cumulative
-  // 40 XP crosses the Level 2 threshold — both are announced on the Steer screen.
-  await expect(page.getByText(/earned 20 xp/i)).toBeVisible();
-  await expect(page.getByText(/new badge: dinosaurs master/i)).toBeVisible();
-  await expect(page.getByText(/reached level 2/i)).toBeVisible();
+  // Visit 2: the cumulative 40 XP crosses the Level 2 threshold, so the
+  // LevelUpCelebration overlay opens (it aria-hides the page behind it, so assert
+  // + dismiss it first).
+  await expect(page.getByText("+20 XP")).toBeVisible();
+  const levelUp = page.getByRole("dialog", { name: "Level 2!" });
+  await expect(levelUp).toBeVisible();
+  await levelUp.getByRole("button", { name: /keep exploring/i }).click();
+  await expect(levelUp).toBeHidden();
+
+  // A second strong score also masters Dinosaurs — the ExpeditionStamp is now on
+  // the (no-longer-hidden) Steer screen.
+  await expect(
+    page.getByRole("img", { name: "Dinosaurs Master badge" })
+  ).toBeVisible();
 });

@@ -388,3 +388,54 @@ test.describe("WorldMap / TopicNode — accessibility contract", () => {
     expect(parseFloat(outlineWidth)).toBeGreaterThan(0);
   });
 });
+
+test.describe("Rewards — accessibility contract", () => {
+  const region = (page: import("@playwright/test").Page) =>
+    page.getByTestId("rewards-demo");
+
+  test("XPBar exposes a named progressbar with a real value", async ({
+    page,
+  }) => {
+    // 70 XP → Level 2, half-way; the bar is a labelled progressbar, and the
+    // count-up fill settles at 50 (deterministic, motion aside).
+    const bar = region(page).getByRole("progressbar", {
+      name: /Level 2:.*XP to the next level/,
+    });
+    await expect(bar).toHaveAttribute("aria-valuenow", "50");
+  });
+
+  test("ExpeditionStamp is a single labelled image, not color alone", async ({
+    page,
+  }) => {
+    // The stamp carries the topic as its accessible name AND real "Master" text,
+    // so mastery never reads by color/glow alone (a11y floor).
+    await expect(
+      region(page).getByRole("img", { name: "Volcanoes Master badge" })
+    ).toBeVisible();
+    await expect(
+      region(page).getByText("Master", { exact: true })
+    ).toBeVisible();
+  });
+
+  test("RewardBurst announces the XP gain politely", async ({ page }) => {
+    const burst = region(page).getByText("+20 XP");
+    await expect(burst).toBeVisible();
+    await expect(
+      region(page).locator('[aria-live="polite"]', { hasText: "+20 XP" })
+    ).toBeVisible();
+  });
+
+  test("LevelUpCelebration opens a focus-trapped dialog and restores focus", async ({
+    page,
+  }) => {
+    const trigger = region(page).getByRole("button", { name: "Show level-up" });
+    await trigger.click();
+
+    const dialog = page.getByRole("dialog", { name: "Level 3!" });
+    await expect(dialog).toBeVisible();
+    // Dismiss returns focus to the trigger (Modal contract).
+    await dialog.getByRole("button", { name: "Keep exploring" }).click();
+    await expect(dialog).toBeHidden();
+    await expect(trigger).toBeFocused();
+  });
+});

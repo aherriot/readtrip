@@ -11,6 +11,7 @@ import { LessonChunk } from "@/components/reading/LessonChunk";
 import { ReadingView } from "@/components/reading/ReadingView";
 import { ModalDemo } from "./ModalDemo";
 import { QuizDemo } from "./QuizDemo";
+import { RewardsDemo } from "./RewardsDemo";
 import { WorldMapDemo } from "./WorldMapDemo";
 
 /*
@@ -394,6 +395,16 @@ export default function ComponentGallery() {
             TopicNode + WorldMap
           </h2>
           <WorldMapDemo />
+        </section>
+
+        {/* XPBar / RewardBurst / ExpeditionStamp / LevelUpCelebration are the
+            night/play-surface reward components; the level-up is an overlay, so
+            (like Modal) the demo island supplies a trigger to open it. */}
+        <section data-testid="section-rewards" className="flex flex-col gap-4">
+          <h2 className="font-display text-2xl text-surface-ink">
+            XPBar + RewardBurst + ExpeditionStamp + LevelUpCelebration
+          </h2>
+          <RewardsDemo />
         </section>
       </div>
     </main>

@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   levelForXp,
+  levelProgress,
   QUIZ_XP_PER_CORRECT,
   READ_XP,
   xpForLoop,
@@ -49,5 +50,41 @@ describe("levelForXp", () => {
     expect(levelForXp(99)).toBe(2);
     expect(levelForXp(100)).toBe(3);
     expect(levelForXp(180)).toBe(4);
+  });
+});
+
+describe("levelProgress", () => {
+  it("reports the start of a level as an empty bar", () => {
+    // 40 XP is exactly the level-2 threshold → 0 of the 60 XP that level spans.
+    expect(levelProgress(40)).toEqual({
+      level: 2,
+      xpIntoLevel: 0,
+      xpForLevel: 60,
+      pct: 0,
+    });
+  });
+
+  it("reports partial progress through the current level", () => {
+    // 70 XP is 30 into level 2 (40→100 spans 60) → half-way.
+    expect(levelProgress(70)).toEqual({
+      level: 2,
+      xpIntoLevel: 30,
+      xpForLevel: 60,
+      pct: 50,
+    });
+  });
+
+  it("treats level 1 as spanning up to the first threshold", () => {
+    expect(levelProgress(0)).toEqual({
+      level: 1,
+      xpIntoLevel: 0,
+      xpForLevel: 40,
+      pct: 0,
+    });
+    expect(levelProgress(20)).toMatchObject({ level: 1, pct: 50 });
+  });
+
+  it("clamps negative XP to the start of level 1", () => {
+    expect(levelProgress(-10)).toMatchObject({ level: 1, xpIntoLevel: 0 });
   });
 });

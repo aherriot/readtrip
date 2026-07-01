@@ -1,6 +1,10 @@
 "use client";
 
 import { useEffect, useRef, useState, type FormEvent } from "react";
+import { ExpeditionStamp } from "@/components/game/ExpeditionStamp";
+import { LevelUpCelebration } from "@/components/game/LevelUpCelebration";
+import { RewardBurst } from "@/components/game/RewardBurst";
+import { XPBar } from "@/components/game/XPBar";
 import { QuizCard } from "@/components/reading/QuizCard";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
@@ -25,6 +29,8 @@ type Adaptation = { leveledUp: boolean } | null;
 // The XP / level / badge payout for this loop — shown once /api/progress replies.
 type Reward = {
   xpAwarded: number;
+  /** Cumulative XP after this loop — drives the XPBar fill. */
+  xp: number;
   level: number;
   leveledUp: boolean;
   badgeTitle: string | null;
@@ -255,6 +261,11 @@ function SteerResult({
 } & SteerHandlers) {
   const [deepening, setDeepening] = useState(false);
   const [followUp, setFollowUp] = useState("");
+  // The level-up overlay is the one blocking celebration: it opens as soon as
+  // the reward lands with `leveledUp` (derived, no effect needed) and stays open
+  // until the child dismisses it. A step *down* in reading level still stays
+  // quiet (that's `adaptation`, not this).
+  const [levelUpDismissed, setLevelUpDismissed] = useState(false);
 
   function submitFollowUp(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -275,26 +286,24 @@ function SteerResult({
         You got {score.correct} of {score.total} on the first try.
       </Text>
       {reward && (
-        <div className="flex flex-col items-center gap-1" aria-live="polite">
-          <Text size="sm" className="font-semibold">
-            ✨ You earned {reward.xpAwarded} XP!
-          </Text>
-          {reward.leveledUp && (
-            <Text size="sm" className="font-semibold">
-              🎉 You reached Level {reward.level}!
-            </Text>
-          )}
-          {reward.badgeTitle && (
-            <Text size="sm" className="font-semibold">
-              🏅 New badge: {reward.badgeTitle} Master!
-            </Text>
-          )}
+        <div className="flex w-full flex-col items-center gap-4">
+          <RewardBurst xp={reward.xpAwarded} />
+          <XPBar xp={reward.xp} className="max-w-xs" />
+          {reward.badgeTitle && <ExpeditionStamp title={reward.badgeTitle} />}
         </div>
       )}
       {adaptation?.leveledUp && (
         <Text size="sm" aria-live="polite" className="font-semibold">
           ⬆️ You&apos;re reading like a pro now!
         </Text>
+      )}
+
+      {reward?.leveledUp && (
+        <LevelUpCelebration
+          open={!levelUpDismissed}
+          level={reward.level}
+          onDismiss={() => setLevelUpDismissed(true)}
+        />
       )}
 
       {deepening ? (
