@@ -76,17 +76,29 @@ Playwright e2e/visual suites are green. (Storybook remains optional and is not s
 
 Goal: a parent can sign in and manage child profiles.
 
-- [ ] Add Auth.js tables to the Drizzle schema (`User`, `Account`, `Session`,
+- [x] Add Auth.js tables to the Drizzle schema (`User`, `Account`, `Session`,
       `VerificationToken`) + app tables (`Child`, etc.) from [`06`](06-data-model.md); migrate.
-- [ ] `lib/auth/` — Auth.js config with the Drizzle adapter; pick a provider (email magic
-      link and/or one OAuth provider).
-- [ ] `app/api/auth/[...nextauth]/route.ts`.
-- [ ] `app/(auth)/sign-in` — parent sign-in (built from design-system components).
-- [ ] `app/(parent)/profiles` — create / pick / edit **child profiles** (the parent owns
-      them; children are not auth users).
-- [ ] Route protection: child routes require an authed parent + a selected child.
+      (Full data model landed in one migration; `Account`/`Session`/`VerificationToken`
+      follow the `@auth/drizzle-adapter` canonical shape.)
+- [x] `lib/auth/` — Auth.js (v5) config with the Drizzle adapter. Provider: **email magic
+      link** (Resend) — dev logs the link to the server console; prod sends via Resend
+      (`AUTH_RESEND_KEY` required, else sign-in throws rather than faking success).
+      A **dev-only Credentials** provider (gated to non-prod) enables local demo + e2e.
+      Edge-safe split config (`config.ts`) drives middleware; full config (`index.ts`) adds
+      the adapter + providers. JWT session strategy (required by Credentials + edge auth).
+- [x] `app/api/auth/[...nextauth]/route.ts`.
+- [x] `app/(auth)/sign-in` — parent sign-in (magic link + dev form) from design-system
+      components; `+ /sign-in/check-email` verify-request page.
+- [x] `app/(parent)/profiles` — create / pick / edit / delete **child profiles** (the
+      parent owns them; children are not auth users). Selecting a child sets an httpOnly
+      cookie and enters the child app.
+- [x] Route protection: `middleware.ts` requires an authed parent for `/profiles` + `/play`,
+      and a selected-child cookie for `/play`.
 
 **DoD:** a parent signs in, creates a child profile, and lands in the (empty) child app.
+✅ Met — verified end-to-end in `e2e/auth.spec.ts` (route-protection + full happy path);
+`npm run check`, the Playwright e2e suite, and `next build` are green. (`app/(child)/play`
+is the empty child landing.)
 
 ---
 
@@ -100,6 +112,10 @@ Goal: the server-side LLM plumbing, independent of UI, so feature pages just cal
 - [ ] `lib/llm/cache.ts` — stable cached system prefix + volatile suffix helpers.
 - [ ] `lib/llm/prompts/` — versioned lesson, quiz, and topic-map prompts (reading level as
       a parameter).
+- [ ] `lib/llm/normalize.ts` — `normalize_topic` (Haiku): free-form input (topic noun
+      **or** question like "Why is the sky blue?") → `{ title, topicSlug, intent }`, so
+      question phrasings dedupe to a stable concept ([`03`](03-llm-integration.md),
+      [`06`](06-data-model.md)).
 - [ ] `lib/safety/` — input precheck + output check (used by every generation path).
 - [ ] `LlmCallLog` writes on every call (model, tokens, cache hits, latency, cost).
 
@@ -114,11 +130,17 @@ Goal: the playable Explore → Read → Quiz → Reward → Steer loop. This is 
 
 - [ ] **Calibration mini-game** + `/api/calibrate` → sets starting reading level
       ([`04`](04-reading-levels.md)). Pre-generate/cache passages per level.
+- [ ] **Explore** — free-form entry (type/say a topic noun **or** a question like "Why is
+      the sky blue?"); `/api/explore` runs `safety_precheck` → `normalize_topic` →
+      `{ title, topicSlug, intent }`, persisting `rawQuery` + `intent` on the `Loop`.
+      Tapping a map node skips straight to a known slug.
 - [ ] **Lesson** — `/api/lesson` (streamed) + `components/reading/ReadingView` +
       `LessonChunk` on the field-journal surface.
 - [ ] **Quiz** — `/api/quiz` (structured output) + `QuizChoice`/`QuizCard` with
       icon+text+color feedback.
-- [ ] **Steer** — post-quiz topic choices; difficulty adjusts from rolling quiz scores.
+- [ ] **Steer** — post-quiz topic choices; difficulty adjusts from rolling quiz scores. A
+      **"go deeper" follow-up** spawns a new `Loop` with `parentLoopId` set, passing the
+      parent topic as context to `normalize_topic` + lesson (threaded loops, not chat).
 - [ ] **Progress** — `/api/progress`: award XP, level-ups, mastery → badges.
 - [ ] **World map** — `WorldMap` + `TopicNode` (the signature element) with dynamic,
       interest-driven suggestions ([`05`](05-gamification.md)); list-view fallback for SRs.

@@ -29,6 +29,7 @@ escalation rule.
 // lib/llm/router.ts  (illustrative)
 type Task =
   | "calibrate_score"
+  | "normalize_topic"
   | "lesson"
   | "quiz_generate"
   | "quiz_grade_freeform"
@@ -40,6 +41,7 @@ export function pickModel(task: Task, opts?: { hard?: boolean }) {
   switch (task) {
     case "safety_precheck":
     case "calibrate_score":
+    case "normalize_topic":
     case "quiz_grade_freeform":
       return "claude-haiku-4-5"; // cheap, fast, low-stakes-per-call
     case "lesson":
@@ -60,6 +62,41 @@ export function pickModel(task: Task, opts?: { hard?: boolean }) {
 
 **Why Haiku for grading and calibration:** these are high-frequency, individually
 low-stakes classification calls. Haiku is fast (good UX) and ~3–5× cheaper than Sonnet.
+
+## Free-form input → canonical topic (`normalize_topic`)
+
+The child can type or say anything — a topic noun ("grizzly bears"), or a **question**
+("Why is the sky blue?", "How do volcanoes work?"). Before generating a lesson we run a
+cheap `normalize_topic` pass (Haiku) that resolves the raw input into a canonical topic
+so the rest of the pipeline keys off something stable:
+
+```ts
+// → { title: "Why the sky is blue", topicSlug: "why-is-the-sky-blue",
+//     intent: "question" }
+const { title, topicSlug } = await normalizeTopic(rawQuery);
+```
+
+This matters because progress, badges, and map nodes are all keyed on `topicSlug`
+([`06`](06-data-model.md)). Without normalization, "Why is the sky blue?" and "why the
+sky is blue" would fragment into separate slugs and never dedupe. The step:
+
+- maps a question to the concept it's really about (and may collapse to an existing
+  explored slug, so re-asking lands on the same map node),
+- returns a kid-friendly `title` for display on the map/badge,
+- runs **after** `safety_precheck` and is itself subject to the same guardrails.
+
+The child's original phrasing is preserved on the `Loop` (`rawQuery`) for better lessons
+and analytics; only the normalized `topicSlug` drives progression. The returned `intent`
+is also persisted on the `Loop` so the prompt can branch (a question gets a more direct
+answer; a topic gets a survey-style lesson) and so the dashboard can report the
+topic-vs-question mix.
+
+**Follow-ups ("go deeper").** When the child drills into a lesson with a follow-up, the
+new `Loop` carries `parentLoopId` ([`06`](06-data-model.md)). Pass the parent loop's topic
+plus a short summary as context into `normalize_topic` and the lesson prompt so "but why
+does blue scatter more?" resolves against the right concept (`rayleigh-scattering`) instead
+of being read cold. It's still a fresh, single-shot loop — not a live conversation — so
+caching, safety, and the read→quiz structure all hold.
 
 ## Thinking / effort
 

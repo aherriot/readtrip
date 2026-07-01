@@ -74,6 +74,10 @@ jobs:
           # (v6 renamed this output from db_url_with_pooler.)
           DATABASE_URL: ${{ steps.neon.outputs.db_url_pooled }}
           DIRECT_URL: ${{ steps.neon.outputs.db_url }}
+          # Auth.js needs a secret to sign the session JWT (the sign-in e2e mints
+          # one). This is a throwaway value for the ephemeral CI run — it guards
+          # nothing real — so it's inlined rather than stored as a repo secret.
+          AUTH_SECRET: "ci-e2e-not-a-real-secret-00000000000000000000000="
           CI: "true"
 
       - name: Upload Playwright report
