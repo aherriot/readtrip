@@ -24,11 +24,13 @@ interface LessonBody {
   topicSlug: string;
   intent: "topic" | "question";
   rawQuery?: string | null;
+  /** Parent loop's topic for a "go deeper" follow-up, threaded into the prompt. */
+  parentContext?: string | null;
 }
 
 function parseBody(body: unknown): LessonBody | null {
   if (typeof body !== "object" || body === null) return null;
-  const { title, topicSlug, intent, rawQuery } = body as Record<
+  const { title, topicSlug, intent, rawQuery, parentContext } = body as Record<
     string,
     unknown
   >;
@@ -43,13 +45,25 @@ function parseBody(body: unknown): LessonBody | null {
   ) {
     return null;
   }
+  if (
+    parentContext !== undefined &&
+    parentContext !== null &&
+    typeof parentContext !== "string"
+  ) {
+    return null;
+  }
   const raw = typeof rawQuery === "string" ? rawQuery.trim() : null;
   if (raw !== null && raw.length > MAX_QUERY_LENGTH) return null;
+  const context =
+    typeof parentContext === "string" && parentContext.trim().length > 0
+      ? parentContext.trim().slice(0, MAX_QUERY_LENGTH)
+      : null;
   return {
     title: title.trim().slice(0, MAX_QUERY_LENGTH),
     topicSlug: topicSlug.trim(),
     intent,
     rawQuery: raw && raw.length > 0 ? raw : null,
+    parentContext: context,
   };
 }
 
@@ -110,6 +124,7 @@ export async function POST(request: Request) {
             rawQuery: body.rawQuery,
             intent: body.intent,
             readingLevel,
+            parentContext: body.parentContext,
             childId,
           },
           (text) => send({ type: "chunk", text })

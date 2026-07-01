@@ -4,6 +4,10 @@
 
 export type ReadingLevel = 1 | 2 | 3 | 4 | 5;
 
+/** Bounds of the reading-level scale (docs/04). */
+export const MIN_READING_LEVEL = 1;
+export const MAX_READING_LEVEL = 5;
+
 interface LevelSpec {
   label: string;
   sentences: string;
@@ -47,14 +51,18 @@ const LEVELS: Record<ReadingLevel, LevelSpec> = {
 };
 
 export function isReadingLevel(value: number): value is ReadingLevel {
-  return Number.isInteger(value) && value >= 1 && value <= 5;
+  return (
+    Number.isInteger(value) &&
+    value >= MIN_READING_LEVEL &&
+    value <= MAX_READING_LEVEL
+  );
 }
 
 /** Clamp any int into the valid 1..5 range (defends against bad stored data). */
 export function clampReadingLevel(value: number): ReadingLevel {
   const rounded = Math.round(value);
-  if (rounded < 1) return 1;
-  if (rounded > 5) return 5;
+  if (rounded < MIN_READING_LEVEL) return MIN_READING_LEVEL;
+  if (rounded > MAX_READING_LEVEL) return MAX_READING_LEVEL;
   return rounded as ReadingLevel;
 }
 
