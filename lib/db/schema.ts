@@ -101,6 +101,10 @@ export const children = pgTable("Child", {
   // Adaptation: rolling quiz history used to move readingLevel
   recentQuizScores: jsonb("recentQuizScores").notNull(), // e.g. [{ level, pct, at }]
 
+  // Set when the child finishes the calibration mini-game (docs/04). Null means
+  // "not calibrated yet" — the child app routes them into calibration first.
+  calibratedAt: timestamp("calibratedAt", { precision: 3, mode: "date" }),
+
   createdAt: createdAt(),
 });
 

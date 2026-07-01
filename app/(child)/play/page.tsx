@@ -24,6 +24,9 @@ export default async function PlayPage() {
   const child = await getChild(parent.id, childId);
   if (!child) redirect("/profiles");
 
+  // First run: find the child's reading level before the expedition starts.
+  if (!child.calibratedAt) redirect("/play/calibrate");
+
   return (
     <main className="mx-auto flex min-h-screen w-full max-w-xl flex-col items-center justify-center gap-8 p-6 text-center">
       <Card elevated padding="lg" className="flex flex-col items-center gap-4">

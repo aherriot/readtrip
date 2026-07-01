@@ -13,6 +13,8 @@ export interface ChildProfile {
   readingLevel: number;
   level: number;
   xp: number;
+  /** Null until the child finishes the calibration mini-game (docs/04). */
+  calibratedAt: Date | null;
 }
 
 type ChildRow = typeof children.$inferSelect;
@@ -25,6 +27,7 @@ function toProfile(row: ChildRow): ChildProfile {
     readingLevel: row.readingLevel,
     level: row.level,
     xp: row.xp,
+    calibratedAt: row.calibratedAt,
   };
 }
 
@@ -76,6 +79,22 @@ export async function updateChild(
       displayName: input.displayName,
       avatarConfig: { color: input.avatarColor },
     })
+    .where(and(eq(children.id, childId), eq(children.parentId, parentId)));
+}
+
+/**
+ * Persist the outcome of the calibration mini-game: the starting reading level
+ * plus the timestamp that marks the child as calibrated. Scoped by parentId so a
+ * parent can only calibrate their own children.
+ */
+export async function completeCalibration(
+  parentId: string,
+  childId: string,
+  readingLevel: number
+): Promise<void> {
+  await db
+    .update(children)
+    .set({ readingLevel, calibratedAt: new Date() })
     .where(and(eq(children.id, childId), eq(children.parentId, parentId)));
 }
 
