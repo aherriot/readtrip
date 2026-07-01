@@ -23,6 +23,14 @@ export const authConfig = {
     // cookie without a DB round-trip. The email magic-link flow still uses the
     // adapter for verification tokens + user creation.
     strategy: "jwt",
+    // Keep parents signed in for weeks. Setting an explicit maxAge makes the
+    // session cookie *persistent* (Auth.js emits a Max-Age/Expires) instead of
+    // a browser session cookie that would be dropped when the tab/browser
+    // closes, and pins the JWT's own expiry to the same window.
+    maxAge: 30 * 24 * 60 * 60, // 30 days
+    // Re-issue the cookie (sliding the 30-day window forward) at most once a
+    // day of activity, so an active parent effectively never gets logged out.
+    updateAge: 24 * 60 * 60, // 1 day
   },
   callbacks: {
     // Runs in middleware for every matched request. Return `true` to allow,
