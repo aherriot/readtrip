@@ -9,7 +9,7 @@ import { getChild } from "@/lib/children/queries";
 import { getSelectedChildId } from "@/lib/children/selection";
 import { generateQuiz } from "@/lib/llm";
 import { clampReadingLevel } from "@/lib/llm/prompts/readingLevel";
-import { recordLoop } from "@/lib/loops/queries";
+import { getLoopForChild, recordLoop } from "@/lib/loops/queries";
 
 const MAX_QUERY_LENGTH = 200;
 const MAX_LESSON_LENGTH = 8000;
@@ -20,14 +20,14 @@ interface QuizBody {
   intent: "topic" | "question";
   rawQuery: string | null;
   lessonText: string;
+  /** Set when this loop is a "go deeper" follow-up of another loop. */
+  parentLoopId: string | null;
 }
 
 function parseBody(body: unknown): QuizBody | null {
   if (typeof body !== "object" || body === null) return null;
-  const { title, topicSlug, intent, rawQuery, lessonText } = body as Record<
-    string,
-    unknown
-  >;
+  const { title, topicSlug, intent, rawQuery, lessonText, parentLoopId } =
+    body as Record<string, unknown>;
   if (typeof title !== "string" || title.trim().length === 0) return null;
   if (typeof topicSlug !== "string" || topicSlug.trim().length === 0)
     return null;
@@ -41,14 +41,26 @@ function parseBody(body: unknown): QuizBody | null {
   ) {
     return null;
   }
+  if (
+    parentLoopId !== undefined &&
+    parentLoopId !== null &&
+    typeof parentLoopId !== "string"
+  ) {
+    return null;
+  }
   const raw = typeof rawQuery === "string" ? rawQuery.trim() : null;
   if (raw !== null && raw.length > MAX_QUERY_LENGTH) return null;
+  const parent =
+    typeof parentLoopId === "string" && parentLoopId.trim().length > 0
+      ? parentLoopId.trim()
+      : null;
   return {
     title: title.trim().slice(0, MAX_QUERY_LENGTH),
     topicSlug: topicSlug.trim(),
     intent,
     rawQuery: raw && raw.length > 0 ? raw : null,
     lessonText: lessonText.trim().slice(0, MAX_LESSON_LENGTH),
+    parentLoopId: parent,
   };
 }
 
@@ -94,6 +106,14 @@ export async function POST(request: Request) {
     return Response.json({ error: "quiz-failed" }, { status: 502 });
   }
 
+  // For a "go deeper" follow-up, only thread the parent link if the loop really
+  // belongs to this child — a spoofed id is dropped, not honored (or errored).
+  let parentLoopId: string | null = null;
+  if (body.parentLoopId) {
+    const parent = await getLoopForChild(body.parentLoopId, childId);
+    parentLoopId = parent?.id ?? null;
+  }
+
   // Persist the completed loop. A DB failure shouldn't rob the child of the quiz
   // they can already play — warn and carry on (mirrors the LlmCallLog stance).
   let loopId: string | null = null;
@@ -106,6 +126,7 @@ export async function POST(request: Request) {
       readingLevel,
       lessonText: body.lessonText,
       quizJson: quiz,
+      parentLoopId,
     });
   } catch (err) {
     console.error("[quiz] failed to persist loop:", err);

@@ -13,13 +13,33 @@ import { safetyPrecheck } from "@/lib/safety";
 /** Guard against empty / pathologically long input before spending a model call. */
 const MAX_QUERY_LENGTH = 200;
 
-function parseRawQuery(body: unknown): string | null {
+interface ExploreInput {
+  rawQuery: string;
+  /** Parent loop's topic title for a "go deeper" follow-up (docs/03), if any. */
+  parentContext: string | null;
+}
+
+function parseBody(body: unknown): ExploreInput | null {
   if (typeof body !== "object" || body === null) return null;
-  const { rawQuery } = body as { rawQuery?: unknown };
+  const { rawQuery, parentContext } = body as {
+    rawQuery?: unknown;
+    parentContext?: unknown;
+  };
   if (typeof rawQuery !== "string") return null;
   const trimmed = rawQuery.trim();
   if (trimmed.length === 0 || trimmed.length > MAX_QUERY_LENGTH) return null;
-  return trimmed;
+  if (
+    parentContext !== undefined &&
+    parentContext !== null &&
+    typeof parentContext !== "string"
+  ) {
+    return null;
+  }
+  const context =
+    typeof parentContext === "string" && parentContext.trim().length > 0
+      ? parentContext.trim().slice(0, MAX_QUERY_LENGTH)
+      : null;
+  return { rawQuery: trimmed, parentContext: context };
 }
 
 export async function POST(request: Request) {
@@ -45,10 +65,11 @@ export async function POST(request: Request) {
     return Response.json({ error: "invalid-json" }, { status: 400 });
   }
 
-  const rawQuery = parseRawQuery(body);
-  if (rawQuery === null) {
+  const input = parseBody(body);
+  if (input === null) {
     return Response.json({ error: "invalid-query" }, { status: 400 });
   }
+  const { rawQuery, parentContext } = input;
 
   // Safety first: block clearly inappropriate input with a kind steer.
   const safety = await safetyPrecheck(rawQuery, { childId });
@@ -56,6 +77,8 @@ export async function POST(request: Request) {
     return Response.json({ ok: false, redirect: safety.redirect });
   }
 
-  const topic = await normalizeTopic({ rawQuery, childId });
+  // A "go deeper" follow-up passes the parent topic so a vague follow-up
+  // ("but why?") resolves against the right concept instead of being read cold.
+  const topic = await normalizeTopic({ rawQuery, parentContext, childId });
   return Response.json({ ok: true, topic: { ...topic, rawQuery } });
 }

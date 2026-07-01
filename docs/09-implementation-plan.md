@@ -190,9 +190,18 @@ Goal: the playable Explore → Read → Quiz → Reward → Steer loop. This is 
       explanation. Grading is client-side (`scoreQuiz`) off the first tap per
       question. `Loop.quizPct`, XP/levels/badges, and Steer follow-ups are deferred
       to the next items.)
-- [ ] **Steer** — post-quiz topic choices; difficulty adjusts from rolling quiz scores. A
+- [x] **Steer** — post-quiz topic choices; difficulty adjusts from rolling quiz scores. A
       **"go deeper" follow-up** spawns a new `Loop` with `parentLoopId` set, passing the
       parent topic as context to `normalize_topic` + lesson (threaded loops, not chat).
+      (Finishing the quiz opens a Steer result screen offering "Go deeper on {topic}" —
+      a follow-up question threaded through `/api/explore` + `/api/lesson` (`parentContext`)
+      and persisted with `parentLoopId` at the quiz step — or "Explore something new".
+      `/api/steer` re-grades the child's first-try answers against the stored `quizJson`
+      (so the signal can't be spoofed), writes `Loop.quizPct`, and adapts `Child.readingLevel`
+      from a rolling window of same-level scores (`lib/reading/adapt.ts`, docs/04): a
+      consistent ~85%+ steps up, ~50%- steps down, at most one level and never yo-yoing. A
+      step _up_ shows a quiet "leveling up!" note; a step down stays silent. XP/levels/badges
+      remain the separate Progress item; related-branch suggestions land with the World map.)
 - [ ] **Progress** — `/api/progress`: award XP, level-ups, mastery → badges.
 - [ ] **World map** — `WorldMap` + `TopicNode` (the signature element) with dynamic,
       interest-driven suggestions ([`05`](05-gamification.md)); list-view fallback for SRs.

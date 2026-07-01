@@ -16,6 +16,21 @@ export interface LessonTopic {
   topicSlug: string;
   intent: "topic" | "question";
   rawQuery: string;
+  /** Set on a "go deeper" follow-up: the loop being drilled into. */
+  parentLoopId?: string | null;
+  /** The parent loop's topic title, threaded into the follow-up's prompts. */
+  parentContext?: string | null;
+}
+
+/** How the child steers on from a finished quiz (docs/01 §6). */
+export interface SteerHandlers {
+  /** Start a brand-new expedition — back to the Explore screen. */
+  onExplore: () => void;
+  /** Drill into the current topic with a follow-up (spawns a threaded loop). */
+  onGoDeeper: (
+    followUp: string,
+    parent: { loopId: string | null; title: string }
+  ) => void;
 }
 
 type Status = "loading" | "streaming" | "done" | "blocked" | "error";
@@ -23,10 +38,8 @@ type Status = "loading" | "streaming" | "done" | "blocked" | "error";
 export function LessonReader({
   topic,
   onExplore,
-}: {
-  topic: LessonTopic;
-  onExplore: () => void;
-}) {
+  onGoDeeper,
+}: { topic: LessonTopic } & SteerHandlers) {
   const [text, setText] = useState("");
   const [status, setStatus] = useState<Status>("loading");
   const [redirect, setRedirect] = useState("");
@@ -48,6 +61,7 @@ export function LessonReader({
             topicSlug: topic.topicSlug,
             intent: topic.intent,
             rawQuery: topic.rawQuery,
+            parentContext: topic.parentContext,
           }),
           signal: controller.signal,
         });
@@ -128,7 +142,14 @@ export function LessonReader({
   // Once the child chooses to start, the quiz owns the screen (it POSTs the
   // lesson text to /api/quiz, which is also where the Loop is finally persisted).
   if (showQuiz) {
-    return <QuizRunner topic={topic} lessonText={text} onExplore={onExplore} />;
+    return (
+      <QuizRunner
+        topic={topic}
+        lessonText={text}
+        onExplore={onExplore}
+        onGoDeeper={onGoDeeper}
+      />
+    );
   }
 
   if (status === "error") {

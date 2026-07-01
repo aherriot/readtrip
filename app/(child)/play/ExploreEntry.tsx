@@ -24,10 +24,18 @@ export function ExploreEntry() {
   const [phase, setPhase] = useState<Phase>({ name: "idle" });
   const [query, setQuery] = useState("");
   const [error, setError] = useState<string | null>(null);
+  // Bumps each time a new expedition starts so the reader remounts cleanly —
+  // even a "go deeper" follow-up that resolves back to the same slug.
+  const [expedition, setExpedition] = useState(0);
 
   const busy = phase.name === "resolving";
 
-  async function explore(rawQuery: string) {
+  // For a "go deeper" follow-up, `parent` carries the loop to link back to and
+  // its topic, threaded through so the follow-up resolves against that concept.
+  async function explore(
+    rawQuery: string,
+    parent?: { loopId: string | null; title: string }
+  ) {
     const trimmed = rawQuery.trim();
     if (!trimmed || busy) return;
     setPhase({ name: "resolving" });
@@ -36,13 +44,20 @@ export function ExploreEntry() {
       const res = await fetch("/api/explore", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ rawQuery: trimmed }),
+        body: JSON.stringify({
+          rawQuery: trimmed,
+          parentContext: parent?.title ?? null,
+        }),
       });
       if (!res.ok) throw new Error(`explore failed: ${res.status}`);
       const data = (await res.json()) as
         { ok: true; topic: ResolvedTopic } | { ok: false; redirect: string };
       if (data.ok) {
-        setPhase({ name: "reading", topic: data.topic });
+        startReading({
+          ...data.topic,
+          parentLoopId: parent?.loopId ?? null,
+          parentContext: parent?.title ?? null,
+        });
       } else {
         setPhase({ name: "blocked", redirect: data.redirect });
       }
@@ -50,6 +65,19 @@ export function ExploreEntry() {
       setPhase({ name: "idle" });
       setError("Something went wrong. Let's try that again!");
     }
+  }
+
+  function startReading(topic: ResolvedTopic) {
+    setExpedition((n) => n + 1);
+    setPhase({ name: "reading", topic });
+  }
+
+  // Steer → "go deeper": spawn a threaded follow-up loop from the finished one.
+  function goDeeper(
+    followUp: string,
+    parent: { loopId: string | null; title: string }
+  ) {
+    void explore(followUp, parent);
   }
 
   function onSubmit(event: FormEvent<HTMLFormElement>) {
@@ -61,14 +89,13 @@ export function ExploreEntry() {
   // round-trip and resolves straight away (like tapping a world-map node).
   function chooseSuggestion(topic: SuggestedTopic) {
     if (busy) return;
-    setPhase({
-      name: "reading",
-      topic: {
-        title: topic.title,
-        topicSlug: topic.topicSlug,
-        intent: "topic",
-        rawQuery: topic.title,
-      },
+    startReading({
+      title: topic.title,
+      topicSlug: topic.topicSlug,
+      intent: "topic",
+      rawQuery: topic.title,
+      parentLoopId: null,
+      parentContext: null,
     });
   }
 
@@ -81,9 +108,10 @@ export function ExploreEntry() {
   if (phase.name === "reading") {
     return (
       <LessonReader
-        key={phase.topic.topicSlug}
+        key={expedition}
         topic={phase.topic}
         onExplore={reset}
+        onGoDeeper={goDeeper}
       />
     );
   }
