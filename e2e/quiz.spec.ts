@@ -45,7 +45,7 @@ async function reachLessonDone(page: Page) {
   await input.fill("");
 
   // Suggestion → lesson streams → done state offers the quiz.
-  await page.getByRole("button", { name: /dinosaurs/i }).click();
+  await page.getByRole("button", { name: /dinosaurs tap to explore/i }).click();
   await expect(
     page.getByRole("region", { name: /lesson about dinosaurs/i })
   ).toBeVisible();

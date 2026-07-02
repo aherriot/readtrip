@@ -22,10 +22,11 @@ import { WorldMap } from "@/components/game/WorldMap";
 
 ## Props
 
-| Prop       | Type                          | Notes                                                            |
-| ---------- | ----------------------------- | ---------------------------------------------------------------- |
-| `nodes`    | `readonly MapNodeView[]`      | Renders nothing when empty. Ordered internally (explored first). |
-| `onSelect` | `(node: MapNodeView) => void` | Fired with the chosen node on tap.                               |
+| Prop        | Type                          | Notes                                                            |
+| ----------- | ----------------------------- | ---------------------------------------------------------------- |
+| `nodes`     | `readonly MapNodeView[]`      | Renders nothing when empty. Ordered internally (explored first). |
+| `onSelect`  | `(node: MapNodeView) => void` | Fired with the chosen node on tap.                               |
+| `onDismiss` | `(node: MapNodeView) => void` | Permanently removes a node. Never offered for mastered nodes.    |
 
 ## Density
 

@@ -333,9 +333,7 @@ function SteerResult({
         </form>
       ) : (
         <div className="flex flex-wrap justify-center gap-3">
-          <Button onClick={() => setDeepening(true)}>
-            Go deeper on {topic.title}
-          </Button>
+          <Button onClick={() => setDeepening(true)}>Go deeper</Button>
           <Button variant="secondary" size="md" onClick={onExplore}>
             Explore something new
           </Button>

@@ -102,7 +102,7 @@ test("warm up the Neon branch and every route the suite hits", async ({
   // trip), so it needs its own hit too — and carries the loop through
   // /api/lesson, /api/quiz, and the finish-time /api/steer, /api/progress,
   // /api/map trio.
-  await page.getByRole("button", { name: /dinosaurs/i }).click();
+  await page.getByRole("button", { name: /dinosaurs tap to explore/i }).click();
   await expect(
     page.getByRole("button", { name: /start the quiz/i })
   ).toBeVisible({ timeout: 30_000 });

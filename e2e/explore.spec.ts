@@ -58,9 +58,11 @@ test("shows free-form entry plus suggested topics to jump into", async ({
 
   // A few curated suggestions are offered as one-tap chips — the map's first
   // two rows (docs/10 density), Outer Space included, Volcanoes past the fold.
-  await expect(page.getByRole("button", { name: /dinosaurs/i })).toBeVisible();
   await expect(
-    page.getByRole("button", { name: /outer space/i })
+    page.getByRole("button", { name: /dinosaurs tap to explore/i })
+  ).toBeVisible();
+  await expect(
+    page.getByRole("button", { name: /outer space tap to explore/i })
   ).toBeVisible();
 });
 
@@ -83,7 +85,7 @@ test("tapping a suggestion resolves straight into a lesson", async ({
 }) => {
   await reachExplore(page);
 
-  await page.getByRole("button", { name: /dinosaurs/i }).click();
+  await page.getByRole("button", { name: /dinosaurs tap to explore/i }).click();
 
   // Known concept → resolves client-side (no /api/explore model round-trip) and
   // opens the reading surface for that topic. (Lesson content itself comes from

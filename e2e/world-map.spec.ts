@@ -102,3 +102,29 @@ test("exploring a map node lights it up as explored on return", async ({
     different.getByRole("button", { name: /dinosaurs/i })
   ).toBeHidden();
 });
+
+test("dismissing a suggested topic permanently removes it from the map", async ({
+  page,
+}) => {
+  await reachMap(page);
+
+  await expect(
+    page.getByRole("button", { name: /dinosaurs tap to explore/i })
+  ).toBeVisible();
+
+  await page.getByRole("button", { name: /dismiss dinosaurs/i }).click();
+  await expect(
+    page.getByRole("button", { name: /dinosaurs tap to explore/i })
+  ).toBeHidden();
+
+  // Permanent: a full reload must not bring it back onto the map, nor let it
+  // resurface in "something new" (it's still a curated starter otherwise).
+  await page.reload();
+  await expect(
+    page.getByRole("button", { name: /dinosaurs tap to explore/i })
+  ).toBeHidden();
+  const different = page.getByRole("group", { name: /something new/i });
+  await expect(
+    different.getByRole("button", { name: /dinosaurs/i })
+  ).toBeHidden();
+});
