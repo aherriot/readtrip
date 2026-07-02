@@ -16,9 +16,10 @@
   /* --- Brand accent palette (surface-independent) --- */
   --sun: #ffc24b; /* primary action, XP (marigold) */
   --coral: #ff6b5c; /* secondary / playful accent */
-  --aqua: #36d6c3; /* "explored" / discovery */
+  --aqua: #36d6c3; /* discovery / "deep" suggestions */
   --leaf: #7bd66a; /* success / correct */
-  --violet: #b388ff; /* tertiary accent / magic */
+  --violet: #b388ff; /* tertiary accent / magic, "new" breadth */
+  --sky: #5ab6ff; /* in-progress / "exploring" (distinct from aqua + violet) */
 
   /* --- Night-sky (play) palette --- */
   --bg-night: #1b1f3b;

@@ -38,8 +38,9 @@ These re-resolve automatically under `data-surface="night|paper"`.
 
 ## Accent palette (surface-independent)
 
-`sun` (primary/XP), `coral` (secondary), `aqua` (explored/discovery), `leaf` (success),
-`violet` (magic) → utilities `bg-sun`, `text-coral`, `border-aqua`, …
+`sun` (primary/XP), `coral` (secondary), `aqua` (discovery / "deep" suggestions), `leaf`
+(success), `violet` (magic / "new" breadth), `sky` (in-progress / "exploring" tiles) →
+utilities `bg-sun`, `text-coral`, `border-aqua`, `border-sky`, …
 
 > Bright accents are for **fills and large elements**, not small text. Buttons use a bright
 > fill with **dark ink on top** (e.g. ink on `sun`).

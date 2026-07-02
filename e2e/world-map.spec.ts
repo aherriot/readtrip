@@ -85,7 +85,7 @@ test("exploring a map node lights it up as explored on return", async ({
   // happens server-side at quiz time, so this is deterministic after a refresh).
   await page.getByRole("button", { name: /explore something new/i }).click();
   await expect(
-    page.getByRole("button", { name: /dinosaurs explored/i })
+    page.getByRole("button", { name: /dinosaurs exploring/i })
   ).toBeVisible();
 
   // Now that the map has narrowed to explored/suggested topics, a separate

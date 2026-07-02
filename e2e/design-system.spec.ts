@@ -391,7 +391,7 @@ test.describe("WorldMap / TopicNode — accessibility contract", () => {
     // (icon + short word) plus an sr-only span carrying the full status word
     // — so the accessible name is unchanged even though "Tap to explore" no
     // longer appears as visible text.
-    for (const word of ["Deep", "New", "Explored"]) {
+    for (const word of ["Dive", "New", "Exploring"]) {
       await expect(
         region(page).getByText(word, { exact: true }).first()
       ).toBeVisible();

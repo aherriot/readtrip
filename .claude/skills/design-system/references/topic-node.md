@@ -24,30 +24,36 @@ import { TopicNode } from "@/components/game/TopicNode";
 
 ## Props
 
-| Prop        | Type                                                  | Default  | Notes                                                                                                                                               |
-| ----------- | ----------------------------------------------------- | -------- | --------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `title`     | `string`                                              | —        | Kid-facing topic title.                                                                                                                             |
-| `state`     | `"locked" \| "suggested" \| "explored" \| "mastered"` | —        | Derive from map data with `toNodeState` (`lib/map`).                                                                                                |
-| `kind`      | `"deep" \| "diverse" \| null`                         | `"deep"` | Only matters while `suggested`; picks the corner badge/accent (deep = aqua magnifier, diverse = violet compass). Pass `node.kind` straight through. |
-| `onSelect`  | `() => void`                                          | —        | Fired on tap; ignored while `locked` (the button is disabled).                                                                                      |
-| `onDismiss` | `() => void`                                          | —        | Permanently removes the node. Only rendered for `suggested`/`explored`.                                                                             |
+| Prop        | Type                                                  | Default  | Notes                                                                                                                                                            |
+| ----------- | ----------------------------------------------------- | -------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `title`     | `string`                                              | —        | Kid-facing topic title.                                                                                                                                          |
+| `state`     | `"locked" \| "suggested" \| "explored" \| "mastered"` | —        | Derive from map data with `toNodeState` (`lib/map`).                                                                                                             |
+| `kind`      | `"deep" \| "diverse" \| null`                         | `"deep"` | Only matters while `suggested`; picks the corner badge/accent (deep = aqua magnifier "Dive", diverse = violet compass "New"). Pass `node.kind` straight through. |
+| `onSelect`  | `() => void`                                          | —        | Fired on tap; ignored while `locked` (the button is disabled).                                                                                                   |
+| `onDismiss` | `() => void`                                          | —        | Permanently removes the node. Only rendered for `suggested`/`explored`.                                                                                          |
 
 ## Accessibility
 
 - A real `<button>`, so `Enter`/`Space`, focus, and SR semantics are native; the global
   `:focus-visible` ring applies. `locked` renders as a disabled button.
 - **Never color-only** — every state pairs a distinct **status word** (Locked, Tap to
-  explore, Explored, Mastered) with its color. For `locked`/`mastered` the word is visible
+  explore, Exploring, Mastered) with its color. For `locked`/`mastered` the word is visible
   body text; for `suggested`/`explored` it moves to an `sr-only` span (accessible name
-  unchanged, e.g. "Dinosaurs Explored") and is mirrored visually by a small `aria-hidden`
-  corner badge (icon + short word — "✓ Explored", "🔎 Deep", "🧭 New") so sighted users
-  still get icon + text + color, never color alone.
+  unchanged, e.g. "Dinosaurs Exploring") and is mirrored visually by a small `aria-hidden`
+  corner badge (icon + short word — "🚩 Exploring", "🔎 Dive", "🧭 New") so sighted users
+  still get icon + text + color, never color alone. `explored` reads as in-progress (started,
+  not yet mastered) and uses the sky-blue accent — distinct from the aqua/violet suggestions.
+  Glow intensity is itself a progress ladder: suggested (flat) → exploring (soft sky glow) →
+  mastered (bright gold glow).
 - Comfortably clears the 56–64px kid target floor.
 - The optional dismiss control is a separate 44px icon-only button (sibling of the main
   select button, never nested inside it) with `aria-label="Dismiss {title}"`; its click
-  handler stops propagation so it never also triggers `onSelect`.
+  handler stops propagation so it never also triggers `onSelect`. On dismiss the tile plays
+  a shrink-out (`animate-tile-out`) and only calls `onDismiss` on `animationend`, so removal
+  is animated; reduced-motion users hit the zeroed floor and remove near-instantly.
 
 ## Surfaces
 
-Built for `night` (the play surface); reads `--surface-*` + `--aqua`/`--sun` tokens, so it
-never hardcodes color.
+Built for `night` (the play surface); reads `--surface-*` + `--aqua`/`--sky`/`--violet`/`--sun`
+tokens, so it never hardcodes color. Tiles cascade into place via
+`motion-safe:animate-cascade-in` (staggered by [`WorldMap`](world-map.md)).

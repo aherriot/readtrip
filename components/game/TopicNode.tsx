@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { cn } from "@/lib/ui/cn";
 import type { SuggestionKind, TopicNodeState } from "@/lib/map/nodeState";
 
@@ -39,8 +40,13 @@ const STATE: Record<TopicNodeState, { label: string; className: string }> = {
     className: "border-aqua bg-surface-panel",
   },
   explored: {
-    label: "Explored",
-    className: "border-aqua bg-aqua/15",
+    // "Exploring" (not "Explored") — the child has started this topic but not
+    // yet mastered it, so it reads as in-progress. Sky-blue keeps it distinct
+    // from the aqua "deep" and violet "new" suggestions.
+    label: "Exploring",
+    // Faint sky glow places it on a light ladder: suggested (flat) → exploring
+    // (soft glow) → mastered (bright gold glow), so progress reads by light too.
+    className: "border-sky bg-sky/15 shadow-[0_0_14px_-7px_var(--sky)]",
   },
   mastered: {
     label: "Mastered",
@@ -60,11 +66,11 @@ const BADGE: Record<
   { icon: string; text: string; className: string }
 > = {
   explored: {
-    icon: "✓",
-    text: "Explored",
-    className: "border-aqua bg-aqua/25",
+    icon: "🚩",
+    text: "Exploring",
+    className: "border-sky bg-sky/25",
   },
-  deep: { icon: "🔎", text: "Deep", className: "border-aqua bg-aqua/20" },
+  deep: { icon: "🔎", text: "Dive", className: "border-aqua bg-aqua/20" },
   diverse: { icon: "🧭", text: "New", className: "border-violet bg-violet/20" },
 };
 
@@ -89,6 +95,11 @@ export function TopicNode({
   const config = STATE[state];
   const locked = state === "locked";
   const dismissible = onDismiss && DISMISSIBLE_STATES.includes(state);
+  // While a dismissed tile plays its shrink-out, freeze interaction and defer
+  // the actual removal (onDismiss) until the animation ends — see the wrapper's
+  // onAnimationEnd below. Reduced-motion users hit the zeroed floor and remove
+  // near-instantly.
+  const [leaving, setLeaving] = useState(false);
 
   // Suggested/explored nodes trade their old full-width status text for a
   // corner badge (icon + short word); locked/mastered keep the visible label
@@ -109,10 +120,19 @@ export function TopicNode({
       : config.className;
 
   return (
-    <div className="relative w-full">
+    <div
+      className={cn("relative w-full", leaving && "animate-tile-out")}
+      onAnimationEnd={
+        leaving
+          ? (event) => {
+              if (event.animationName === "tile-out") onDismiss?.();
+            }
+          : undefined
+      }
+    >
       <button
         type="button"
-        disabled={locked}
+        disabled={locked || leaving}
         onClick={onSelect}
         className={cn(
           "relative flex h-full min-h-[112px] w-full flex-col items-center justify-center gap-1 rounded-lg border-2 p-4 text-center",
@@ -150,9 +170,10 @@ export function TopicNode({
       {dismissible && (
         <button
           type="button"
+          disabled={leaving}
           onClick={(event) => {
             event.stopPropagation();
-            onDismiss();
+            setLeaving(true);
           }}
           aria-label={`Dismiss ${title}`}
           className="absolute -right-2 -top-2 flex h-11 w-11 items-center justify-center rounded-pill bg-surface text-surface-ink-soft shadow-[var(--surface-elevation)] hover:bg-surface-ink/10"
