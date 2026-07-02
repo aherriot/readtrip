@@ -6,6 +6,7 @@ import { ReadingView } from "@/components/reading/ReadingView";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { Heading } from "@/components/ui/Heading";
+import { Spinner } from "@/components/ui/Spinner";
 import { Text } from "@/components/ui/Text";
 import { toLessonChunks } from "@/lib/reading/chunks";
 import { QuizRunner } from "./QuizRunner";
@@ -184,9 +185,10 @@ export function LessonReader({
       >
         <Heading level={1}>{topic.title}</Heading>
         {chunks.length === 0 ? (
-          <Text tone="soft" aria-live="polite">
-            Charting your lesson…
-          </Text>
+          <div className="flex items-center gap-3" aria-live="polite">
+            <Spinner className="text-surface-ink-soft" />
+            <Text tone="soft">Charting your lesson…</Text>
+          </div>
         ) : (
           <div aria-live="polite" className="flex flex-col gap-6">
             {chunks.map((chunk, i) => (

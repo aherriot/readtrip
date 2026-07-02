@@ -244,7 +244,11 @@ export function ExploreEntry({
           maxLength={200}
           disabled={busy}
         />
-        <Button type="submit" disabled={busy || query.trim().length === 0}>
+        <Button
+          type="submit"
+          loading={busy}
+          disabled={query.trim().length === 0}
+        >
           {busy ? "Charting…" : "Explore"}
         </Button>
         {error && (

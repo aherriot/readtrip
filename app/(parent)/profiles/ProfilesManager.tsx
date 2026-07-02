@@ -123,7 +123,7 @@ function ProfileCard({
           type="submit"
           variant="ghost"
           fullWidth
-          className="h-auto flex-col gap-3 py-5"
+          className="h-auto flex-col gap-3 py-5 not-disabled:motion-safe:hover:-translate-y-0.5"
         >
           <Avatar color={child.avatarColor} name={child.displayName} />
           <span className="font-display text-lg">{child.displayName}</span>
@@ -288,7 +288,7 @@ function ChildForm({
             onDone={onDone}
           />
         )}
-        <Button type="submit" form={formId} disabled={pending}>
+        <Button type="submit" form={formId} loading={pending}>
           {pending ? "Saving…" : isEdit ? "Save changes" : "Create explorer"}
         </Button>
       </div>

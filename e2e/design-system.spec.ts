@@ -126,6 +126,32 @@ test.describe("Button — accessibility contract", () => {
     );
     expect(parseFloat(outlineWidth)).toBeGreaterThan(0);
   });
+
+  test("a loading button is inert and marked busy", async ({ page }) => {
+    const btn = onNight(page).getByRole("button", { name: "Charting…" });
+    await expect(btn).toBeDisabled();
+    await expect(btn).toHaveAttribute("aria-busy", "true");
+  });
+});
+
+test.describe("Spinner — accessibility contract", () => {
+  const onNight = (page: import("@playwright/test").Page) =>
+    page.getByTestId("spinner-night");
+
+  test("a standing-alone spinner is a live status region naming the wait", async ({
+    page,
+  }) => {
+    // role="status" is a live region (its content is announced, not its name),
+    // carrying sr-only text so a screen reader hears *what* is loading.
+    const status = onNight(page).getByRole("status");
+    await expect(status).toHaveCount(1);
+    await expect(status).toContainText("Loading your lesson");
+  });
+
+  test("a decorative spinner exposes no status role", async ({ page }) => {
+    // The size/tint variants are aria-hidden — no accessible status to announce.
+    await expect(onNight(page).getByRole("status")).toHaveCount(1);
+  });
 });
 
 test.describe("Desktop affordances — cursors", () => {

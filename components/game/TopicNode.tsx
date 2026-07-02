@@ -116,7 +116,12 @@ export function TopicNode({
         onClick={onSelect}
         className={cn(
           "relative flex h-full min-h-[112px] w-full flex-col items-center justify-center gap-1 rounded-lg border-2 p-4 text-center",
-          "text-surface-ink transition-colors duration-150 disabled:cursor-not-allowed",
+          "text-surface-ink transition-[transform,background-color,border-color,box-shadow] duration-150 disabled:cursor-not-allowed",
+          // Desktop affordance: an explorable node lifts toward the pointer and
+          // gains a soft glow on hover. Locked nodes stay put (nothing to tap);
+          // the reduced-motion floor neutralizes the lift.
+          "not-disabled:hover:shadow-[var(--surface-elevation)] not-disabled:motion-safe:hover:-translate-y-0.5",
+          "not-disabled:active:scale-[0.98]",
           nodeClassName
         )}
       >

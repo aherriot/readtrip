@@ -7,6 +7,7 @@ import type {
   ReactNode,
 } from "react";
 import { Button as HeadlessButton } from "@headlessui/react";
+import { Spinner } from "./Spinner";
 import { cn } from "@/lib/ui/cn";
 
 type ButtonVariant = "primary" | "secondary" | "ghost";
@@ -23,6 +24,13 @@ interface CommonProps {
   trailingIcon?: ReactNode;
   /** Stretch to fill the container — good for stacked, thumb-friendly mobile actions. */
   fullWidth?: boolean;
+  /**
+   * Show a spinner in place of the leading icon and mark the control busy while
+   * an action is in flight (a form submit, an async fetch). The button stays
+   * disabled for the duration, so it can't be double-fired; keep the label text
+   * so the user still reads what's happening. `aria-busy` is set for SRs.
+   */
+  loading?: boolean;
 }
 
 /**
@@ -109,6 +117,7 @@ export const Button = forwardRef<
     leadingIcon,
     trailingIcon,
     fullWidth,
+    loading,
     className,
     children,
     ...rest
@@ -117,9 +126,20 @@ export const Button = forwardRef<
   const classes = buttonClasses({ variant, size, fullWidth, className });
   const content = (
     <>
-      {leadingIcon && <span aria-hidden="true">{leadingIcon}</span>}
+      {loading ? (
+        // A spinner takes the leading slot; the label stays so the action is
+        // still named. Kept aria-hidden (Spinner with no label) — aria-busy on
+        // the control already tells assistive tech it's working.
+        <span aria-hidden="true">
+          <Spinner size={size === "md" ? "sm" : "md"} />
+        </span>
+      ) : (
+        leadingIcon && <span aria-hidden="true">{leadingIcon}</span>
+      )}
       {children}
-      {trailingIcon && <span aria-hidden="true">{trailingIcon}</span>}
+      {!loading && trailingIcon && (
+        <span aria-hidden="true">{trailingIcon}</span>
+      )}
     </>
   );
 
@@ -131,6 +151,10 @@ export const Button = forwardRef<
         ref={ref as React.Ref<HTMLAnchorElement>}
         href={href}
         className={classes}
+        // Links can't be `:disabled`; while loading, block navigation the same
+        // way a disabled link does (aria-disabled + the pointer-events rule).
+        aria-disabled={loading || undefined}
+        aria-busy={loading || undefined}
         {...anchorRest}
       >
         {content}
@@ -138,7 +162,7 @@ export const Button = forwardRef<
     );
   }
 
-  const { type, ...buttonRest } =
+  const { type, disabled, ...buttonRest } =
     rest as ButtonHTMLAttributes<HTMLButtonElement>;
   return (
     <HeadlessButton
@@ -146,6 +170,9 @@ export const Button = forwardRef<
       // Headless UI defaults to type="button", so a Button inside a form doesn't
       // submit by surprise; pass an explicit type to override (e.g. submit).
       type={type}
+      // A loading button is inert so the action can't be double-fired.
+      disabled={disabled || loading}
+      aria-busy={loading || undefined}
       className={classes}
       {...buttonRest}
     >

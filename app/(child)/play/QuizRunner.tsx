@@ -11,6 +11,7 @@ import { Card } from "@/components/ui/Card";
 import { Heading } from "@/components/ui/Heading";
 import { Input } from "@/components/ui/Input";
 import { ProgressBar } from "@/components/ui/ProgressBar";
+import { Spinner } from "@/components/ui/Spinner";
 import { Text } from "@/components/ui/Text";
 import type { Quiz } from "@/lib/llm";
 import { scoreQuiz, type QuizScore } from "@/lib/reading/quiz";
@@ -109,13 +110,18 @@ export function QuizRunner({
   if (phase.name === "loading") {
     return (
       <ResultShell>
-        <span className="text-5xl" aria-hidden="true">
+        <span
+          className="text-5xl motion-safe:animate-bounce"
+          aria-hidden="true"
+        >
           🧩
         </span>
         <Heading level={2}>Building your quiz…</Heading>
         <Text tone="soft" aria-live="polite">
           Cooking up a few questions about {topic.title}.
         </Text>
+        {/* Decorative — the heading already names what's loading. */}
+        <Spinner size="lg" className="text-surface-accent" />
       </ResultShell>
     );
   }

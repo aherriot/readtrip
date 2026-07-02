@@ -6,6 +6,7 @@ import { Heading } from "@/components/ui/Heading";
 import { Icon } from "@/components/ui/Icon";
 import { Input } from "@/components/ui/Input";
 import { ProgressBar } from "@/components/ui/ProgressBar";
+import { Spinner } from "@/components/ui/Spinner";
 import { Text } from "@/components/ui/Text";
 import { LessonChunk } from "@/components/reading/LessonChunk";
 import { ReadingView } from "@/components/reading/ReadingView";
@@ -114,6 +115,37 @@ function ButtonVariants() {
       </Variant>
       <Variant title="Full width (thumb-friendly mobile action)">
         <Button fullWidth>Continue</Button>
+      </Variant>
+      <Variant title="Loading (spinner + aria-busy, inert)">
+        <div className="flex flex-wrap items-center gap-3">
+          <Button loading>Charting…</Button>
+          <Button variant="secondary" size="md" loading>
+            Saving…
+          </Button>
+        </div>
+      </Variant>
+    </div>
+  );
+}
+
+function SpinnerVariants() {
+  return (
+    <div className="flex flex-col gap-6">
+      <Variant title="Sizes (inherit the surrounding text color)">
+        <div className="flex items-center gap-4 text-surface-ink">
+          <Spinner size="sm" />
+          <Spinner size="md" />
+          <Spinner size="lg" />
+        </div>
+      </Variant>
+      <Variant title="Tinted with a token utility">
+        <Spinner size="lg" className="text-surface-accent" />
+      </Variant>
+      <Variant title="Standing alone (named for screen readers) + text">
+        <div className="flex items-center gap-3 text-surface-ink-soft">
+          <Spinner label="Loading your lesson" />
+          <Text tone="soft">Charting your lesson…</Text>
+        </div>
       </Variant>
     </div>
   );
@@ -335,6 +367,10 @@ export default function ComponentGallery() {
 
         <Section name="ProgressBar">
           <ProgressVariants />
+        </Section>
+
+        <Section name="Spinner">
+          <SpinnerVariants />
         </Section>
 
         <Section name="Input">
