@@ -109,7 +109,7 @@ test("warm up the Neon branch and every route the suite hits", async ({
   await page.getByRole("button", { name: /start the quiz/i }).click();
 
   await expect(
-    page.getByRole("heading", { name: /quiz: dinosaurs/i })
+    page.getByRole("progressbar", { name: /quiz progress/i })
   ).toBeVisible({ timeout: 30_000 });
   await page.getByRole("button", { name: /^dinosaurs$/i }).click();
   await page.getByRole("button", { name: /next question/i }).click();

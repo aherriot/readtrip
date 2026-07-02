@@ -229,7 +229,6 @@ export function QuizRunner({
       data-surface="paper"
       className="mx-auto flex w-full max-w-2xl flex-col gap-6"
     >
-      <Heading level={2}>Quiz: {topic.title}</Heading>
       <ProgressBar
         label="Quiz progress"
         value={index}

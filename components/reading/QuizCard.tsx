@@ -92,7 +92,6 @@ export function QuizCard({
       <div aria-live="polite" className="flex flex-col gap-4">
         {solved && (
           <>
-            <Text measure>{question.explanation}</Text>
             <Button onClick={onAdvance}>
               {isLast ? "Finish" : "Next question"}
             </Button>
