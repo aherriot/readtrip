@@ -1,5 +1,9 @@
 // Pure validation for child-profile input. No DB or framework deps, so it's unit
 // tested in validation.test.ts and reused by the server actions.
+import {
+  MAX_READING_LEVEL,
+  MIN_READING_LEVEL,
+} from "../llm/prompts/readingLevel";
 
 // Avatar color comes from the accent palette (styles/tokens.css). Stored on
 // Child.avatarConfig as { color }. The full cosmetic system lands later; for now
@@ -19,6 +23,12 @@ export const MAX_NAME_LENGTH = 40;
 export interface ChildInput {
   displayName: string;
   avatarColor: AvatarColor;
+  /**
+   * Manually chosen reading level (1..5). Omitted on the create form — a new
+   * child's starting level comes from the calibration mini-game — and present
+   * only when the parent edits the level directly.
+   */
+  readingLevel?: number;
 }
 
 export type ValidationResult =
@@ -56,6 +66,7 @@ export function avatarColorFromConfig(config: unknown): AvatarColor {
 export function validateChildInput(raw: {
   displayName?: unknown;
   avatarColor?: unknown;
+  readingLevel?: unknown;
 }): ValidationResult {
   const displayName =
     typeof raw.displayName === "string" ? raw.displayName.trim() : "";
@@ -73,5 +84,24 @@ export function validateChildInput(raw: {
     return { ok: false, error: "Pick an avatar color." };
   }
 
-  return { ok: true, value: { displayName, avatarColor: raw.avatarColor } };
+  const value: ChildInput = { displayName, avatarColor: raw.avatarColor };
+
+  // Reading level is optional — only validated (and included) when the form
+  // sends it, i.e. the edit form. An empty string / missing means "leave it".
+  if (raw.readingLevel !== undefined && raw.readingLevel !== "") {
+    const level = Number(raw.readingLevel);
+    if (
+      !Number.isInteger(level) ||
+      level < MIN_READING_LEVEL ||
+      level > MAX_READING_LEVEL
+    ) {
+      return {
+        ok: false,
+        error: `Pick a reading level between ${MIN_READING_LEVEL} and ${MAX_READING_LEVEL}.`,
+      };
+    }
+    value.readingLevel = level;
+  }
+
+  return { ok: true, value };
 }

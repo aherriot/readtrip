@@ -1,0 +1,1 @@
+ALTER TABLE "Child" ADD COLUMN "readingSuggestionSnoozedLevel" integer;

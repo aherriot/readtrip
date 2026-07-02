@@ -1,7 +1,9 @@
 // Ongoing reading-level adaptation (docs/04). Calibration sets the starting
-// level; quiz results move it over time. Kept deliberately stable so a single
-// off day doesn't yo-yo the child's level: only scores taken AT the current
-// level count, and it takes a full window of them to move one step.
+// level; quiz results then *suggest* a move — the parent approves it on the
+// Profiles page, so the level never changes silently under the child. Kept
+// deliberately stable so a single off day doesn't churn the suggestion: only
+// scores taken AT the current level count, and it takes a full window of them
+// to point one step up or down.
 import {
   MAX_READING_LEVEL,
   MIN_READING_LEVEL,
@@ -28,12 +30,19 @@ export interface Adaptation {
 // the level. The sweet spot is a ~70–80% pass rate (docs/04) — challenging but
 // winnable — so we only step up when they're clearly acing it and down when
 // they're clearly struggling.
-const WINDOW = 3;
+export const WINDOW = 3;
+// After a parent dismisses a suggestion ("not yet"), the same suggestion only
+// returns once a much longer trend has built up — so we don't re-prompt after a
+// handful of quizzes. Used in place of WINDOW while a level is snoozed (docs/04).
+export const RESUGGEST_WINDOW = 20;
 const STEP_UP_AT = 85;
 const STEP_DOWN_AT = 50;
 
-/** Cap the rolling history so the jsonb column can't grow without bound. */
-export const HISTORY_CAP = 10;
+// Cap the rolling history so the jsonb column can't grow without bound. It must
+// stay above RESUGGEST_WINDOW (with headroom for interleaved other-level scores),
+// or a snoozed level could never accumulate a full window and would never
+// re-suggest.
+export const HISTORY_CAP = 30;
 
 /**
  * Append a fresh score to the rolling history, keeping only the most recent
@@ -48,16 +57,20 @@ export function appendScore(
 
 /**
  * Decide the child's next reading level from their recent quiz history. Only
- * the last `WINDOW` scores taken at `currentLevel` count; with fewer than that
+ * the last `window` scores taken at `currentLevel` count; with fewer than that
  * we hold. Aced consistently (avg ≥ 85%) steps up one; struggling consistently
  * (avg ≤ 50%) steps down one; both clamp to the 1–5 range.
+ *
+ * `window` defaults to WINDOW; callers pass the longer RESUGGEST_WINDOW to
+ * require a sustained trend before re-suggesting a dismissed level (docs/04).
  */
 export function adaptReadingLevel(
   currentLevel: number,
-  history: readonly QuizScoreRecord[]
+  history: readonly QuizScoreRecord[],
+  window: number = WINDOW
 ): Adaptation {
-  const recent = history.filter((s) => s.level === currentLevel).slice(-WINDOW);
-  if (recent.length < WINDOW) {
+  const recent = history.filter((s) => s.level === currentLevel).slice(-window);
+  if (recent.length < window) {
     return { readingLevel: currentLevel, direction: null };
   }
 

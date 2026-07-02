@@ -4,6 +4,7 @@ import { children } from "@/lib/db/schema";
 import {
   adaptReadingLevel,
   appendScore,
+  RESUGGEST_WINDOW,
   type QuizScoreRecord,
 } from "@/lib/reading/adapt";
 import type { AvatarColor, ChildInput } from "./validation";
@@ -16,6 +17,12 @@ export interface ChildProfile {
   displayName: string;
   avatarColor: AvatarColor;
   readingLevel: number;
+  /**
+   * The level ongoing adaptation is pointing at, pending parent approval on the
+   * Profiles page (docs/04). Null when there's no pending suggestion. It never
+   * changes `readingLevel` on its own — the parent accepts or dismisses it.
+   */
+  suggestedReadingLevel: number | null;
   level: number;
   xp: number;
   /** Null until the child finishes the calibration mini-game (docs/04). */
@@ -30,6 +37,7 @@ function toProfile(row: ChildRow): ChildProfile {
     displayName: row.displayName,
     avatarColor: avatarColorFromConfig(row.avatarConfig),
     readingLevel: row.readingLevel,
+    suggestedReadingLevel: row.suggestedReadingLevel,
     level: row.level,
     xp: row.xp,
     calibratedAt: row.calibratedAt,
@@ -78,12 +86,20 @@ export async function updateChild(
   childId: string,
   input: ChildInput
 ): Promise<void> {
+  const set: Partial<typeof children.$inferInsert> = {
+    displayName: input.displayName,
+    avatarConfig: { color: input.avatarColor },
+  };
+  // A manually chosen reading level is the parent taking direct control, so it
+  // clears any pending suggestion and the snooze — they've made the call.
+  if (input.readingLevel !== undefined) {
+    set.readingLevel = input.readingLevel;
+    set.suggestedReadingLevel = null;
+    set.readingSuggestionSnoozedLevel = null;
+  }
   await db
     .update(children)
-    .set({
-      displayName: input.displayName,
-      avatarConfig: { color: input.avatarColor },
-    })
+    .set(set)
     .where(and(eq(children.id, childId), eq(children.parentId, parentId)));
 }
 
@@ -103,29 +119,27 @@ export async function completeCalibration(
     .where(and(eq(children.id, childId), eq(children.parentId, parentId)));
 }
 
-export interface QuizAdaptation {
-  /** The child's reading level after this quiz (may be unchanged). */
-  readingLevel: number;
-  /** True only when the level stepped up — the one change worth celebrating. */
-  leveledUp: boolean;
-}
-
 /**
- * Record a completed quiz's score into the child's rolling history and adapt
- * their reading level from it (docs/04, the Steer step). Scoped by parentId so
- * a parent can only steer their own children; returns `null` if the child no
- * longer resolves. The level moves at most one step and only on a consistent
- * trend, so it never yo-yos on a single quiz.
+ * Record a completed quiz's score into the child's rolling history and refresh
+ * the *suggested* reading level from it (docs/04, the Steer step). The actual
+ * `readingLevel` is never touched here — a consistent trend only sets a pending
+ * suggestion the parent approves on the Profiles page, so the level never yo-yos
+ * or changes under the child. Scoped by parentId; a no-op if the child no longer
+ * resolves.
+ *
+ * A fresh up/down trend overwrites the pending suggestion; a neutral quiz leaves
+ * whatever was already pending in place (so a suggestion the parent hasn't seen
+ * yet doesn't flicker away).
  */
-export async function applyQuizAdaptation(
+export async function recordQuizAndSuggest(
   parentId: string,
   childId: string,
   score: { level: number; pct: number }
-): Promise<QuizAdaptation | null> {
+): Promise<void> {
   const row = await db.query.children.findFirst({
     where: and(eq(children.id, childId), eq(children.parentId, parentId)),
   });
-  if (!row) return null;
+  if (!row) return;
 
   const history = Array.isArray(row.recentQuizScores)
     ? (row.recentQuizScores as QuizScoreRecord[])
@@ -136,19 +150,87 @@ export async function applyQuizAdaptation(
     at: new Date().toISOString(),
   });
 
-  // Adapt from the level the child is on now — the quiz's own level is what the
-  // rolling window keys on, so a stale profile can't drift the calculation.
+  // Suggest from the level the child is on now — the quiz's own level is what the
+  // rolling window keys on, so a stale profile can't drift the calculation. If
+  // the parent recently dismissed a suggestion at this level, require the much
+  // longer RESUGGEST_WINDOW trend before raising it again (docs/04).
+  const snoozed = row.readingSuggestionSnoozedLevel === row.readingLevel;
   const { readingLevel, direction } = adaptReadingLevel(
     row.readingLevel,
-    updated
+    updated,
+    snoozed ? RESUGGEST_WINDOW : undefined
   );
+
+  const set: Partial<typeof children.$inferInsert> = {
+    recentQuizScores: updated,
+  };
+  // A fresh trend raises the suggestion and lifts the snooze; a neutral quiz
+  // leaves both as they were.
+  if (direction !== null) {
+    set.suggestedReadingLevel = readingLevel;
+    set.readingSuggestionSnoozedLevel = null;
+  }
 
   await db
     .update(children)
-    .set({ recentQuizScores: updated, readingLevel })
+    .set(set)
     .where(and(eq(children.id, childId), eq(children.parentId, parentId)));
+}
 
-  return { readingLevel, leveledUp: direction === "up" };
+/**
+ * Approve a pending reading-level suggestion: move `readingLevel` to it and
+ * clear the suggestion. No-op (returns null) if the child doesn't resolve or has
+ * no pending suggestion. Scoped by parentId.
+ */
+export async function acceptReadingSuggestion(
+  parentId: string,
+  childId: string
+): Promise<ChildProfile | null> {
+  const row = await db.query.children.findFirst({
+    where: and(eq(children.id, childId), eq(children.parentId, parentId)),
+  });
+  if (!row || row.suggestedReadingLevel === null) return null;
+
+  const [updated] = await db
+    .update(children)
+    .set({
+      readingLevel: row.suggestedReadingLevel,
+      suggestedReadingLevel: null,
+      readingSuggestionSnoozedLevel: null,
+    })
+    .where(and(eq(children.id, childId), eq(children.parentId, parentId)))
+    .returning();
+  return updated ? toProfile(updated) : null;
+}
+
+/**
+ * Dismiss a pending suggestion ("not yet"). Clears it, drops the quiz history at
+ * the current level, and snoozes re-suggestion at that level: the trend has to
+ * rebuild over the much longer RESUGGEST_WINDOW before it prompts again, so a
+ * dismissal isn't undone by the next couple of quizzes. Scoped by parentId.
+ */
+export async function dismissReadingSuggestion(
+  parentId: string,
+  childId: string
+): Promise<void> {
+  const row = await db.query.children.findFirst({
+    where: and(eq(children.id, childId), eq(children.parentId, parentId)),
+  });
+  if (!row) return;
+
+  const history = Array.isArray(row.recentQuizScores)
+    ? (row.recentQuizScores as QuizScoreRecord[])
+    : [];
+  const kept = history.filter((s) => s.level !== row.readingLevel);
+
+  await db
+    .update(children)
+    .set({
+      suggestedReadingLevel: null,
+      recentQuizScores: kept,
+      readingSuggestionSnoozedLevel: row.readingLevel,
+    })
+    .where(and(eq(children.id, childId), eq(children.parentId, parentId)));
 }
 
 export async function deleteChild(

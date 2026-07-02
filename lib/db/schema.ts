@@ -98,8 +98,18 @@ export const children = pgTable("Child", {
   xp: integer("xp").default(0).notNull(),
   level: integer("level").default(1).notNull(),
 
-  // Adaptation: rolling quiz history used to move readingLevel
+  // Adaptation: rolling quiz history feeds a *suggested* level (docs/04). The
+  // actual readingLevel only ever moves on a manual/parent-approved change, never
+  // silently from quiz results.
   recentQuizScores: jsonb("recentQuizScores").notNull(), // e.g. [{ level, pct, at }]
+  // The level ongoing adaptation is pointing at (up or down), pending parent
+  // approval on the Profiles page. Null when there's nothing to suggest.
+  suggestedReadingLevel: integer("suggestedReadingLevel"),
+  // Set to the current reading level when a parent dismisses a suggestion ("not
+  // yet"). While it matches readingLevel, re-suggesting takes a much longer trend
+  // (RESUGGEST_WINDOW) so we don't nag. Cleared once a fresh suggestion fires or
+  // the level actually changes.
+  readingSuggestionSnoozedLevel: integer("readingSuggestionSnoozedLevel"),
 
   // Set when the child finishes the calibration mini-game (docs/04). Null means
   // "not calibrated yet" — the child app routes them into calibration first.

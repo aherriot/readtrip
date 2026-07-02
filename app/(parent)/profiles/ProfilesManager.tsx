@@ -11,12 +11,18 @@ import { cn } from "@/lib/ui/cn";
 import type { ChildProfile } from "@/lib/children/queries";
 import { AVATAR_COLORS, type AvatarColor } from "@/lib/children/validation";
 import {
+  acceptReadingSuggestionAction,
   createChildAction,
   deleteChildAction,
+  dismissReadingSuggestionAction,
   selectChildAction,
   updateChildAction,
   type ProfileFormState,
 } from "./actions";
+import {
+  MAX_READING_LEVEL,
+  MIN_READING_LEVEL,
+} from "@/lib/llm/prompts/readingLevel";
 
 const FORM_IDLE: ProfileFormState = { status: "idle" };
 
@@ -126,12 +132,49 @@ function ProfileCard({
           </span>
         </Button>
       </form>
+      {child.suggestedReadingLevel !== null &&
+        child.suggestedReadingLevel !== child.readingLevel && (
+          <ReadingSuggestion child={child} />
+        )}
       <div className="flex justify-center">
         <Button variant="ghost" size="md" onClick={onEdit}>
           Edit
         </Button>
       </div>
     </Card>
+  );
+}
+
+// A pending, parent-approved reading-level change (docs/04). Quizzes only ever
+// *suggest* — the level moves when the parent taps here, never on its own. An
+// "up" is framed as a win; a "down" stays gentle (and is never shown to the
+// child). Accept/dismiss are separate <form>s so neither nests in the other.
+function ReadingSuggestion({ child }: { child: ChildProfile }) {
+  const suggested = child.suggestedReadingLevel!;
+  const goingUp = suggested > child.readingLevel;
+
+  return (
+    <div className="flex flex-col gap-2 rounded-md border-2 border-surface-rule bg-surface-panel p-3 text-center">
+      <Text size="sm">
+        {goingUp
+          ? `${child.displayName} is acing Reading ${child.readingLevel}. Ready for Reading ${suggested}?`
+          : `Reading ${child.readingLevel} looks tricky for ${child.displayName}. Ease to Reading ${suggested}?`}
+      </Text>
+      <div className="flex flex-wrap justify-center gap-2">
+        <form action={acceptReadingSuggestionAction}>
+          <input type="hidden" name="childId" value={child.id} />
+          <Button type="submit" size="md">
+            {goingUp ? "Move up" : "Ease down"}
+          </Button>
+        </form>
+        <form action={dismissReadingSuggestionAction}>
+          <input type="hidden" name="childId" value={child.id} />
+          <Button type="submit" variant="ghost" size="md">
+            Not yet
+          </Button>
+        </form>
+      </div>
+    </div>
   );
 }
 
@@ -213,6 +256,22 @@ function ChildForm({
           hint="The name your explorer will see."
         />
         <ColorPicker defaultColor={child?.avatarColor ?? "aqua"} />
+
+        {isEdit && (
+          <Input
+            label="Reading level"
+            name="readingLevel"
+            type="number"
+            inputMode="numeric"
+            min={MIN_READING_LEVEL}
+            max={MAX_READING_LEVEL}
+            step={1}
+            defaultValue={child?.readingLevel ?? ""}
+            size="md"
+            required
+            hint={`${MIN_READING_LEVEL} (early reader) to ${MAX_READING_LEVEL} (advanced). Set this yourself anytime — it won't change on its own.`}
+          />
+        )}
 
         {state.status === "error" && (
           <Text role="alert" size="sm" className="text-surface-danger">

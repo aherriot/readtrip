@@ -23,10 +23,6 @@ type Phase =
   | { name: "playing"; quiz: Quiz; index: number }
   | { name: "done"; score: QuizScore; loopId: string | null };
 
-// Whether the child's reading level nudged up after this quiz — the only change
-// we announce (a step *down* stays quiet, docs/04). `null` until Steer replies.
-type Adaptation = { leveledUp: boolean } | null;
-
 // The XP / level / badge payout for this loop — shown once /api/progress replies.
 type Reward = {
   xpAwarded: number;
@@ -52,7 +48,6 @@ export function QuizRunner({
   onGoDeeper,
 }: { topic: LessonTopic; lessonText: string } & SteerHandlers) {
   const [phase, setPhase] = useState<Phase>({ name: "loading" });
-  const [adaptation, setAdaptation] = useState<Adaptation>(null);
   const [reward, setReward] = useState<Reward>(null);
   // First tapped choice per question — the score signal (retries don't count).
   const firstChoices = useRef<(number | null)[]>([]);
@@ -160,7 +155,6 @@ export function QuizRunner({
       <SteerResult
         topic={topic}
         score={phase.score}
-        adaptation={adaptation}
         reward={reward}
         loopId={phase.loopId}
         onExplore={onExplore}
@@ -178,27 +172,19 @@ export function QuizRunner({
     const id = loopId.current;
     setPhase({ name: "done", score, loopId: id });
 
-    // Close out the loop once it's persisted: Steer adapts difficulty (docs/04),
-    // Progress awards XP + badges (docs/05). Both re-grade server-side from the
-    // stored quiz; fire in parallel and fail quietly — neither should block the
-    // child from steering onward, and there's nothing to score without a loop.
+    // Close out the loop once it's persisted: Steer records the score and
+    // refreshes the parent-approved difficulty suggestion (docs/04), Progress
+    // awards XP + badges (docs/05). Both re-grade server-side from the stored
+    // quiz; fire in parallel and fail quietly — neither should block the child
+    // from steering onward, and there's nothing to score without a loop.
     if (!id) return;
     const choices = firstChoices.current;
 
-    void (async () => {
-      try {
-        const res = await fetch("/api/steer", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ loopId: id, firstChoices: choices }),
-        });
-        if (!res.ok) return;
-        const data = (await res.json()) as { leveledUp: boolean };
-        setAdaptation({ leveledUp: data.leveledUp });
-      } catch (err) {
-        console.error("[steer] failed:", err);
-      }
-    })();
+    void fetch("/api/steer", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ loopId: id, firstChoices: choices }),
+    }).catch((err) => console.error("[steer] failed:", err));
 
     void (async () => {
       try {
@@ -268,7 +254,6 @@ export function QuizRunner({
 function SteerResult({
   topic,
   score,
-  adaptation,
   reward,
   loopId,
   onExplore,
@@ -276,7 +261,6 @@ function SteerResult({
 }: {
   topic: LessonTopic;
   score: QuizScore;
-  adaptation: Adaptation;
   reward: Reward;
   loopId: string | null;
 } & SteerHandlers) {
@@ -284,8 +268,8 @@ function SteerResult({
   const [followUp, setFollowUp] = useState("");
   // The level-up overlay is the one blocking celebration: it opens as soon as
   // the reward lands with `leveledUp` (derived, no effect needed) and stays open
-  // until the child dismisses it. A step *down* in reading level still stays
-  // quiet (that's `adaptation`, not this).
+  // until the child dismisses it. This is the XP/game level — reading-level
+  // changes are parent-approved and never surface to the child.
   const [levelUpDismissed, setLevelUpDismissed] = useState(false);
 
   function submitFollowUp(event: FormEvent<HTMLFormElement>) {
@@ -313,12 +297,6 @@ function SteerResult({
           {reward.badgeTitle && <ExpeditionStamp title={reward.badgeTitle} />}
         </div>
       )}
-      {adaptation?.leveledUp && (
-        <Text size="sm" aria-live="polite" className="font-semibold">
-          ⬆️ You&apos;re reading like a pro now!
-        </Text>
-      )}
-
       {reward?.leveledUp && (
         <LevelUpCelebration
           open={!levelUpDismissed}

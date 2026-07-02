@@ -48,17 +48,27 @@ calibration is cheap and instant. Scoring a free-text answer, if used, runs on H
 
 ## Ongoing adaptation
 
-Calibration sets the start; quiz results move the level over time. Keep it stable
-(don't yo-yo on a single bad quiz):
+Calibration sets the start; quiz results then **suggest** where the level should go — but
+they never change it on their own. The reading level is a parenting decision, so a
+consistent trend only raises a _pending suggestion_ the parent approves on the Profiles
+page. This keeps the level from shifting under the child after a handful of quizzes, and
+gives the grown-up the final say. Keep the suggestion stable too (don't yo-yo on a single
+bad quiz):
 
 - Track a rolling pass rate over the last N quizzes at the current level.
-- **Aced consistently** (e.g. ≥ ~85% over 3 quizzes) → step up one level.
-- **Struggling consistently** (e.g. ≤ ~50% over 3 quizzes) → step down one level.
+- **Aced consistently** (e.g. ≥ ~85% over 3 quizzes) → suggest stepping up one level.
+- **Struggling consistently** (e.g. ≤ ~50% over 3 quizzes) → suggest stepping down one level.
 - Otherwise hold. The sweet spot is ~70–80% pass rate — challenging but winnable.
 
-Store the level and a short rolling history on the child profile
-([`06-data-model.md`](06-data-model.md)). Never announce a "level down" to the child —
-just adjust quietly. Level _ups_ can be celebrated.
+On the Profiles page the parent sees the suggestion and taps **accept** (which moves the
+level) or **not yet**. "Not yet" dismisses the suggestion _and_ snoozes it: re-suggesting at
+that level then takes a much longer sustained trend (a wider window than the normal one), so
+a dismissal isn't undone by the next couple of quizzes. A parent can also **set the reading
+level manually** on the child's edit form at any time. Nothing about a level change is ever surfaced to the child — an "up"
+is only framed as a win to the _parent_, and a "down" stays quiet.
+
+Store the level, the pending suggestion, and a short rolling history on the child profile
+([`06-data-model.md`](06-data-model.md)).
 
 ## Why this is a good portfolio detail
 
