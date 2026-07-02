@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { auth } from "@/lib/auth";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { Heading } from "@/components/ui/Heading";
@@ -28,7 +29,11 @@ const features = [
   },
 ];
 
-export default function Home() {
+export default async function Home() {
+  const session = await auth();
+  const isSignedIn = Boolean(session?.user?.id);
+  const primaryHref = isSignedIn ? "/profiles" : "/sign-in";
+
   return (
     <main className="flex min-h-screen flex-col items-center gap-16 px-6 py-16 text-center sm:py-24">
       {/* Hero */}
@@ -42,7 +47,9 @@ export default function Home() {
           level, a quick check that it stuck, and a reward for the effort.
         </Text>
         <div className="mt-2 flex flex-col items-center gap-3 sm:flex-row">
-          <Button href="/sign-in">Get started →</Button>
+          <Button href={primaryHref}>
+            {isSignedIn ? "Go to profiles →" : "Get started →"}
+          </Button>
         </div>
         <Text size="sm" tone="soft">
           For parents and teachers of curious 6–11 year-olds.
@@ -85,8 +92,10 @@ export default function Home() {
             passes through guardrails, so parents and teachers can trust it by
             default.
           </Text>
-          <Button href="/sign-in" variant="secondary">
-            Sign in to set up your explorers
+          <Button href={primaryHref} variant="secondary">
+            {isSignedIn
+              ? "Set up your explorers"
+              : "Sign in to set up your explorers"}
           </Button>
         </Card>
       </section>
