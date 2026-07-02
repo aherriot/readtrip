@@ -10,6 +10,8 @@ test("health endpoint round-trips to the database", async ({ request }) => {
   const body = await res.json();
   expect(body.ok).toBe(true);
   expect(body.db).toBe("connected");
-  expect(typeof body.lastPingId).toBe("string");
-  expect(body.totalPings).toBeGreaterThan(0);
+  // Read-only check: a count round-trip, no write. A freshly migrated branch
+  // may legitimately have zero rows, so assert it's a number, not that it's > 0.
+  expect(typeof body.totalPings).toBe("number");
+  expect(body.totalPings).toBeGreaterThanOrEqual(0);
 });
