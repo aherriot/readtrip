@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
+import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { Heading } from "@/components/ui/Heading";
@@ -145,6 +146,64 @@ function SpinnerVariants() {
         <div className="flex items-center gap-3 text-surface-ink-soft">
           <Spinner label="Loading your lesson" />
           <Text tone="soft">Charting your lesson…</Text>
+        </div>
+      </Variant>
+    </div>
+  );
+}
+
+function BadgeVariants() {
+  return (
+    <div className="flex flex-col gap-6">
+      <Variant title="Feedback pills (icon + word + color) — the word is the meaning">
+        <div className="flex flex-wrap items-center gap-3">
+          <Badge tone="leaf" icon="✓">
+            Yes!
+          </Badge>
+          <Badge tone="coral" icon="↻">
+            Try again
+          </Badge>
+        </div>
+      </Variant>
+      <Variant title="Tag / eyebrow (xs, uppercase) — the map-node markers, which mirror an sr-only label, so aria-hidden">
+        <div className="flex flex-wrap items-center gap-3">
+          <Badge
+            tone="sky"
+            size="xs"
+            variant="tag"
+            icon="🚩"
+            aria-hidden="true"
+          >
+            Exploring
+          </Badge>
+          <Badge
+            tone="aqua"
+            size="xs"
+            variant="tag"
+            icon="🔎"
+            aria-hidden="true"
+          >
+            Dive
+          </Badge>
+          <Badge
+            tone="violet"
+            size="xs"
+            variant="tag"
+            icon="🧭"
+            aria-hidden="true"
+          >
+            New
+          </Badge>
+        </div>
+      </Variant>
+      <Variant title="Tones (soft token fill + hued border)">
+        <div className="flex flex-wrap items-center gap-3">
+          <Badge tone="leaf">Leaf</Badge>
+          <Badge tone="coral">Coral</Badge>
+          <Badge tone="aqua">Aqua</Badge>
+          <Badge tone="violet">Violet</Badge>
+          <Badge tone="sky">Sky</Badge>
+          <Badge tone="sun">Sun</Badge>
         </div>
       </Variant>
     </div>
@@ -350,6 +409,10 @@ export default function ComponentGallery() {
 
         <Section name="Button">
           <ButtonVariants />
+        </Section>
+
+        <Section name="Badge">
+          <BadgeVariants />
         </Section>
 
         <Section name="Card">

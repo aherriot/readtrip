@@ -3,10 +3,12 @@
 import { useRouter } from "next/navigation";
 import { useState, type FormEvent } from "react";
 import { WorldMap } from "@/components/game/WorldMap";
+import { ReadingView } from "@/components/reading/ReadingView";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { Heading } from "@/components/ui/Heading";
 import { Input } from "@/components/ui/Input";
+import { Spinner } from "@/components/ui/Spinner";
 import { Text } from "@/components/ui/Text";
 import { freshStarters } from "@/lib/explore/topics";
 import type { MapNodeView } from "@/lib/map/nodeState";
@@ -20,7 +22,9 @@ type ResolvedTopic = LessonTopic;
 
 type Phase =
   | { name: "idle" }
-  | { name: "resolving" }
+  // `fromReading` marks a "go deeper" follow-up: the child left a lesson behind,
+  // so we hold a loading view instead of flashing the world map underneath.
+  | { name: "resolving"; fromReading: boolean }
   | { name: "reading"; topic: ResolvedTopic }
   | { name: "blocked"; redirect: string };
 
@@ -55,7 +59,7 @@ export function ExploreEntry({
   ) {
     const trimmed = rawQuery.trim();
     if (!trimmed || busy) return;
-    setPhase({ name: "resolving" });
+    setPhase({ name: "resolving", fromReading: parent !== undefined });
     setError(null);
     try {
       const res = await fetch("/api/explore", {
@@ -162,6 +166,20 @@ export function ExploreEntry({
         onExplore={reset}
         onGoDeeper={goDeeper}
       />
+    );
+  }
+
+  // A "go deeper" follow-up unmounts the finished lesson while the next one
+  // resolves. Show a loading view so the world map doesn't flash in the gap
+  // before the new lesson takes over.
+  if (phase.name === "resolving" && phase.fromReading) {
+    return (
+      <ReadingView aria-busy="true">
+        <div className="flex items-center gap-3" aria-live="polite">
+          <Spinner className="text-surface-ink-soft" />
+          <Text tone="soft">Charting your next stop…</Text>
+        </div>
+      </ReadingView>
     );
   }
 

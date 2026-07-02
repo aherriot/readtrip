@@ -1,5 +1,6 @@
 "use client";
 
+import { Badge, type BadgeTone } from "@/components/ui/Badge";
 import { cn } from "@/lib/ui/cn";
 
 export type QuizChoiceState = "default" | "selected" | "correct" | "retry";
@@ -27,16 +28,17 @@ const stateStyles: Record<QuizChoiceState, string> = {
   retry: "border-coral bg-coral/15",
 };
 
-const statusBadge: Partial<
-  Record<QuizChoiceState, { icon: string; label: string; className: string }>
-> = {
-  correct: { icon: "✓", label: "Yes!", className: "border-leaf bg-leaf/25" },
-  retry: {
-    icon: "↻",
-    label: "Try again",
-    className: "border-coral bg-coral/20",
-  },
+type Feedback = { icon: string; label: string; tone: BadgeTone };
+
+const statusBadge: Partial<Record<QuizChoiceState, Feedback>> = {
+  correct: { icon: "✓", label: "Yes!", tone: "leaf" },
+  retry: { icon: "↻", label: "Try again", tone: "coral" },
 };
+
+// The widest label reserves the badge column up front (via an invisible copy).
+// Because the column keeps this width from the start, the answer text never
+// reflows when a "Yes!" / "Try again" badge appears once the question resolves.
+const widestBadge: Feedback = statusBadge.retry!;
 
 /**
  * One big, tappable quiz answer (docs/10). A real `<button>` — keyboard + SR
@@ -66,18 +68,29 @@ export function QuizChoice({
         stateStyles[state]
       )}
     >
-      <span>{children}</span>
-      {badge && (
-        <span
-          className={cn(
-            "inline-flex shrink-0 items-center gap-1 rounded-pill border px-3 py-1 text-sm font-medium",
-            badge.className
-          )}
+      <span className="min-w-0">{children}</span>
+      {/* Badge column, always present. An invisible placeholder holds the width
+          so the answer text keeps a constant measure; the real badge overlays it
+          right-aligned only once the choice resolves. */}
+      <span className="relative shrink-0">
+        <Badge
+          aria-hidden="true"
+          tone={widestBadge.tone}
+          icon={widestBadge.icon}
+          className="invisible"
         >
-          <span aria-hidden="true">{badge.icon}</span>
-          {badge.label}
-        </span>
-      )}
+          {widestBadge.label}
+        </Badge>
+        {badge && (
+          <Badge
+            tone={badge.tone}
+            icon={badge.icon}
+            className="absolute right-0 top-1/2 -translate-y-1/2"
+          >
+            {badge.label}
+          </Badge>
+        )}
+      </span>
     </button>
   );
 }
