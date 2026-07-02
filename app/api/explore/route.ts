@@ -8,6 +8,7 @@ import { auth } from "@/lib/auth";
 import { getChild } from "@/lib/children/queries";
 import { getSelectedChildId } from "@/lib/children/selection";
 import { normalizeTopic } from "@/lib/llm/normalize";
+import { checkLlmRateLimit } from "@/lib/rate-limit/llm";
 import { safetyPrecheck } from "@/lib/safety";
 
 /** Guard against empty / pathologically long input before spending a model call. */
@@ -57,6 +58,10 @@ export async function POST(request: Request) {
   if (!child) {
     return Response.json({ error: "child-not-found" }, { status: 404 });
   }
+
+  // Cap per-child LLM spend before doing any generation work.
+  const limited = await checkLlmRateLimit(childId);
+  if (limited) return limited;
 
   let body: unknown;
   try {

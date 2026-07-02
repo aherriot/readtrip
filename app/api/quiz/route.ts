@@ -11,6 +11,7 @@ import { generateQuiz } from "@/lib/llm";
 import { clampReadingLevel } from "@/lib/llm/prompts/readingLevel";
 import { getLoopForChild, recordLoop } from "@/lib/loops/queries";
 import { recordExploredTopic } from "@/lib/map/queries";
+import { checkLlmRateLimit } from "@/lib/rate-limit/llm";
 import { checkQuizOutput, REDIRECT_MESSAGE } from "@/lib/safety";
 
 const MAX_QUERY_LENGTH = 200;
@@ -80,6 +81,10 @@ export async function POST(request: Request) {
   if (!child) {
     return Response.json({ error: "child-not-found" }, { status: 404 });
   }
+
+  // Cap per-child LLM spend before generating the quiz.
+  const limited = await checkLlmRateLimit(childId);
+  if (limited) return limited;
 
   let json: unknown;
   try {
