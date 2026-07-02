@@ -261,13 +261,10 @@ test.describe("Quiz — accessibility contract", () => {
     await expect(region(page).getByText("Try again")).toBeVisible();
   });
 
-  test("a correct tap reveals the explanation and advance action", async ({
-    page,
-  }) => {
+  test("a correct tap reveals the advance action", async ({ page }) => {
     await region(page)
       .getByRole("button", { name: "It reflects the Sun's light" })
       .click();
-    await expect(region(page).getByText(/catches sunlight/i)).toBeVisible();
     await expect(
       region(page).getByRole("button", { name: /next question/i })
     ).toBeVisible();

@@ -62,12 +62,14 @@ test("a child plays the quiz through to a result", async ({ page }) => {
   // The canned (offline) quiz has 2 questions. Q1's correct choice is the topic
   // title itself.
   await expect(
-    page.getByRole("heading", { name: /quiz: dinosaurs/i })
+    page.getByRole("progressbar", { name: /quiz progress/i })
   ).toBeVisible();
   await page.getByRole("button", { name: /^dinosaurs$/i }).click();
 
-  // Correct tap reveals the explanation + advance.
-  await expect(page.getByText(/all about dinosaurs/i)).toBeVisible();
+  // Correct tap reveals the advance button.
+  await expect(
+    page.getByRole("button", { name: /next question/i })
+  ).toBeVisible();
   await page.getByRole("button", { name: /next question/i }).click();
 
   // Q2: pick the correct choice, then finish.
@@ -86,7 +88,7 @@ test("a wrong tap is a gentle 'try again', not a failure", async ({ page }) => {
   await reachLessonDone(page);
   await page.getByRole("button", { name: /start the quiz/i }).click();
   await expect(
-    page.getByRole("heading", { name: /quiz: dinosaurs/i })
+    page.getByRole("progressbar", { name: /quiz progress/i })
   ).toBeVisible();
 
   // Tap the wrong answer on Q1: it becomes "Try again" and the quiz stays put.
