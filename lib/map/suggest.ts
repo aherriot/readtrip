@@ -4,7 +4,7 @@
 // age-appropriateness guardrails (docs/07) and are filtered against topics the
 // child already has. When no Anthropic key is configured (local dev / CI e2e) we
 // fall back to curated starter topics so the map still grows without the API.
-import { SUGGESTED_TOPICS } from "@/lib/explore/topics";
+import { freshStarters, SUGGESTED_TOPICS } from "@/lib/explore/topics";
 import { suggestTopics } from "@/lib/llm";
 import { isLlmOffline } from "@/lib/llm/client";
 import { filterSafeTopics } from "@/lib/safety";
@@ -13,11 +13,17 @@ import { getChildMap, saveSuggestedNeighbors } from "./queries";
 /** Cap how many neighbours we surface per topic so the map stays scannable. */
 const MAX_SUGGESTIONS = 4;
 
+/** Cap how many curated "something different" starters we top up per event. */
+const MAX_DIVERSE_SUGGESTIONS = 4;
+
 /**
  * Generate and persist neighbour suggestions for a just-explored topic. Reads
  * the child's map to avoid re-suggesting covered ground, asks the model (or the
- * offline fallback), and saves the result as `suggested` nodes + graph edges.
- * Best-effort: callers should not block the child on this.
+ * offline fallback) for "deep" neighbours, tops up a few curated "diverse"
+ * starters for breadth, and saves the result as `suggested` nodes + graph
+ * edges. `saveSuggestedNeighbors` enforces the per-kind cap (docs/05), evicting
+ * the oldest unengaged suggestions in a bucket before it grows past 8 deep / 4
+ * diverse. Best-effort: callers should not block the child on this.
  */
 export async function refreshSuggestions(input: {
   childId: string;
@@ -28,28 +34,34 @@ export async function refreshSuggestions(input: {
   const exploredSlugs = map
     .filter((n) => n.status === "explored")
     .map((n) => n.topicSlug);
+  const knownSlugs = map.map((n) => n.topicSlug);
 
-  const suggestions = isLlmOffline()
+  const deep = isLlmOffline()
     ? offlineSuggestions(input.topicSlug, exploredSlugs)
     : await suggestTopics({
         currentTitle: input.title,
         exploredSlugs,
         childId: input.childId,
       });
+  const diverse = freshStarters(
+    [input.topicSlug, ...knownSlugs],
+    MAX_DIVERSE_SUGGESTIONS
+  );
 
   // Safety backstop before anything is saved/shown: topic-map suggestions are
   // LLM output too (docs/07), so filter them through the same output rules as
   // lessons and quizzes. The topic_map prompt is the primary guardrail; this
-  // drops any suggestion that drifts age-inappropriate. (Offline suggestions are
-  // curated + safe, so this is a no-op there.)
-  const safe = filterSafeTopics(suggestions);
+  // drops any suggestion that drifts age-inappropriate. (Offline + curated
+  // suggestions are already safe, so this is a no-op for them.)
+  const safeDeep = filterSafeTopics(deep).slice(0, MAX_SUGGESTIONS);
 
-  if (safe.length === 0) return;
-  await saveSuggestedNeighbors(
-    input.childId,
-    input.topicSlug,
-    safe.slice(0, MAX_SUGGESTIONS)
-  );
+  const combined = [
+    ...safeDeep.map((s) => ({ ...s, kind: "deep" as const })),
+    ...diverse.map((s) => ({ ...s, kind: "diverse" as const })),
+  ];
+
+  if (combined.length === 0) return;
+  await saveSuggestedNeighbors(input.childId, input.topicSlug, combined);
 }
 
 // Offline stand-in for the topic_map model: curated starter topics minus the one

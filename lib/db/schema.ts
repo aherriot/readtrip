@@ -161,7 +161,13 @@ export const mapNodes = pgTable(
     topicSlug: text("topicSlug").notNull(),
     title: text("title").notNull(),
     status: text("status").notNull(), // "suggested" | "explored" | "mastered"
+    // Which pool a *suggested* node came from — "deep" (LLM neighbour of a
+    // just-explored topic) or "diverse" (curated, unrelated starter). Drives the
+    // 8/4 cap in saveSuggestedNeighbors. Null for explored nodes, where it's
+    // meaningless.
+    kind: text("kind"),
     neighbors: jsonb("neighbors").notNull(), // adjacent topic slugs (graph edges)
+    createdAt: createdAt(),
   },
   (t) => [unique().on(t.childId, t.topicSlug)]
 );

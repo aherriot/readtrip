@@ -36,6 +36,13 @@
       "when": 1782950586132,
       "tag": "0004_cloudy_anthem",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1782988678178,
+      "tag": "0005_previous_metal_master",
+      "breakpoints": true
     }
   ]
 }
