@@ -42,7 +42,7 @@ export function SignInForm({ devEnabled }: { devEnabled: boolean }) {
           hint="We'll email you a link to sign in — no password needed."
         />
         <FormError message={magicState?.error} />
-        <Button type="submit" fullWidth disabled={magicPending}>
+        <Button type="submit" fullWidth loading={magicPending}>
           {magicPending ? "Sending…" : "Email me a sign-in link"}
         </Button>
       </form>
@@ -76,7 +76,7 @@ export function SignInForm({ devEnabled }: { devEnabled: boolean }) {
               variant="secondary"
               size="md"
               fullWidth
-              disabled={devPending}
+              loading={devPending}
             >
               {devPending ? "Signing in…" : "Dev sign-in"}
             </Button>

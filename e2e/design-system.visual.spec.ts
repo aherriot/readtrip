@@ -36,6 +36,7 @@ test.describe("design system — visual", () => {
     "heading",
     "icon",
     "progressbar",
+    "spinner",
     "input",
     "modal",
   ];

@@ -25,15 +25,16 @@ import { Button } from "@/components/ui/Button";
 
 ## Props
 
-| Prop                         | Type                                  | Default     | Notes                                                        |
-| ---------------------------- | ------------------------------------- | ----------- | ------------------------------------------------------------ |
-| `variant`                    | `"primary" \| "secondary" \| "ghost"` | `"primary"` | One `primary` per view — the single clear action.            |
-| `size`                       | `"kid" \| "md"`                       | `"kid"`     | `kid` ≈ 60px (target floor); `md` (44px) for dense adult UI. |
-| `href`                       | `string`                              | —           | When set, renders a styled `<a>` instead of a `<button>`.    |
-| `leadingIcon`/`trailingIcon` | `ReactNode`                           | —           | Decorative (kept `aria-hidden`); the label carries meaning.  |
-| `fullWidth`                  | `boolean`                             | `false`     | Stretches to fill — good for stacked mobile actions.         |
-| `ref`                        | `Ref<button \| a>`                    | —           | Forwarded to the rendered element.                           |
-| …rest                        | native `button`/`a` props             | —           | `onClick`, `type`, `disabled`, `target`, …                   |
+| Prop                         | Type                                  | Default     | Notes                                                                                                                            |
+| ---------------------------- | ------------------------------------- | ----------- | -------------------------------------------------------------------------------------------------------------------------------- |
+| `variant`                    | `"primary" \| "secondary" \| "ghost"` | `"primary"` | One `primary` per view — the single clear action.                                                                                |
+| `size`                       | `"kid" \| "md"`                       | `"kid"`     | `kid` ≈ 60px (target floor); `md` (44px) for dense adult UI.                                                                     |
+| `href`                       | `string`                              | —           | When set, renders a styled `<a>` instead of a `<button>`.                                                                        |
+| `leadingIcon`/`trailingIcon` | `ReactNode`                           | —           | Decorative (kept `aria-hidden`); the label carries meaning.                                                                      |
+| `fullWidth`                  | `boolean`                             | `false`     | Stretches to fill — good for stacked mobile actions.                                                                             |
+| `loading`                    | `boolean`                             | `false`     | Swaps the leading icon for a `Spinner`, sets `aria-busy`, and disables the control while an action is in flight. Keep the label. |
+| `ref`                        | `Ref<button \| a>`                    | —           | Forwarded to the rendered element.                                                                                               |
+| …rest                        | native `button`/`a` props             | —           | `onClick`, `type`, `disabled`, `target`, …                                                                                       |
 
 `type` defaults to `"button"` so a Button inside a form never submits by accident — set
 `type="submit"` explicitly on the submit action.
