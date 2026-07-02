@@ -23,6 +23,11 @@ import { expect, test } from "@playwright/test";
  * once, up front: it wakes the DB, then drives one full sign-in → calibrate →
  * explore → quiz loop so every route and API handler the suite touches is
  * already compiled by the time real workers start hitting them in parallel.
+ *
+ * The DB-backed steps are skipped under VISUAL=1: the visual regression job
+ * runs against a placeholder DATABASE_URL with no real Postgres behind it
+ * (design-system.visual.spec.ts only screenshots the static component
+ * gallery), so /api/health and the sign-in flow can never succeed there.
  */
 test("warm up the Neon branch and every route the suite hits", async ({
   page,
@@ -30,20 +35,25 @@ test("warm up the Neon branch and every route the suite hits", async ({
 }) => {
   test.setTimeout(120_000);
 
-  // 1. Wake the DB first, in parallel with nothing else yet — /api/health does
-  // one write + one read, and a cold Neon branch can take several seconds to
-  // resume compute. Poll rather than trust the first response: a branch that's
-  // still waking can error before it's ready to serve.
-  await expect(async () => {
-    const res = await request.get("/api/health");
-    expect(res.ok()).toBeTruthy();
-  }).toPass({ timeout: 30_000 });
+  if (!process.env.VISUAL) {
+    // 1. Wake the DB first, in parallel with nothing else yet — /api/health
+    // does one write + one read, and a cold Neon branch can take several
+    // seconds to resume compute. Poll rather than trust the first response: a
+    // branch that's still waking can error before it's ready to serve.
+    await expect(async () => {
+      const res = await request.get("/api/health");
+      expect(res.ok()).toBeTruthy();
+    }).toPass({ timeout: 30_000 });
+  }
 
-  // 2. Compile the dev-only component gallery (design-system.spec.ts's target).
+  // 2. Compile the dev-only component gallery (needed by both
+  // design-system.spec.ts and the VISUAL=1 screenshot suite).
   await page.goto("/dev/components");
   await page
     .getByTestId("gallery")
     .waitFor({ state: "visible", timeout: 30_000 });
+
+  if (process.env.VISUAL) return;
 
   // 3. Drive one full loop so /sign-in, /profiles, /play/calibrate, /play, and
   // every API route (auth, calibrate, explore, lesson, quiz, steer, progress,
