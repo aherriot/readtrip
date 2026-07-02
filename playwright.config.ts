@@ -22,8 +22,10 @@ export default defineConfig({
     navigationTimeout: 60_000,
   },
   projects: [
-    // Compiles dev-only routes (e.g. the component gallery) once before the
-    // real specs fan out across workers. See e2e/setup/warmup.setup.ts.
+    // Wakes the local Neon branch and compiles every route/API handler the
+    // suite touches, once, before the real specs fan out across workers —
+    // avoids the local-only cold-DB/cold-compile flake. See
+    // e2e/setup/warmup.setup.ts.
     { name: "setup", testMatch: /.*\.setup\.ts$/ },
     {
       name: "chromium",
