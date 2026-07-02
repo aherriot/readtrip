@@ -137,8 +137,12 @@ isolation instantly and cheaply, and CI branches are fully ephemeral.
   `npm run db:migrate` against its `DIRECT_URL`, runs the Playwright suite against its
   pooled `DATABASE_URL`, then deletes the branch. Requires repo secret `NEON_API_KEY`
   and repo variable `NEON_PROJECT_ID`.
-- **Prod** — Vercel env vars point at the `production` branch; the `build` script runs
-  `drizzle-kit migrate` on deploy.
+- **Prod** — Vercel env vars point at the `production` branch. Migrations are **not** run
+  by the build (`build` is just `next build`, so no deploy needs live DB creds); instead
+  `.github/workflows/migrate.yml` runs `npm run db:migrate` against the production
+  `DIRECT_URL` on merge to `main` (requires repo secret `PRODUCTION_DIRECT_URL`).
+- **Previews** — no migrate step. Preview Neon branches are cut from `production` via the
+  Neon–Vercel integration, so they inherit its already-migrated schema.
 
 ## Testing
 

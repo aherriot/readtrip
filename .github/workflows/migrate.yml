@@ -1,0 +1,54 @@
+name: Migrate production DB
+
+# Applies Drizzle migrations to the production Neon branch.
+#
+# Decoupled from the Vercel build (which now runs only `next build`), so a build
+# never needs a live DB connection — that's what broke preview deploys, whose
+# build env has no database credentials. Only PRODUCTION needs an explicit
+# migrate step: preview Neon branches are cut from production via the Neon–Vercel
+# integration, so they inherit its already-migrated schema.
+#
+# Ordering caveat: this runs in parallel with Vercel's production deploy. That's
+# safe for ADDITIVE migrations (new tables/columns/indexes) — the new schema is
+# in place before or moments after the code that uses it. For a BREAKING change
+# (rename/drop/tighten), run this first via workflow_dispatch and let it finish
+# before the code that depends on it merges.
+
+on:
+  push:
+    branches: [main]
+    # Only when the migration surface actually changes — no point migrating on a
+    # docs-only or UI-only merge.
+    paths:
+      - "drizzle/**"
+      - "lib/db/schema.ts"
+      - "drizzle.config.ts"
+  workflow_dispatch:
+
+# Never cancel a migration mid-flight, and never run two at once against prod.
+concurrency:
+  group: migrate-production
+  cancel-in-progress: false
+
+jobs:
+  migrate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version-file: ".nvmrc"
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Apply migrations to production
+        run: npm run db:migrate
+        env:
+          # Direct (non-pooled) connection to the production Neon branch — the
+          # same value as Vercel's Production `DIRECT_URL`. Add it as a repo
+          # secret: Settings → Secrets and variables → Actions → New secret,
+          # named PRODUCTION_DIRECT_URL.
+          DIRECT_URL: ${{ secrets.PRODUCTION_DIRECT_URL }}
