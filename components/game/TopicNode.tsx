@@ -130,7 +130,7 @@ export function TopicNode({
             )}
           >
             <span>{badge.icon}</span>
-            {badge.text}
+            <span>{badge.text}</span>
           </span>
         )}
         <span className="font-display text-lg leading-tight">{title}</span>
