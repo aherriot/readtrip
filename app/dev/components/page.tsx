@@ -9,6 +9,7 @@ import { Input } from "@/components/ui/Input";
 import { ProgressBar } from "@/components/ui/ProgressBar";
 import { Spinner } from "@/components/ui/Spinner";
 import { Text } from "@/components/ui/Text";
+import { cn } from "@/lib/ui/cn";
 import { LessonChunk } from "@/components/reading/LessonChunk";
 import { ReadingView } from "@/components/reading/ReadingView";
 import { ModalDemo } from "./ModalDemo";
@@ -73,6 +74,339 @@ function Variant({ title, children }: { title: string; children: ReactNode }) {
       </p>
       {children}
     </div>
+  );
+}
+
+/* ------------------------------------------------------------------ *
+ * Primitive tokens showcase
+ *
+ * A high-level tour of the raw material every component composes: the
+ * colour palette, the layout tokens (radius + spacing), and the type
+ * scale. The swatches read their colour straight from `var(--token)` —
+ * the tokens ARE the thing on display here, so we show the source of
+ * truth rather than a Tailwind utility standing in for it.
+ * ------------------------------------------------------------------ */
+
+type Swatch = { name: string; token: string; meta: string; note: string };
+
+const ACCENTS: Swatch[] = [
+  { name: "sun", token: "--sun", meta: "#FFC24B", note: "Primary action · XP" },
+  {
+    name: "coral",
+    token: "--coral",
+    meta: "#FF6B5C",
+    note: "Secondary · retry",
+  },
+  {
+    name: "aqua",
+    token: "--aqua",
+    meta: "#36D6C3",
+    note: "Discovery · “deep”",
+  },
+  { name: "leaf", token: "--leaf", meta: "#7BD66A", note: "Success · correct" },
+  { name: "violet", token: "--violet", meta: "#B388FF", note: "Magic · “new”" },
+  {
+    name: "sky",
+    token: "--sky",
+    meta: "#5AB6FF",
+    note: "In-progress · explore",
+  },
+];
+
+const NIGHT_SURFACE: Swatch[] = [
+  {
+    name: "bg-night",
+    token: "--bg-night",
+    meta: "#1B1F3B",
+    note: "Page background",
+  },
+  {
+    name: "bg-night-panel",
+    token: "--bg-night-panel",
+    meta: "#2A2F55",
+    note: "Cards · inputs",
+  },
+  {
+    name: "ink-on-night",
+    token: "--ink-on-night",
+    meta: "#F4F2FF",
+    note: "Body text",
+  },
+  {
+    name: "ink-soft-on-night",
+    token: "--ink-soft-on-night",
+    meta: "#C7C4E6",
+    note: "Secondary text",
+  },
+];
+
+const PAPER_SURFACE: Swatch[] = [
+  { name: "paper", token: "--paper", meta: "#FFFCF5", note: "Page background" },
+  {
+    name: "paper-panel",
+    token: "--paper-panel",
+    meta: "#FFFFFF",
+    note: "Cards · inputs",
+  },
+  { name: "ink", token: "--ink", meta: "#22263F", note: "Body text" },
+  {
+    name: "ink-soft",
+    token: "--ink-soft",
+    meta: "#4A4F6B",
+    note: "Secondary text",
+  },
+  {
+    name: "rule",
+    token: "--rule",
+    meta: "#E7E0D0",
+    note: "Hairlines · dividers",
+  },
+];
+
+const SEMANTIC: Swatch[] = [
+  {
+    name: "correct",
+    token: "--correct",
+    meta: "= leaf",
+    note: "Right answer (+ ✓)",
+  },
+  {
+    name: "retry",
+    token: "--retry",
+    meta: "= coral",
+    note: "Try-again fills (+ ↻)",
+  },
+  {
+    name: "focus-ring",
+    token: "--focus-ring",
+    meta: "#FFD24B",
+    note: "Focus indicator",
+  },
+];
+
+const RADII = [
+  { name: "rounded-sm", cls: "rounded-sm", px: "12px" },
+  { name: "rounded-md", cls: "rounded-md", px: "20px" },
+  { name: "rounded-lg", cls: "rounded-lg", px: "28px" },
+  { name: "rounded-pill", cls: "rounded-pill", px: "999px" },
+] as const;
+
+const SPACING = [
+  { step: "1", cls: "w-1", px: "4px" },
+  { step: "2", cls: "w-2", px: "8px" },
+  { step: "3", cls: "w-3", px: "12px" },
+  { step: "4", cls: "w-4", px: "16px" },
+  { step: "6", cls: "w-6", px: "24px" },
+  { step: "8", cls: "w-8", px: "32px" },
+  { step: "12", cls: "w-12", px: "48px" },
+  { step: "16", cls: "w-16", px: "64px" },
+] as const;
+
+const TYPE_SCALE = [
+  { name: "text-xs", cls: "text-xs", rem: "0.875rem" },
+  { name: "text-sm", cls: "text-sm", rem: "1rem" },
+  { name: "text-base", cls: "text-base", rem: "1.125rem" },
+  { name: "text-lg", cls: "text-lg", rem: "1.375rem" },
+  { name: "text-xl", cls: "text-xl", rem: "1.75rem" },
+  { name: "text-2xl", cls: "text-2xl", rem: "2.25rem" },
+  { name: "text-3xl", cls: "text-3xl", rem: "3rem" },
+] as const;
+
+/** A colour chip labelled with its token name, value, and where it's used. */
+function ColorSwatch({ name, token, meta, note }: Swatch) {
+  return (
+    <div className="flex flex-col gap-1.5">
+      <div
+        className="h-14 rounded-md border border-surface-rule"
+        // The token itself is the subject — read it directly, don't proxy it
+        // through a utility class.
+        style={{ background: `var(${token})` }}
+      />
+      <span className="font-display text-sm text-surface-ink">{name}</span>
+      <code className="font-mono text-xs text-surface-ink-soft">
+        {token} · {meta}
+      </code>
+      <Text as="span" size="xs" tone="soft">
+        {note}
+      </Text>
+    </div>
+  );
+}
+
+function SwatchGrid({ swatches }: { swatches: Swatch[] }) {
+  return (
+    <div className="grid grid-cols-2 gap-4 sm:grid-cols-3">
+      {swatches.map((s) => (
+        <ColorSwatch key={s.name} {...s} />
+      ))}
+    </div>
+  );
+}
+
+/** A live mini-panel that re-themes itself via `data-surface`. */
+function SurfacePreview({
+  surface,
+  title,
+  blurb,
+}: {
+  surface: "night" | "paper";
+  title: string;
+  blurb: string;
+}) {
+  return (
+    <div
+      data-surface={surface}
+      className="flex flex-col gap-3 rounded-lg bg-surface p-5 text-surface-ink"
+    >
+      <div className="flex items-center gap-2">
+        <span className="h-3 w-3 rounded-pill bg-surface-accent" />
+        <span className="font-display text-sm text-surface-ink">{title}</span>
+      </div>
+      <Card padding="sm">
+        <Text as="span" size="sm">
+          {blurb}
+        </Text>
+      </Card>
+      <code className="font-mono text-xs text-surface-ink-soft">
+        data-surface=&quot;{surface}&quot;
+      </code>
+    </div>
+  );
+}
+
+function PrimitiveTokens() {
+  return (
+    <section data-testid="section-primitives" className="flex flex-col gap-6">
+      <div className="flex flex-col gap-2">
+        <h2 className="font-display text-2xl text-surface-ink">
+          Primitive tokens
+        </h2>
+        <Text tone="soft" measure>
+          The raw material of the system — the colour palette, the layout
+          tokens, and the type scale that every component below composes. Pages
+          never hardcode these values: they reach for the utility (
+          <code className="font-mono text-sm">bg-sun</code>,{" "}
+          <code className="font-mono text-sm">rounded-lg</code>,{" "}
+          <code className="font-mono text-sm">text-2xl</code>) or, when a
+          utility can&apos;t express it,{" "}
+          <code className="font-mono text-sm">var(--token)</code>.
+        </Text>
+      </div>
+
+      {/* At a glance: the two surfaces (live) + the two type families. */}
+      <div className="grid gap-4 sm:grid-cols-3">
+        <SurfacePreview
+          surface="night"
+          title="Night sky — play"
+          blurb="Deep indigo, glowing accents. Map, explore, rewards."
+        />
+        <SurfacePreview
+          surface="paper"
+          title="Field journal — reading"
+          blurb="Warm paper, calm and legible. Lessons and quizzes."
+        />
+        <Card padding="sm" className="flex flex-col justify-center gap-3">
+          <div className="flex flex-col gap-0.5">
+            <span className="font-display text-xl text-surface-ink">
+              Fredoka
+            </span>
+            <code className="font-mono text-xs text-surface-ink-soft">
+              font-display · headings, numbers, buttons
+            </code>
+          </div>
+          <div className="flex flex-col gap-0.5">
+            <span className="font-body text-xl text-surface-ink">Lexend</span>
+            <code className="font-mono text-xs text-surface-ink-soft">
+              font-body · reading + UI body
+            </code>
+          </div>
+        </Card>
+      </div>
+
+      {/* Colour palette */}
+      <Card className="flex flex-col gap-6">
+        <Variant title="Accent palette (surface-independent)">
+          <SwatchGrid swatches={ACCENTS} />
+        </Variant>
+        <Variant title="Night-sky surface palette">
+          <SwatchGrid swatches={NIGHT_SURFACE} />
+        </Variant>
+        <Variant title="Field-journal surface palette">
+          <SwatchGrid swatches={PAPER_SURFACE} />
+        </Variant>
+        <Variant title="Semantic (always paired with an icon + text)">
+          <SwatchGrid swatches={SEMANTIC} />
+        </Variant>
+      </Card>
+
+      {/* Layout tokens */}
+      <Card className="flex flex-col gap-6">
+        <Variant title="Radius">
+          <div className="flex flex-wrap gap-6">
+            {RADII.map((r) => (
+              <div key={r.name} className="flex flex-col items-center gap-2">
+                <div
+                  className={cn(
+                    "h-16 w-16 border border-surface-rule bg-surface-accent/25",
+                    r.cls
+                  )}
+                />
+                <span className="font-display text-sm text-surface-ink">
+                  {r.name}
+                </span>
+                <code className="font-mono text-xs text-surface-ink-soft">
+                  {r.px}
+                </code>
+              </div>
+            ))}
+          </div>
+        </Variant>
+
+        <Variant title="Spacing scale (Tailwind 4-based)">
+          <div className="flex flex-col gap-2">
+            {SPACING.map((s) => (
+              <div key={s.step} className="flex items-center gap-3">
+                <code className="w-10 shrink-0 font-mono text-xs text-surface-ink-soft">
+                  p-{s.step}
+                </code>
+                <div
+                  className={cn("h-3 rounded-sm bg-surface-accent", s.cls)}
+                />
+                <code className="font-mono text-xs text-surface-ink-soft">
+                  {s.px}
+                </code>
+              </div>
+            ))}
+          </div>
+        </Variant>
+
+        <Variant title="Type scale (rem — respects user zoom)">
+          <div className="flex flex-col">
+            {TYPE_SCALE.map((t) => (
+              <div
+                key={t.name}
+                className="flex items-baseline gap-4 border-b border-surface-rule py-2 last:border-b-0"
+              >
+                <code className="w-24 shrink-0 font-mono text-xs text-surface-ink-soft">
+                  {t.name}
+                </code>
+                <span
+                  className={cn(
+                    "truncate font-display text-surface-ink",
+                    t.cls
+                  )}
+                >
+                  Explore &amp; read
+                </span>
+                <code className="ml-auto shrink-0 font-mono text-xs text-surface-ink-soft">
+                  {t.rem}
+                </code>
+              </div>
+            ))}
+          </div>
+        </Variant>
+      </Card>
+    </section>
   );
 }
 
@@ -406,6 +740,8 @@ export default function ComponentGallery() {
             spot a11y issues. Dev-only — not indexed, not for production routes.
           </p>
         </header>
+
+        <PrimitiveTokens />
 
         <Section name="Button">
           <ButtonVariants />
