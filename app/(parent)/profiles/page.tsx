@@ -26,11 +26,16 @@ export default async function ProfilesPage() {
               : "Pick a profile to start exploring, or add another."}
           </Text>
         </div>
-        <form action={signOutAction}>
-          <Button type="submit" variant="ghost" size="md">
-            Sign out{parent.email ? ` (${parent.email})` : ""}
+        <div className="flex items-center gap-2">
+          <Button href="/dashboard" variant="ghost" size="md">
+            Usage &amp; cost
           </Button>
-        </form>
+          <form action={signOutAction}>
+            <Button type="submit" variant="ghost" size="md">
+              Sign out{parent.email ? ` (${parent.email})` : ""}
+            </Button>
+          </form>
+        </div>
       </header>
 
       <ProfilesManager profiles={profiles} />

@@ -40,7 +40,8 @@ export const authConfig = {
       const isLoggedIn = Boolean(auth?.user);
       const { pathname } = nextUrl;
 
-      const isParentArea = pathname.startsWith("/profiles");
+      const isParentArea =
+        pathname.startsWith("/profiles") || pathname.startsWith("/dashboard");
       const isChildArea = pathname.startsWith("/play");
 
       if (!isParentArea && !isChildArea) return true;

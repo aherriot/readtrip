@@ -8,5 +8,5 @@ export const { auth: middleware } = NextAuth(authConfig);
 export const config = {
   // Run on the protected areas only. Excludes API/auth, static, and image
   // optimization paths so we never gate Next internals or the sign-in flow.
-  matcher: ["/profiles/:path*", "/play/:path*"],
+  matcher: ["/profiles/:path*", "/dashboard/:path*", "/play/:path*"],
 };
