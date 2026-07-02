@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { Badge, type BadgeTone } from "@/components/ui/Badge";
 import { cn } from "@/lib/ui/cn";
 import type { SuggestionKind, TopicNodeState } from "@/lib/map/nodeState";
 
@@ -63,15 +64,11 @@ type BadgeKind = "explored" | SuggestionKind;
 // (docs/10: state differences are icon+color, never color alone).
 const BADGE: Record<
   BadgeKind,
-  { icon: string; text: string; className: string }
+  { icon: string; text: string; tone: BadgeTone }
 > = {
-  explored: {
-    icon: "🚩",
-    text: "Exploring",
-    className: "border-sky bg-sky/25",
-  },
-  deep: { icon: "🔎", text: "Dive", className: "border-aqua bg-aqua/20" },
-  diverse: { icon: "🧭", text: "New", className: "border-violet bg-violet/20" },
+  explored: { icon: "🚩", text: "Exploring", tone: "sky" },
+  deep: { icon: "🔎", text: "Dive", tone: "aqua" },
+  diverse: { icon: "🧭", text: "New", tone: "violet" },
 };
 
 // A node is dismissible while it's still something to do — not once it's locked
@@ -146,17 +143,18 @@ export function TopicNode({
         )}
       >
         {badge && (
-          <span
+          // Decorative: the same word is carried by the sr-only status label
+          // below, so screen readers hear it once. Sighted users get the badge.
+          <Badge
             aria-hidden="true"
-            className={cn(
-              "absolute left-2 top-2 flex items-center gap-1 rounded-pill border px-2 py-0.5",
-              "font-display text-[0.65rem] leading-none font-semibold tracking-wide uppercase",
-              badge.className
-            )}
+            tone={badge.tone}
+            size="xs"
+            variant="tag"
+            icon={badge.icon}
+            className="absolute left-2 top-2"
           >
-            <span>{badge.icon}</span>
-            <span>{badge.text}</span>
-          </span>
+            {badge.text}
+          </Badge>
         )}
         <span className="font-display text-lg leading-tight">{title}</span>
         {showLabelInline ? (

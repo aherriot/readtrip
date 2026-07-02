@@ -154,6 +154,30 @@ test.describe("Spinner — accessibility contract", () => {
   });
 });
 
+test.describe("Badge — contract", () => {
+  const onNight = (page: import("@playwright/test").Page) =>
+    page.getByTestId("badge-night");
+
+  test("pairs a status word with its color, not color alone", async ({
+    page,
+  }) => {
+    // The word is the meaning — a screen reader reads it; color isn't the only
+    // signal. (axe covers contrast globally; this asserts the word is present.)
+    await expect(onNight(page).getByText("Yes!")).toBeVisible();
+  });
+
+  test("a tag badge that mirrors an existing label is hidden from assistive tech", async ({
+    page,
+  }) => {
+    // The map-node style badge duplicates a status word announced elsewhere
+    // (a node's sr-only label), so the caller marks it aria-hidden. The word
+    // sits in an inner span, so the aria-hidden is on its Badge container.
+    await expect(
+      onNight(page).getByText("Exploring").locator("xpath=..")
+    ).toHaveAttribute("aria-hidden", "true");
+  });
+});
+
 test.describe("Desktop affordances — cursors", () => {
   // Touch-first, but mouse users still expect the right cursor on each control.
   // Tailwind v4 drops the default button pointer, so this guards the restore in
@@ -281,10 +305,16 @@ test.describe("Quiz — accessibility contract", () => {
   test("feedback pairs color with an icon + word, not color alone", async ({
     page,
   }) => {
-    // The resolved states carry a visible status word, so meaning survives
-    // without color (a11y floor: never color-only).
-    await expect(region(page).getByText("Yes!")).toBeVisible();
-    await expect(region(page).getByText("Try again")).toBeVisible();
+    // The resolved states carry a status word, so meaning survives without
+    // color (a11y floor: never color-only). Assert via the choice's accessible
+    // name — that's what a screen reader announces, and it ignores the invisible
+    // width-reserving placeholder badge.
+    await expect(
+      region(page).getByRole("button", { name: /Yes!/i })
+    ).toBeVisible();
+    await expect(
+      region(page).getByRole("button", { name: /Try again/i })
+    ).toBeVisible();
   });
 
   test("a correct tap reveals the advance action", async ({ page }) => {
