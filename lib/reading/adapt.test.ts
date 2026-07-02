@@ -54,6 +54,20 @@ describe("adaptReadingLevel", () => {
     });
   });
 
+  it("requires the full custom window before moving when one is given", () => {
+    // With a wider re-suggest window, three aces aren't enough to step up —
+    // it holds until the window is full of same-level scores.
+    expect(
+      adaptReadingLevel(3, scores(3, [90, 90, 90]), 6).direction
+    ).toBeNull();
+    expect(
+      adaptReadingLevel(3, scores(3, [90, 90, 90, 90, 90, 90]), 6)
+    ).toEqual({
+      readingLevel: 4,
+      direction: "up",
+    });
+  });
+
   it("never steps above the max or below the min level", () => {
     expect(adaptReadingLevel(5, scores(5, [100, 100, 100]))).toEqual({
       readingLevel: 5,

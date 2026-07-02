@@ -61,6 +61,39 @@ describe("validateChildInput", () => {
       expect(result.ok).toBe(false);
     }
   });
+
+  it("omits reading level when the field is absent or blank", () => {
+    for (const readingLevel of [undefined, ""]) {
+      const result = validateChildInput({
+        displayName: "Ada",
+        avatarColor: "aqua",
+        readingLevel,
+      });
+      expect(result.ok).toBe(true);
+      if (result.ok) expect(result.value.readingLevel).toBeUndefined();
+    }
+  });
+
+  it("accepts and coerces an in-range reading level from a string", () => {
+    const result = validateChildInput({
+      displayName: "Ada",
+      avatarColor: "aqua",
+      readingLevel: "4",
+    });
+    expect(result.ok).toBe(true);
+    if (result.ok) expect(result.value.readingLevel).toBe(4);
+  });
+
+  it("rejects an out-of-range or non-integer reading level", () => {
+    for (const readingLevel of ["0", "6", "-1", "2.5", "abc"]) {
+      const result = validateChildInput({
+        displayName: "Ada",
+        avatarColor: "aqua",
+        readingLevel,
+      });
+      expect(result.ok).toBe(false);
+    }
+  });
 });
 
 describe("avatarColorFromConfig", () => {

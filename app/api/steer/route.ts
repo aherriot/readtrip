@@ -1,11 +1,13 @@
 // Steer endpoint (docs/09 M4). Closes a loop after the quiz: it re-grades the
 // child's first-try answers against the stored quiz (so the difficulty signal
-// can't be spoofed by the client), records the score on the `Loop`, and adapts
-// the child's reading level from their rolling quiz history (docs/04). The
-// "go deeper" and "explore new" choices are pure client navigation and don't
-// touch this route. XP/levels/badges are the separate Progress step.
+// can't be spoofed by the client), records the score on the `Loop`, and refreshes
+// the child's *suggested* reading level from their rolling quiz history (docs/04).
+// The actual reading level only moves on parent approval, so nothing here changes
+// what the child sees next. The "go deeper" and "explore new" choices are pure
+// client navigation and don't touch this route. XP/levels/badges are the separate
+// Progress step.
 import { auth } from "@/lib/auth";
-import { applyQuizAdaptation, getChild } from "@/lib/children/queries";
+import { getChild, recordQuizAndSuggest } from "@/lib/children/queries";
 import { getSelectedChildId } from "@/lib/children/selection";
 import { getLoopForChild, setLoopQuizPct } from "@/lib/loops/queries";
 import { scoreQuiz } from "@/lib/reading/quiz";
@@ -77,14 +79,13 @@ export async function POST(request: Request) {
     console.error("[steer] failed to record quiz score:", err);
   }
 
-  const adaptation = await applyQuizAdaptation(session.user.id, childId, {
+  // Refresh the pending suggestion from the new score. This never moves the
+  // child's level — it just updates what the parent may approve later — so the
+  // response carries only the score.
+  await recordQuizAndSuggest(session.user.id, childId, {
     level: loop.readingLevel,
     pct,
   });
 
-  return Response.json({
-    pct,
-    readingLevel: adaptation?.readingLevel ?? child.readingLevel,
-    leveledUp: adaptation?.leveledUp ?? false,
-  });
+  return Response.json({ pct });
 }
