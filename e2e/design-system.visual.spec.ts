@@ -32,6 +32,7 @@ test.describe("design system — visual", () => {
   // One snapshot per component, keyed off the gallery's `section-<name>` blocks.
   const COMPONENTS = [
     "button",
+    "badge",
     "card",
     "heading",
     "icon",
