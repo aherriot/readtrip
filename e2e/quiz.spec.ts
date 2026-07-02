@@ -94,9 +94,8 @@ test("a wrong tap is a gentle 'try again', not a failure", async ({ page }) => {
   // Tap the wrong answer on Q1: it becomes "Try again" and the quiz stays put.
   const wrong = page.getByRole("button", { name: /nothing at all/i });
   await wrong.click();
-  // Assert via the choice's accessible name (what a screen reader announces).
-  // getByText(/try again/i) would also match the invisible width-reserving
-  // placeholder badges each choice renders, tripping strict mode.
+  // Assert via the choice's accessible name (what a screen reader announces),
+  // not getByText, since the floating badge label is inside the button anyway.
   await expect(wrong).toHaveAccessibleName(/try again/i);
   await expect(
     page.getByRole("button", { name: /next question/i })

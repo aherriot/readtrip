@@ -307,8 +307,7 @@ test.describe("Quiz — accessibility contract", () => {
   }) => {
     // The resolved states carry a status word, so meaning survives without
     // color (a11y floor: never color-only). Assert via the choice's accessible
-    // name — that's what a screen reader announces, and it ignores the invisible
-    // width-reserving placeholder badge.
+    // name — that's what a screen reader announces.
     await expect(
       region(page).getByRole("button", { name: /Yes!/i })
     ).toBeVisible();
