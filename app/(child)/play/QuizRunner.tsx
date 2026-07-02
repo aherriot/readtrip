@@ -154,6 +154,7 @@ export function QuizRunner({
     return (
       <SteerResult
         topic={topic}
+        lessonText={lessonText}
         score={phase.score}
         reward={reward}
         loopId={phase.loopId}
@@ -253,6 +254,7 @@ export function QuizRunner({
 // child choose where to go — deeper on this topic, or somewhere new.
 function SteerResult({
   topic,
+  lessonText,
   score,
   reward,
   loopId,
@@ -260,6 +262,7 @@ function SteerResult({
   onGoDeeper,
 }: {
   topic: LessonTopic;
+  lessonText: string;
   score: QuizScore;
   reward: Reward;
   loopId: string | null;
@@ -278,6 +281,7 @@ function SteerResult({
     onGoDeeper(trimmed || `Tell me more about ${topic.title}`, {
       loopId,
       title: topic.title,
+      lessonText,
     });
   }
 

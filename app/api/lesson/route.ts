@@ -18,6 +18,7 @@ import { clampReadingLevel } from "@/lib/llm/prompts/readingLevel";
 import { outputCheck, REDIRECT_MESSAGE, safetyPrecheck } from "@/lib/safety";
 
 const MAX_QUERY_LENGTH = 200;
+const MAX_PREVIOUS_LESSON_LENGTH = 1500;
 
 interface LessonBody {
   title: string;
@@ -26,14 +27,14 @@ interface LessonBody {
   rawQuery?: string | null;
   /** Parent loop's topic for a "go deeper" follow-up, threaded into the prompt. */
   parentContext?: string | null;
+  /** The full text of the lesson the child just read, for a "go deeper" follow-up. */
+  previousLesson?: string | null;
 }
 
 function parseBody(body: unknown): LessonBody | null {
   if (typeof body !== "object" || body === null) return null;
-  const { title, topicSlug, intent, rawQuery, parentContext } = body as Record<
-    string,
-    unknown
-  >;
+  const { title, topicSlug, intent, rawQuery, parentContext, previousLesson } =
+    body as Record<string, unknown>;
   if (typeof title !== "string" || title.trim().length === 0) return null;
   if (typeof topicSlug !== "string" || topicSlug.trim().length === 0)
     return null;
@@ -52,11 +53,22 @@ function parseBody(body: unknown): LessonBody | null {
   ) {
     return null;
   }
+  if (
+    previousLesson !== undefined &&
+    previousLesson !== null &&
+    typeof previousLesson !== "string"
+  ) {
+    return null;
+  }
   const raw = typeof rawQuery === "string" ? rawQuery.trim() : null;
   if (raw !== null && raw.length > MAX_QUERY_LENGTH) return null;
   const context =
     typeof parentContext === "string" && parentContext.trim().length > 0
       ? parentContext.trim().slice(0, MAX_QUERY_LENGTH)
+      : null;
+  const previous =
+    typeof previousLesson === "string" && previousLesson.trim().length > 0
+      ? previousLesson.trim().slice(0, MAX_PREVIOUS_LESSON_LENGTH)
       : null;
   return {
     title: title.trim().slice(0, MAX_QUERY_LENGTH),
@@ -64,6 +76,7 @@ function parseBody(body: unknown): LessonBody | null {
     intent,
     rawQuery: raw && raw.length > 0 ? raw : null,
     parentContext: context,
+    previousLesson: previous,
   };
 }
 
@@ -134,6 +147,7 @@ export async function POST(request: Request) {
             intent: body.intent,
             readingLevel,
             parentContext: body.parentContext,
+            previousLesson: body.previousLesson,
             childId,
           },
           (text) => {
