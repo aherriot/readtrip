@@ -95,7 +95,7 @@ test("a wrong tap is a gentle 'try again', not a failure", async ({ page }) => {
   const wrong = page.getByRole("button", { name: /nothing at all/i });
   await wrong.click();
   // Assert via the choice's accessible name (what a screen reader announces),
-  // not getByText, since the floating badge label is inside the button anyway.
+  // not getByText, since the badge label is inside the button anyway.
   await expect(wrong).toHaveAccessibleName(/try again/i);
   await expect(
     page.getByRole("button", { name: /next question/i })

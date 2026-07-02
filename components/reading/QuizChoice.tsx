@@ -57,24 +57,21 @@ export function QuizChoice({
       disabled={disabled}
       onClick={onSelect}
       className={cn(
-        "relative flex min-h-[60px] w-full items-center rounded-lg border-2 px-6 py-3 text-left",
+        "flex min-h-[60px] w-full flex-col justify-center gap-1 rounded-lg border-2 px-6 py-3 text-left",
         "font-body text-lg text-surface-ink transition-colors duration-150",
         "disabled:cursor-default disabled:opacity-100",
         stateStyles[state]
       )}
     >
-      <span className="min-w-0 w-full">{children}</span>
-      {/* Floats above the choice instead of sitting in flow, so the answer text
-          always gets the button's full width and never reflows when the badge
-          appears on resolve. */}
+      <span className="w-full">{children}</span>
+      {/* Sits on its own line below the text instead of overlapping the choice,
+          so the badge never covers the answer or the pill's border. */}
       {badge && (
-        <Badge
-          tone={badge.tone}
-          icon={badge.icon}
-          className="absolute -right-2 -top-2 shadow-sm"
-        >
-          {badge.label}
-        </Badge>
+        <span className="flex justify-end">
+          <Badge tone={badge.tone} icon={badge.icon}>
+            {badge.label}
+          </Badge>
+        </span>
       )}
     </button>
   );
