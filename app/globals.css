@@ -14,6 +14,7 @@
   --color-aqua: var(--aqua);
   --color-leaf: var(--leaf);
   --color-violet: var(--violet);
+  --color-sky: var(--sky);
 
   /* Fixed per-surface colors (use only when a color must ignore the surface) */
   --color-night: var(--bg-night);
@@ -63,6 +64,17 @@
   --animate-stamp: stamp 0.45s cubic-bezier(0.34, 1.56, 0.64, 1) both;
   --animate-burst: burst 0.5s ease-out both;
   --animate-rise-in: rise-in 0.3s ease-out both;
+  /* Map tiles + mastered rows draw in as a staggered cascade — each element
+     sets its own `animation-delay` inline so the group ripples into place.
+     `both` fill mode holds opacity:0 before the delay and the final frame
+     after; applied via `motion-safe:animate-cascade-in` so it never moves for
+     reduced-motion users. */
+  --animate-cascade-in: cascade-in 0.4s cubic-bezier(0.22, 1, 0.36, 1) both;
+  /* A dismissed tile shrinks + fades out before it's removed from the map.
+     Applied unconditionally (not motion-safe) so the reduced-motion floor
+     collapses its duration and the removal still fires immediately via
+     `animationend`; `both` holds the faded-out final frame until then. */
+  --animate-tile-out: tile-out 0.28s ease-in both;
 }
 
 /* The "stamped into the journal" press: a big rotated stamp thuds down to rest. */
@@ -106,6 +118,31 @@
   100% {
     opacity: 1;
     transform: translateY(0);
+  }
+}
+
+/* A tile settling onto the map: rise + fade with a slight scale-up. Staggered
+   per-element (inline animation-delay) to read as a cascade across the grid. */
+@keyframes cascade-in {
+  0% {
+    opacity: 0;
+    transform: translateY(14px) scale(0.96);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* A dismissed tile leaving the map: shrink + fade so it doesn't just blink out. */
+@keyframes tile-out {
+  0% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(0.9);
   }
 }
 

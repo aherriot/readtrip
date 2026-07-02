@@ -40,6 +40,7 @@ const MASTERED_PAGE_SIZE = 10;
 export function WorldMap({ nodes, onSelect, onDismiss }: WorldMapProps) {
   const [expanded, setExpanded] = useState(false);
   const [masteredShown, setMasteredShown] = useState(MASTERED_PAGE_SIZE);
+  const [masteredOpen, setMasteredOpen] = useState(false);
 
   if (nodes.length === 0) return null;
 
@@ -71,8 +72,24 @@ export function WorldMap({ nodes, onSelect, onDismiss }: WorldMapProps) {
       </Text>
       {visible.length > 0 && (
         <ul className="grid list-none grid-cols-2 gap-4 sm:grid-cols-3">
-          {visible.map((node) => (
-            <li key={node.topicSlug} className="flex">
+          {visible.map((node, index) => (
+            <li
+              key={node.topicSlug}
+              className="flex motion-safe:animate-cascade-in"
+              // Stagger each tile so the grid ripples into place; cap the delay
+              // so a large map doesn't leave later tiles hanging invisibly. When
+              // expanded, the newly revealed tiles (index ≥ COLLAPSED_COUNT) are
+              // the only ones that (re)mount, so offset their delay to the reveal
+              // — they ripple as their own wave, not tacked onto the first rows.
+              style={{
+                animationDelay: `${
+                  Math.min(
+                    Math.max(index - (expanded ? COLLAPSED_COUNT : 0), 0),
+                    8
+                  ) * 55
+                }ms`,
+              }}
+            >
               <TopicNode
                 title={node.title}
                 state={toNodeState(node)}
@@ -98,14 +115,28 @@ export function WorldMap({ nodes, onSelect, onDismiss }: WorldMapProps) {
         </Button>
       )}
       {mastered.length > 0 && (
-        <details className="mt-1 rounded-lg border border-surface-rule px-4 py-3">
+        <details
+          open={masteredOpen}
+          onToggle={(event) => setMasteredOpen(event.currentTarget.open)}
+          className="mt-1 rounded-lg border border-surface-rule px-4 py-3"
+        >
           <summary className="cursor-pointer font-body text-sm text-surface-ink-soft marker:text-surface-ink-soft">
-            ⭐ {mastered.length} topic{mastered.length === 1 ? "" : "s"}{" "}
+            🏅 {mastered.length} topic{mastered.length === 1 ? "" : "s"}{" "}
             mastered
           </summary>
-          <ul className="mt-3 flex list-none flex-col divide-y divide-surface-rule">
-            {masteredVisible.map((node) => (
-              <li key={node.topicSlug}>
+          {/* Keyed on open state so the rows remount — and re-run their cascade
+              — each time the child expands the disclosure, not just on mount
+              (when they're still display:none inside the closed <details>). */}
+          <ul
+            key={masteredOpen ? "open" : "closed"}
+            className="mt-3 flex list-none flex-col divide-y divide-surface-rule"
+          >
+            {masteredVisible.map((node, index) => (
+              <li
+                key={node.topicSlug}
+                className="motion-safe:animate-cascade-in"
+                style={{ animationDelay: `${Math.min(index, 8) * 40}ms` }}
+              >
                 <button
                   type="button"
                   onClick={() => onSelect(node)}
