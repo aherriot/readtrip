@@ -2,26 +2,23 @@ import { count } from "drizzle-orm";
 import { db } from "@/lib/db";
 import { ping } from "@/lib/db/schema";
 
-// M0 end-to-end check: writes a row to Neon and reads the count back.
-// Confirms pooled connection, Drizzle client, and the migration all work.
+// End-to-end liveness check: reads through Next route handler → Drizzle → Neon.
+// A `count()` over the Ping table proves the pooled connection, the Drizzle
+// client, and the migration all work — a full round-trip against a real table,
+// without writing anything. It's an unauthenticated endpoint, so it must be
+// read-only (an insert-per-GET let anonymous callers grow the table) and must
+// not leak internal error detail to the caller.
 export const dynamic = "force-dynamic";
 
 export async function GET() {
   try {
-    const [inserted] = await db.insert(ping).values({}).returning();
     const [{ value: totalPings }] = await db
       .select({ value: count() })
       .from(ping);
-    return Response.json({
-      ok: true,
-      db: "connected",
-      lastPingId: inserted.id,
-      totalPings,
-    });
+    return Response.json({ ok: true, db: "connected", totalPings });
   } catch (error) {
-    return Response.json(
-      { ok: false, db: "error", message: (error as Error).message },
-      { status: 500 }
-    );
+    // Log the detail server-side; return only a generic status to the caller.
+    console.error("[health] db check failed:", error);
+    return Response.json({ ok: false, db: "error" }, { status: 500 });
   }
 }
