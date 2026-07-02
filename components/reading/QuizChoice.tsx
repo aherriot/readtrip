@@ -35,11 +35,6 @@ const statusBadge: Partial<Record<QuizChoiceState, Feedback>> = {
   retry: { icon: "↻", label: "Try again", tone: "coral" },
 };
 
-// The widest label reserves the badge column up front (via an invisible copy).
-// Because the column keeps this width from the start, the answer text never
-// reflows when a "Yes!" / "Try again" badge appears once the question resolves.
-const widestBadge: Feedback = statusBadge.retry!;
-
 /**
  * One big, tappable quiz answer (docs/10). A real `<button>` — keyboard + SR
  * behavior is native; the global `:focus-visible` ring applies. Hits the kid
@@ -62,35 +57,25 @@ export function QuizChoice({
       disabled={disabled}
       onClick={onSelect}
       className={cn(
-        "flex min-h-[60px] w-full items-center justify-between gap-4 rounded-lg border-2 px-6 py-3 text-left",
+        "relative flex min-h-[60px] w-full items-center rounded-lg border-2 px-6 py-3 text-left",
         "font-body text-lg text-surface-ink transition-colors duration-150",
         "disabled:cursor-default disabled:opacity-100",
         stateStyles[state]
       )}
     >
-      <span className="min-w-0">{children}</span>
-      {/* Badge column, always present. An invisible placeholder holds the width
-          so the answer text keeps a constant measure; the real badge overlays it
-          right-aligned only once the choice resolves. */}
-      <span className="relative shrink-0">
+      <span className="min-w-0 w-full">{children}</span>
+      {/* Floats above the choice instead of sitting in flow, so the answer text
+          always gets the button's full width and never reflows when the badge
+          appears on resolve. */}
+      {badge && (
         <Badge
-          aria-hidden="true"
-          tone={widestBadge.tone}
-          icon={widestBadge.icon}
-          className="invisible"
+          tone={badge.tone}
+          icon={badge.icon}
+          className="absolute -right-2 -top-2 shadow-sm"
         >
-          {widestBadge.label}
+          {badge.label}
         </Badge>
-        {badge && (
-          <Badge
-            tone={badge.tone}
-            icon={badge.icon}
-            className="absolute right-0 top-1/2 -translate-y-1/2"
-          >
-            {badge.label}
-          </Badge>
-        )}
-      </span>
+      )}
     </button>
   );
 }
