@@ -217,6 +217,20 @@ export const llmCallLogs = pgTable("LlmCallLog", {
   createdAt: createdAt(),
 });
 
+// Fixed-window rate limiting (lib/rate-limit). One row per limiter key (e.g.
+// `llm:<childId>`), holding the current window's start and request count. The
+// window resets in place when it expires, so the table stays bounded to one row
+// per active key — it never accumulates a row per window. Not FK'd to Child on
+// purpose: the limiter stays independent of what it's keyed on, and a stale row
+// after a child is deleted is harmless (never queried again, logically expired).
+export const rateLimits = pgTable("RateLimit", {
+  key: text("key").primaryKey(),
+  windowStart: timestamp("windowStart", { precision: 3, mode: "date" })
+    .defaultNow()
+    .notNull(),
+  count: integer("count").default(0).notNull(),
+});
+
 // --- Relations (Drizzle relational query API) ---
 export const usersRelations = relations(users, ({ many }) => ({
   accounts: many(accounts),

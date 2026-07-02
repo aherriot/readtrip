@@ -43,6 +43,13 @@
       "when": 1782988678178,
       "tag": "0005_previous_metal_master",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1783009054185,
+      "tag": "0006_burly_human_robot",
+      "breakpoints": true
     }
   ]
 }

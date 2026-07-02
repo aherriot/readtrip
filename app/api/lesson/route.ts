@@ -15,6 +15,7 @@ import { getChild } from "@/lib/children/queries";
 import { getSelectedChildId } from "@/lib/children/selection";
 import { streamLesson } from "@/lib/llm";
 import { clampReadingLevel } from "@/lib/llm/prompts/readingLevel";
+import { checkLlmRateLimit } from "@/lib/rate-limit/llm";
 import { outputCheck, REDIRECT_MESSAGE, safetyPrecheck } from "@/lib/safety";
 
 const MAX_QUERY_LENGTH = 200;
@@ -94,6 +95,11 @@ export async function POST(request: Request) {
   if (!child) {
     return Response.json({ error: "child-not-found" }, { status: 404 });
   }
+
+  // Cap per-child LLM spend before opening the stream (matches the other
+  // pre-stream JSON error responses — see the protocol note at the top).
+  const limited = await checkLlmRateLimit(childId);
+  if (limited) return limited;
 
   let json: unknown;
   try {

@@ -10,6 +10,7 @@ import { getSelectedChildId } from "@/lib/children/selection";
 import { recordExploredTopic } from "@/lib/map/queries";
 import { refreshSuggestions } from "@/lib/map/suggest";
 import { slugify } from "@/lib/llm";
+import { checkLlmRateLimit } from "@/lib/rate-limit/llm";
 
 const MAX_TITLE_LENGTH = 200;
 
@@ -57,6 +58,13 @@ export async function POST(request: Request) {
   }
 
   await recordExploredTopic(childId, body);
+
+  // The cheap map write above always runs; only the LLM-backed suggestion
+  // refresh below draws on the per-child budget. Over budget → skip it (the node
+  // is saved, and this route is fire-and-forget) rather than 429 the client.
+  if (await checkLlmRateLimit(childId)) {
+    return Response.json({ ok: true });
+  }
 
   // Suggestion generation is best-effort — a failure (or a slow model) must not
   // fail the explore. The explored node is already saved above.
