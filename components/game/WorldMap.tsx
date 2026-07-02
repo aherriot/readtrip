@@ -12,6 +12,11 @@ export interface WorldMapProps {
   nodes: readonly MapNodeView[];
   /** Fired with the chosen node when the child taps one. */
   onSelect: (node: MapNodeView) => void;
+  /**
+   * Fired with the node when the child dismisses it, permanently removing it
+   * from their map. Never offered for mastered nodes (tucked below).
+   */
+  onDismiss?: (node: MapNodeView) => void;
 }
 
 // Two rows on the narrowest (2-column) layout — enough to orient without
@@ -27,7 +32,7 @@ const COLLAPSED_COUNT = COLLAPSED_ROWS * COLLAPSED_COLUMNS;
  * first), which doubles as the screen-reader-friendly list view — it's never
  * purely spatial (a11y floor, docs/10). Lives on the night/play surface.
  */
-export function WorldMap({ nodes, onSelect }: WorldMapProps) {
+export function WorldMap({ nodes, onSelect, onDismiss }: WorldMapProps) {
   const [expanded, setExpanded] = useState(false);
 
   if (nodes.length === 0) return null;
@@ -63,6 +68,7 @@ export function WorldMap({ nodes, onSelect }: WorldMapProps) {
                 title={node.title}
                 state={toNodeState(node)}
                 onSelect={() => onSelect(node)}
+                onDismiss={onDismiss ? () => onDismiss(node) : undefined}
               />
             </li>
           ))}

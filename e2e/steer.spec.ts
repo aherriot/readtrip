@@ -11,7 +11,7 @@ import { expect, test, type Page } from "@playwright/test";
 // the 2-question canned quiz correctly through to its result screen. Reusable so
 // a test can replay the *same* topic to build up per-topic progress.
 async function playDinosaursToDone(page: Page) {
-  await page.getByRole("button", { name: /dinosaurs/i }).click();
+  await page.getByRole("button", { name: /dinosaurs tap to explore/i }).click();
   await expect(
     page.getByRole("button", { name: /start the quiz/i })
   ).toBeVisible();
@@ -74,8 +74,8 @@ test("a child can go deeper into the topic they just finished", async ({
 }) => {
   await reachQuizDone(page);
 
-  // Steer offers a "go deeper" choice named for the topic just explored.
-  await page.getByRole("button", { name: /go deeper on dinosaurs/i }).click();
+  // Steer offers a "go deeper" choice.
+  await page.getByRole("button", { name: /^go deeper$/i }).click();
 
   // The follow-up form appears; asking a question spawns a fresh lesson.
   const followUp = page.getByLabel(/what else do you want to know/i);

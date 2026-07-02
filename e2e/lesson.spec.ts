@@ -52,7 +52,7 @@ test("tapping a suggestion streams a lesson onto the reading surface", async ({
 }) => {
   await reachExplore(page);
 
-  await page.getByRole("button", { name: /dinosaurs/i }).click();
+  await page.getByRole("button", { name: /dinosaurs tap to explore/i }).click();
 
   // The reading view opens with the topic as its title...
   const lesson = page.getByRole("region", { name: /lesson about dinosaurs/i });
@@ -98,7 +98,9 @@ test("the child can leave a lesson and explore something new", async ({
 
   // Outer Space, not Volcanoes: the map collapses to its first two rows by
   // default (docs/10 density), and Volcanoes sorts past that cutoff.
-  await page.getByRole("button", { name: /outer space/i }).click();
+  await page
+    .getByRole("button", { name: /outer space tap to explore/i })
+    .click();
   await expect(
     page.getByRole("region", { name: /lesson about outer space/i })
   ).toBeVisible();

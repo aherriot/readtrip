@@ -47,13 +47,17 @@ export async function getChildMap(childId: string): Promise<MapNodeView[]> {
     progress.filter((p) => p.mastered).map((p) => p.topicSlug)
   );
 
-  return nodes.map((n) => ({
-    topicSlug: n.topicSlug,
-    title: n.title,
-    // `status` is a free-text column; only these two are ever written here.
-    status: n.status === "explored" ? "explored" : "suggested",
-    mastered: masteredSlugs.has(n.topicSlug),
-  }));
+  // Dismissed nodes are permanently hidden from the map — they stay in the
+  // table (so they're never re-suggested, see saveSuggestedNeighbors) but never
+  // surface as a MapNodeView.
+  return nodes
+    .filter((n) => n.status !== "dismissed")
+    .map((n) => ({
+      topicSlug: n.topicSlug,
+      title: n.title,
+      status: n.status === "explored" ? "explored" : "suggested",
+      mastered: masteredSlugs.has(n.topicSlug),
+    }));
 }
 
 /**
@@ -76,6 +80,67 @@ export async function recordExploredTopic(
     .onConflictDoUpdate({
       target: [mapNodes.childId, mapNodes.topicSlug],
       set: { status: "explored", title: topic.title },
+    });
+}
+
+/**
+ * Topic slugs the child has permanently dismissed. Dismissed rows are excluded
+ * from `getChildMap`'s display list, but callers computing *other* topic pools
+ * (e.g. the "something new" curated starters) need this too, or a dismissed
+ * curated topic would simply resurface there instead of on the map.
+ */
+export async function getDismissedTopicSlugs(
+  childId: string
+): Promise<string[]> {
+  const rows = await db
+    .select({ topicSlug: mapNodes.topicSlug })
+    .from(mapNodes)
+    .where(
+      and(eq(mapNodes.childId, childId), eq(mapNodes.status, "dismissed"))
+    );
+  return rows.map((r) => r.topicSlug);
+}
+
+/**
+ * Permanently remove a topic from the child's map. Only a `suggested` or
+ * `explored` node can be dismissed — never a mastered one (that's progress, not
+ * clutter), enforced here rather than trusted from the client. The row is kept
+ * as `dismissed` rather than deleted, so saveSuggestedNeighbors's existing-row
+ * check (which looks across all statuses) permanently blocks it from ever being
+ * re-suggested.
+ *
+ * Upserts rather than updates: a brand-new explorer's curated starter tiles are
+ * synthetic (page.tsx seeds them for display without writing a MapNode row
+ * until they're explored), so there may be nothing to update yet — dismissing
+ * one still needs to persist a `dismissed` row or it would just reappear.
+ */
+export async function dismissTopic(
+  childId: string,
+  topic: { topicSlug: string; title: string }
+): Promise<void> {
+  const progress = await db
+    .select({ mastered: topicProgress.mastered })
+    .from(topicProgress)
+    .where(
+      and(
+        eq(topicProgress.childId, childId),
+        eq(topicProgress.topicSlug, topic.topicSlug)
+      )
+    );
+  if (progress[0]?.mastered) return;
+
+  await db
+    .insert(mapNodes)
+    .values({
+      childId,
+      topicSlug: topic.topicSlug,
+      title: topic.title,
+      status: "dismissed",
+      neighbors: [],
+    })
+    .onConflictDoUpdate({
+      target: [mapNodes.childId, mapNodes.topicSlug],
+      set: { status: "dismissed" },
     });
 }
 

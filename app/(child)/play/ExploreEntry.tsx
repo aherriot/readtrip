@@ -26,9 +26,12 @@ type Phase =
 
 export function ExploreEntry({
   initialNodes,
+  dismissedSlugs,
   childName,
 }: {
   initialNodes: MapNodeView[];
+  /** Permanently dismissed topics — excluded from every pool, not just the map. */
+  dismissedSlugs: string[];
   childName: string;
 }) {
   const router = useRouter();
@@ -38,6 +41,9 @@ export function ExploreEntry({
   // Bumps each time a new expedition starts so the reader remounts cleanly —
   // even a "go deeper" follow-up that resolves back to the same slug.
   const [expedition, setExpedition] = useState(0);
+  // Topics currently being dismissed — lets the tapped tile show pending state
+  // immediately without a local mirror of the whole node list.
+  const [dismissing, setDismissing] = useState<Set<string>>(new Set());
 
   const busy = phase.name === "resolving";
 
@@ -112,6 +118,33 @@ export function ExploreEntry({
     });
   }
 
+  // Permanently remove a tile from the map. Awaited (not fire-and-forget) since
+  // the child is watching this specific tile disappear — a refresh only happens
+  // once the write has actually landed.
+  async function dismissTopic(node: MapNodeView) {
+    if (dismissing.has(node.topicSlug)) return;
+    setDismissing((prev) => new Set(prev).add(node.topicSlug));
+    try {
+      await fetch("/api/map/dismiss", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          topicSlug: node.topicSlug,
+          title: node.title,
+        }),
+      });
+      router.refresh();
+    } catch (err) {
+      console.error("[map] failed to dismiss topic:", err);
+    } finally {
+      setDismissing((prev) => {
+        const next = new Set(prev);
+        next.delete(node.topicSlug);
+        return next;
+      });
+    }
+  }
+
   function reset() {
     setPhase({ name: "idle" });
     setQuery("");
@@ -156,11 +189,18 @@ export function ExploreEntry({
   // this still offers weather, space, dinosaurs… (docs/05: interest-driven, but
   // never a filter bubble). Empty for a brand-new explorer whose seeded map
   // already *is* the starters.
-  const differentTopics = freshStarters(initialNodes.map((n) => n.topicSlug));
+  const differentTopics = freshStarters([
+    ...initialNodes.map((n) => n.topicSlug),
+    ...dismissedSlugs,
+  ]);
 
   return (
     <div className="flex w-full flex-col gap-8">
-      <WorldMap nodes={initialNodes} onSelect={startTopic} />
+      <WorldMap
+        nodes={initialNodes}
+        onSelect={startTopic}
+        onDismiss={dismissTopic}
+      />
 
       {differentTopics.length > 0 && (
         <div className="flex flex-col gap-3">

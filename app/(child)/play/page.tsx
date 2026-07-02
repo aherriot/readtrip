@@ -4,7 +4,7 @@ import { requireParent } from "@/lib/auth/session";
 import { getChild } from "@/lib/children/queries";
 import { getSelectedChildId } from "@/lib/children/selection";
 import { SUGGESTED_TOPICS } from "@/lib/explore/topics";
-import { getChildMap } from "@/lib/map/queries";
+import { getChildMap, getDismissedTopicSlugs } from "@/lib/map/queries";
 import type { MapNodeView } from "@/lib/map/nodeState";
 import { ExploreEntry } from "./ExploreEntry";
 
@@ -30,15 +30,22 @@ export default async function PlayPage() {
   // so seed the display with the curated starters as "suggested" — the same
   // concepts they resolve to, giving the map somewhere to begin.
   const stored = await getChildMap(child.id);
-  const nodes: MapNodeView[] =
-    stored.length > 0
-      ? stored
-      : SUGGESTED_TOPICS.map((t) => ({
-          topicSlug: t.topicSlug,
-          title: t.title,
-          status: "suggested",
-          mastered: false,
-        }));
+  // A dismissed curated starter must stay gone everywhere, not just off the
+  // map — otherwise it'd simply resurface in the "something new" chips, or
+  // (see below) get reseeded as if the child were brand-new.
+  const dismissedSlugs = await getDismissedTopicSlugs(child.id);
+  // "Brand new" means no map rows at all — not just none *displayed*. A child
+  // who dismissed every seeded starter still has rows (they're just hidden),
+  // so this must not fall back to reseeding the very topics they removed.
+  const isNewExplorer = stored.length === 0 && dismissedSlugs.length === 0;
+  const nodes: MapNodeView[] = isNewExplorer
+    ? SUGGESTED_TOPICS.map((t) => ({
+        topicSlug: t.topicSlug,
+        title: t.title,
+        status: "suggested",
+        mastered: false,
+      }))
+    : stored;
 
   return (
     <main className="mx-auto flex min-h-screen w-full max-w-xl flex-col items-center gap-6 p-6">
@@ -46,7 +53,11 @@ export default async function PlayPage() {
         ReadTrip
       </span>
 
-      <ExploreEntry initialNodes={nodes} childName={child.displayName} />
+      <ExploreEntry
+        initialNodes={nodes}
+        dismissedSlugs={dismissedSlugs}
+        childName={child.displayName}
+      />
     </main>
   );
 }

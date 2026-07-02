@@ -160,7 +160,7 @@ export const mapNodes = pgTable(
       .references(() => children.id, { onDelete: "cascade" }),
     topicSlug: text("topicSlug").notNull(),
     title: text("title").notNull(),
-    status: text("status").notNull(), // "suggested" | "explored" | "mastered"
+    status: text("status").notNull(), // "suggested" | "explored" | "dismissed"
     // Which pool a *suggested* node came from — "deep" (LLM neighbour of a
     // just-explored topic) or "diverse" (curated, unrelated starter). Drives the
     // 8/4 cap in saveSuggestedNeighbors. Null for explored nodes, where it's
