@@ -20,6 +20,8 @@ export interface LessonTopic {
   parentLoopId?: string | null;
   /** The parent loop's topic title, threaded into the follow-up's prompts. */
   parentContext?: string | null;
+  /** The parent loop's lesson text, so a follow-up covers new ground. */
+  previousLesson?: string | null;
 }
 
 /** How the child steers on from a finished quiz (docs/01 §6). */
@@ -29,7 +31,7 @@ export interface SteerHandlers {
   /** Drill into the current topic with a follow-up (spawns a threaded loop). */
   onGoDeeper: (
     followUp: string,
-    parent: { loopId: string | null; title: string }
+    parent: { loopId: string | null; title: string; lessonText: string }
   ) => void;
 }
 
@@ -62,6 +64,7 @@ export function LessonReader({
             intent: topic.intent,
             rawQuery: topic.rawQuery,
             parentContext: topic.parentContext,
+            previousLesson: topic.previousLesson,
           }),
           signal: controller.signal,
         });

@@ -45,7 +45,7 @@ export function ExploreEntry({
   // its topic, threaded through so the follow-up resolves against that concept.
   async function explore(
     rawQuery: string,
-    parent?: { loopId: string | null; title: string }
+    parent?: { loopId: string | null; title: string; lessonText: string }
   ) {
     const trimmed = rawQuery.trim();
     if (!trimmed || busy) return;
@@ -68,6 +68,7 @@ export function ExploreEntry({
           ...data.topic,
           parentLoopId: parent?.loopId ?? null,
           parentContext: parent?.title ?? null,
+          previousLesson: parent?.lessonText ?? null,
         });
       } else {
         setPhase({ name: "blocked", redirect: data.redirect });
@@ -86,7 +87,7 @@ export function ExploreEntry({
   // Steer → "go deeper": spawn a threaded follow-up loop from the finished one.
   function goDeeper(
     followUp: string,
-    parent: { loopId: string | null; title: string }
+    parent: { loopId: string | null; title: string; lessonText: string }
   ) {
     void explore(followUp, parent);
   }
@@ -107,6 +108,7 @@ export function ExploreEntry({
       rawQuery: topic.title,
       parentLoopId: null,
       parentContext: null,
+      previousLesson: null,
     });
   }
 

@@ -45,7 +45,16 @@ export interface LessonRequest {
   readingLevel: ReadingLevel;
   /** For "go deeper" follow-ups: the parent loop's topic, passed as context. */
   parentContext?: string | null;
+  /**
+   * For "go deeper" follow-ups: the full text of the lesson the child just
+   * read, so the new one covers new ground instead of repeating it.
+   */
+  previousLesson?: string | null;
 }
+
+// Bound how much prior lesson text enters the prompt — one lesson is already
+// short (~120-220 words), this just guards against an unexpectedly long one.
+const MAX_PREVIOUS_LESSON_CHARS = 1500;
 
 export function lessonUserPrompt(req: LessonRequest): string {
   const lines: string[] = [];
@@ -63,6 +72,15 @@ export function lessonUserPrompt(req: LessonRequest): string {
   if (req.parentContext) {
     lines.push(
       `This is a "go deeper" follow-up from an earlier lesson about "${req.parentContext}". Build on that context so the explanation connects.`
+    );
+  }
+
+  if (req.previousLesson) {
+    const trimmed = req.previousLesson
+      .trim()
+      .slice(0, MAX_PREVIOUS_LESSON_CHARS);
+    lines.push(
+      `Here is the lesson the child already read, so you don't repeat it:\n"""\n${trimmed}\n"""\nGo genuinely deeper: bring new facts, a different angle, or the next layer of "why" — don't restate what's already above.`
     );
   }
 
