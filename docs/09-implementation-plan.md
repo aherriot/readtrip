@@ -282,8 +282,17 @@ Goal: reduce hallucination with grounding and **measure** it.
 
 Goal: prove it runs, then make it shine.
 
-- [ ] **Dashboard** off `LlmCallLog`: cost per loop, cache hit rate, p50/p95 latency,
+- [x] **Dashboard** off `LlmCallLog`: cost per loop, cache hit rate, p50/p95 latency,
       model mix, safety-flag rate.
+      (Parent-only `/dashboard` (gated by `middleware.ts` like `/profiles`). Aggregation is
+      a pure, unit-tested `computeMetrics` in `lib/observability/metrics.ts` — blended cost
+      per completed loop, cache-hit rate over input-side tokens, nearest-rank p50/p95
+      latency, per-model call/cost mix, and the safety-flag rate — fed by a parent-scoped
+      `getDashboardMetrics` query (`lib/observability/queries.ts`) that only counts a
+      parent's own children's calls + loops. The page composes design-system primitives
+      (stat cards + a labelled model-mix bar, never color-only) with an empty state before
+      any activity; a header link reaches it from Profiles. Route protection + the empty
+      path are covered by `e2e/dashboard.spec.ts`.)
 - [ ] **Streaks & daily goals**; richer avatar/world unlocks.
 - [ ] Motion polish (level-ups, discovery, badge stamps), re-checked against reduced-motion.
 - [ ] Final accessibility audit: contrast, focus order, keyboard-only run, screen-reader
