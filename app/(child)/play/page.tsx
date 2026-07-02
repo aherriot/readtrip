@@ -1,15 +1,11 @@
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
-import { Button } from "@/components/ui/Button";
-import { Heading } from "@/components/ui/Heading";
-import { Text } from "@/components/ui/Text";
 import { requireParent } from "@/lib/auth/session";
 import { getChild } from "@/lib/children/queries";
 import { getSelectedChildId } from "@/lib/children/selection";
 import { SUGGESTED_TOPICS } from "@/lib/explore/topics";
 import { getChildMap } from "@/lib/map/queries";
 import type { MapNodeView } from "@/lib/map/nodeState";
-import { switchProfileAction } from "@/app/(parent)/profiles/actions";
 import { ExploreEntry } from "./ExploreEntry";
 
 export const metadata: Metadata = {
@@ -45,21 +41,12 @@ export default async function PlayPage() {
         }));
 
   return (
-    <main className="mx-auto flex min-h-screen w-full max-w-xl flex-col items-center justify-center gap-8 p-6">
-      <div className="flex flex-col items-center gap-2 text-center">
-        <Heading level={1}>Hi, {child.displayName}! Where to today?</Heading>
-        <Text tone="soft" measure>
-          Type anything you&apos;re curious about, or tap a spot on your map.
-        </Text>
-      </div>
+    <main className="mx-auto flex min-h-screen w-full max-w-xl flex-col items-center gap-6 p-6">
+      <span className="font-display text-lg font-semibold text-sun">
+        ReadTrip
+      </span>
 
-      <ExploreEntry initialNodes={nodes} />
-
-      <form action={switchProfileAction}>
-        <Button type="submit" variant="ghost" size="md">
-          Not you? Switch explorer
-        </Button>
-      </form>
+      <ExploreEntry initialNodes={nodes} childName={child.displayName} />
     </main>
   );
 }

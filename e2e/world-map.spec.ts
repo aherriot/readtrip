@@ -54,9 +54,9 @@ test("a new map seeds suggested starter topics", async ({ page }) => {
     page.getByRole("button", { name: /dinosaurs tap to explore/i })
   ).toBeVisible();
   // The seeded map already *is* the diverse starters, so the separate
-  // "completely different" section is redundant here and stays hidden.
+  // "something new" section is redundant here and stays hidden.
   await expect(
-    page.getByRole("heading", { name: /something completely different/i })
+    page.getByRole("heading", { name: /something new/i })
   ).toBeHidden();
 });
 
@@ -89,13 +89,13 @@ test("exploring a map node lights it up as explored on return", async ({
   ).toBeVisible();
 
   // Now that the map has narrowed to explored/suggested topics, a separate
-  // "completely different" section offers fresh, unrelated starters for breadth
-  // — and never re-lists what's already on the map.
+  // "something new" section offers fresh, unrelated starters for breadth —
+  // and never re-lists what's already on the map.
   await expect(
-    page.getByRole("heading", { name: /something completely different/i })
+    page.getByRole("heading", { name: /something new/i })
   ).toBeVisible();
   const different = page.getByRole("group", {
-    name: /something completely different/i,
+    name: /something new/i,
   });
   await expect(different.getByRole("button").first()).toBeVisible();
   await expect(

@@ -38,6 +38,18 @@ const SAMPLE_NODES: MapNodeView[] = [
     status: "suggested",
     mastered: false,
   },
+  {
+    topicSlug: "the-human-body",
+    title: "The Human Body",
+    status: "suggested",
+    mastered: false,
+  },
+  {
+    topicSlug: "wild-weather",
+    title: "Wild Weather",
+    status: "suggested",
+    mastered: false,
+  },
 ];
 
 export function WorldMapDemo() {
