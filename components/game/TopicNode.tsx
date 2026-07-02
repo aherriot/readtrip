@@ -1,13 +1,19 @@
 "use client";
 
 import { cn } from "@/lib/ui/cn";
-import type { TopicNodeState } from "@/lib/map/nodeState";
+import type { SuggestionKind, TopicNodeState } from "@/lib/map/nodeState";
 
 export interface TopicNodeProps {
   /** Kid-facing topic title, e.g. "Dinosaurs". */
   title: string;
   /** Visual + semantic state (docs/10). Each state has a status word, not just color. */
   state: TopicNodeState;
+  /**
+   * Deep (neighbour of an explored topic) vs. diverse (unrelated breadth
+   * starter). Only meaningful while `suggested`; picks the corner badge.
+   * Defaults to `"deep"` when omitted.
+   */
+  kind?: SuggestionKind | null;
   /** Fired when the child taps the node. Ignored while `locked`. */
   onSelect?: () => void;
   /**
@@ -18,8 +24,10 @@ export interface TopicNodeProps {
 }
 
 // Every state pairs a distinct status word with its color, so the node never
-// communicates by color alone (a11y floor). The status word is real text inside
-// the button, so a node's accessible name reads e.g. "Dinosaurs, Explored".
+// communicates by color alone (a11y floor). The word is always real text tied
+// to the button — either visible (locked/mastered) or, for suggested/explored,
+// carried by the sr-only span below and mirrored by the visible corner badge
+// (BADGE) so sighted and screen-reader users get equivalent information.
 const STATE: Record<TopicNodeState, { label: string; className: string }> = {
   locked: {
     label: "Locked",
@@ -41,6 +49,25 @@ const STATE: Record<TopicNodeState, { label: string; className: string }> = {
   },
 };
 
+type BadgeKind = "explored" | SuggestionKind;
+
+// The corner badge shown on suggested/explored nodes — a compact icon + word
+// that replaces the old full-width "Tap to explore"/"Explored" text row. All
+// three share the same shape/position so they read as one visual language
+// (docs/10: state differences are icon+color, never color alone).
+const BADGE: Record<
+  BadgeKind,
+  { icon: string; text: string; className: string }
+> = {
+  explored: {
+    icon: "✓",
+    text: "Explored",
+    className: "border-aqua bg-aqua/25",
+  },
+  deep: { icon: "🔎", text: "Deep", className: "border-aqua bg-aqua/20" },
+  diverse: { icon: "🧭", text: "New", className: "border-violet bg-violet/20" },
+};
+
 // A node is dismissible while it's still something to do — not once it's locked
 // (nothing to remove) or mastered (that's progress, not clutter).
 const DISMISSIBLE_STATES: readonly TopicNodeState[] = ["suggested", "explored"];
@@ -55,12 +82,32 @@ const DISMISSIBLE_STATES: readonly TopicNodeState[] = ["suggested", "explored"];
 export function TopicNode({
   title,
   state,
+  kind,
   onSelect,
   onDismiss,
 }: TopicNodeProps) {
   const config = STATE[state];
   const locked = state === "locked";
   const dismissible = onDismiss && DISMISSIBLE_STATES.includes(state);
+
+  // Suggested/explored nodes trade their old full-width status text for a
+  // corner badge (icon + short word); locked/mastered keep the visible label
+  // as before. `null` here means "no badge" (locked/mastered).
+  const badgeKind: BadgeKind | null =
+    state === "explored"
+      ? "explored"
+      : state === "suggested"
+        ? (kind ?? "deep")
+        : null;
+  const badge = badgeKind ? BADGE[badgeKind] : null;
+  const showLabelInline = state === "locked" || state === "mastered";
+  // A suggested diverse node borrows the diverse badge's violet accent for its
+  // border too, so the whole tile — not just the badge — reads as breadth.
+  const nodeClassName =
+    state === "suggested" && kind === "diverse"
+      ? "border-violet bg-surface-panel"
+      : config.className;
+
   return (
     <div className="relative w-full">
       <button
@@ -68,15 +115,32 @@ export function TopicNode({
         disabled={locked}
         onClick={onSelect}
         className={cn(
-          "flex min-h-[112px] w-full flex-col items-center justify-center gap-1 rounded-lg border-2 p-4 text-center",
+          "relative flex h-full min-h-[112px] w-full flex-col items-center justify-center gap-1 rounded-lg border-2 p-4 text-center",
           "text-surface-ink transition-colors duration-150 disabled:cursor-not-allowed",
-          config.className
+          nodeClassName
         )}
       >
+        {badge && (
+          <span
+            aria-hidden="true"
+            className={cn(
+              "absolute left-2 top-2 flex items-center gap-1 rounded-pill border px-2 py-0.5",
+              "font-display text-[0.65rem] leading-none font-semibold tracking-wide uppercase",
+              badge.className
+            )}
+          >
+            <span>{badge.icon}</span>
+            {badge.text}
+          </span>
+        )}
         <span className="font-display text-lg leading-tight">{title}</span>
-        <span className="font-body text-xs text-surface-ink-soft">
-          {config.label}
-        </span>
+        {showLabelInline ? (
+          <span className="font-body text-xs text-surface-ink-soft">
+            {config.label}
+          </span>
+        ) : (
+          <span className="sr-only">{config.label}</span>
+        )}
       </button>
       {dismissible && (
         <button

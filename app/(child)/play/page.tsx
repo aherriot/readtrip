@@ -44,6 +44,7 @@ export default async function PlayPage() {
         title: t.title,
         status: "suggested",
         mastered: false,
+        kind: "diverse",
       }))
     : stored;
 

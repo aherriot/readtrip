@@ -31,6 +31,7 @@ describe("orderNodes", () => {
     title,
     status,
     mastered,
+    kind: null,
   });
 
   it("puts explored topics before suggested ones", () => {

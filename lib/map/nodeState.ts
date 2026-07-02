@@ -10,6 +10,10 @@ export type MapNodeStatus = "suggested" | "explored";
 /** The four visual states a TopicNode can render (docs/10). */
 export type TopicNodeState = "locked" | "suggested" | "explored" | "mastered";
 
+/** Which pool a *suggested* node came from — see `MapNode.kind` in the schema.
+ * Meaningless once a node is explored, so it's nullable there. */
+export type SuggestionKind = "deep" | "diverse";
+
 /** A map node flattened for rendering — what `getChildMap` returns per topic. */
 export interface MapNodeView {
   topicSlug: string;
@@ -17,6 +21,8 @@ export interface MapNodeView {
   status: MapNodeStatus;
   /** From TopicProgress: a mastered topic outranks its `explored` status. */
   mastered: boolean;
+  /** Deep/diverse pool, set while `suggested`; null once meaning is moot. */
+  kind: SuggestionKind | null;
 }
 
 /**
