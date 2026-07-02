@@ -56,9 +56,12 @@ test("shows free-form entry plus suggested topics to jump into", async ({
 
   await expect(page.getByLabel(/what do you want to explore/i)).toBeVisible();
 
-  // A few curated suggestions are offered as one-tap chips.
+  // A few curated suggestions are offered as one-tap chips — the map's first
+  // two rows (docs/10 density), Outer Space included, Volcanoes past the fold.
   await expect(page.getByRole("button", { name: /dinosaurs/i })).toBeVisible();
-  await expect(page.getByRole("button", { name: /volcanoes/i })).toBeVisible();
+  await expect(
+    page.getByRole("button", { name: /outer space/i })
+  ).toBeVisible();
 });
 
 test("the Explore button stays disabled until something is typed", async ({

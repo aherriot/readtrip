@@ -344,7 +344,7 @@ test.describe("WorldMap / TopicNode — accessibility contract", () => {
     page,
   }) => {
     const node = region(page).getByRole("button", {
-      name: "Dinosaurs Mastered",
+      name: "Volcanoes Mastered",
     });
     await expect(node).toHaveJSProperty("tagName", "BUTTON");
     const box = await node.boundingBox();
@@ -372,8 +372,40 @@ test.describe("WorldMap / TopicNode — accessibility contract", () => {
   }) => {
     const list = region(page).getByRole("list");
     await expect(list).toBeVisible();
-    // The four sample nodes are list items, in DOM order (not purely spatial).
+    // Four of the six sample nodes are active (explored/suggested) and shown
+    // up front — two rows on the mobile layout — in DOM order (not purely
+    // spatial); the rest are behind "Show more" / the mastered disclosure.
     await expect(list.getByRole("listitem")).toHaveCount(4);
+  });
+
+  test("mastered nodes sit behind a real, focusable disclosure", async ({
+    page,
+  }) => {
+    const summary = region(page).getByText(/1 topic mastered/i);
+    const node = region(page).getByRole("button", {
+      name: "Dinosaurs Mastered",
+    });
+    await expect(node).toBeHidden();
+    await summary.click();
+    await expect(node).toBeVisible();
+  });
+
+  test("more active topics than two rows sit behind a 'show more' toggle", async ({
+    page,
+  }) => {
+    const toggle = region(page).getByRole("button", {
+      name: /show 1 more topic/i,
+    });
+    const node = region(page).getByRole("button", {
+      name: "Wild Weather Tap to explore",
+    });
+    await expect(node).toBeHidden();
+    await toggle.click();
+    await expect(node).toBeVisible();
+    await region(page)
+      .getByRole("button", { name: /show fewer topics/i })
+      .click();
+    await expect(node).toBeHidden();
   });
 
   test("a node shows a visible focus ring when focused", async ({ page }) => {

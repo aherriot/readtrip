@@ -96,9 +96,11 @@ test("the child can leave a lesson and explore something new", async ({
 }) => {
   await reachExplore(page);
 
-  await page.getByRole("button", { name: /volcanoes/i }).click();
+  // Outer Space, not Volcanoes: the map collapses to its first two rows by
+  // default (docs/10 density), and Volcanoes sorts past that cutoff.
+  await page.getByRole("button", { name: /outer space/i }).click();
   await expect(
-    page.getByRole("region", { name: /lesson about volcanoes/i })
+    page.getByRole("region", { name: /lesson about outer space/i })
   ).toBeVisible();
 
   await page.getByRole("button", { name: /explore something else/i }).click();

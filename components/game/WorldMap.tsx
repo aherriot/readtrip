@@ -1,5 +1,7 @@
 "use client";
 
+import { useState } from "react";
+import { Button } from "@/components/ui/Button";
 import { Heading } from "@/components/ui/Heading";
 import { Text } from "@/components/ui/Text";
 import { orderNodes, toNodeState, type MapNodeView } from "@/lib/map/nodeState";
@@ -12,6 +14,12 @@ export interface WorldMapProps {
   onSelect: (node: MapNodeView) => void;
 }
 
+// Two rows on the narrowest (2-column) layout — enough to orient without
+// pushing "Something new" and the free-form input far down the page.
+const COLLAPSED_ROWS = 2;
+const COLLAPSED_COLUMNS = 2;
+const COLLAPSED_COUNT = COLLAPSED_ROWS * COLLAPSED_COLUMNS;
+
 /**
  * The child's personalized world map of knowledge (docs/05). Explored topics are
  * lit, mastered ones stamped, and suggested neighbours invite the next tap. The
@@ -20,6 +28,8 @@ export interface WorldMapProps {
  * purely spatial (a11y floor, docs/10). Lives on the night/play surface.
  */
 export function WorldMap({ nodes, onSelect }: WorldMapProps) {
+  const [expanded, setExpanded] = useState(false);
+
   if (nodes.length === 0) return null;
 
   const ordered = orderNodes(nodes);
@@ -28,6 +38,10 @@ export function WorldMap({ nodes, onSelect }: WorldMapProps) {
   // child can expand. Everything still-to-do (explored + suggested) stays on top.
   const active = ordered.filter((node) => !node.mastered);
   const mastered = ordered.filter((node) => node.mastered);
+
+  const hasMore = active.length > COLLAPSED_COUNT;
+  const visible = expanded ? active : active.slice(0, COLLAPSED_COUNT);
+  const remaining = active.length - COLLAPSED_COUNT;
 
   return (
     <section
@@ -41,9 +55,9 @@ export function WorldMap({ nodes, onSelect }: WorldMapProps) {
         Tap a glowing spot to explore it — new places appear as you discover
         more.
       </Text>
-      {active.length > 0 && (
+      {visible.length > 0 && (
         <ul className="grid list-none grid-cols-2 gap-4 sm:grid-cols-3">
-          {active.map((node) => (
+          {visible.map((node) => (
             <li key={node.topicSlug} className="flex">
               <TopicNode
                 title={node.title}
@@ -53,6 +67,19 @@ export function WorldMap({ nodes, onSelect }: WorldMapProps) {
             </li>
           ))}
         </ul>
+      )}
+      {hasMore && (
+        <Button
+          type="button"
+          variant="ghost"
+          size="md"
+          className="self-center"
+          onClick={() => setExpanded((e) => !e)}
+        >
+          {expanded
+            ? "Show fewer topics"
+            : `Show ${remaining} more topic${remaining === 1 ? "" : "s"}`}
+        </Button>
       )}
       {mastered.length > 0 && (
         <details className="mt-1 rounded-lg border border-surface-rule px-4 py-3">
