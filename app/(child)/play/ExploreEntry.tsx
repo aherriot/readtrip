@@ -10,6 +10,7 @@ import { Input } from "@/components/ui/Input";
 import { Text } from "@/components/ui/Text";
 import { freshStarters } from "@/lib/explore/topics";
 import type { MapNodeView } from "@/lib/map/nodeState";
+import { switchProfileAction } from "@/app/(parent)/profiles/actions";
 import { LessonReader, type LessonTopic } from "./LessonReader";
 
 // What /api/explore resolves free-form input into (mirrors NormalizedTopic +
@@ -25,8 +26,10 @@ type Phase =
 
 export function ExploreEntry({
   initialNodes,
+  childName,
 }: {
   initialNodes: MapNodeView[];
+  childName: string;
 }) {
   const router = useRouter();
   const [phase, setPhase] = useState<Phase>({ name: "idle" });
@@ -159,7 +162,7 @@ export function ExploreEntry({
 
       {differentTopics.length > 0 && (
         <div className="flex flex-col gap-3">
-          <Heading level={2}>Something completely different</Heading>
+          <Heading level={2}>Something new</Heading>
           <Text tone="soft" size="sm">
             Fresh ideas, nothing like your map so far — tap one to wander
             somewhere new.
@@ -167,7 +170,7 @@ export function ExploreEntry({
           <div
             className="flex flex-wrap gap-3"
             role="group"
-            aria-label="Something completely different"
+            aria-label="Something new"
           >
             {differentTopics.map((topic) => (
               <Button
@@ -207,6 +210,12 @@ export function ExploreEntry({
             {error}
           </Text>
         )}
+      </form>
+
+      <form action={switchProfileAction} className="self-center">
+        <Button type="submit" variant="ghost" size="md">
+          Not {childName}? Switch explorer
+        </Button>
       </form>
     </div>
   );

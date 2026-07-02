@@ -23,6 +23,12 @@ export function WorldMap({ nodes, onSelect }: WorldMapProps) {
   if (nodes.length === 0) return null;
 
   const ordered = orderNodes(nodes);
+  // Mastered topics are "ground already covered" — keep them off the main map so
+  // it doesn't grow into screens of scrolling, and tuck them behind a count the
+  // child can expand. Everything still-to-do (explored + suggested) stays on top.
+  const active = ordered.filter((node) => !node.mastered);
+  const mastered = ordered.filter((node) => node.mastered);
+
   return (
     <section
       aria-labelledby="world-map-heading"
@@ -35,17 +41,38 @@ export function WorldMap({ nodes, onSelect }: WorldMapProps) {
         Tap a glowing spot to explore it — new places appear as you discover
         more.
       </Text>
-      <ul className="grid list-none grid-cols-2 gap-4 sm:grid-cols-3">
-        {ordered.map((node) => (
-          <li key={node.topicSlug} className="flex">
-            <TopicNode
-              title={node.title}
-              state={toNodeState(node)}
-              onSelect={() => onSelect(node)}
-            />
-          </li>
-        ))}
-      </ul>
+      {active.length > 0 && (
+        <ul className="grid list-none grid-cols-2 gap-4 sm:grid-cols-3">
+          {active.map((node) => (
+            <li key={node.topicSlug} className="flex">
+              <TopicNode
+                title={node.title}
+                state={toNodeState(node)}
+                onSelect={() => onSelect(node)}
+              />
+            </li>
+          ))}
+        </ul>
+      )}
+      {mastered.length > 0 && (
+        <details className="mt-1 rounded-lg border border-surface-rule px-4 py-3">
+          <summary className="cursor-pointer font-body text-sm text-surface-ink-soft marker:text-surface-ink-soft">
+            ⭐ {mastered.length} topic{mastered.length === 1 ? "" : "s"}{" "}
+            mastered
+          </summary>
+          <ul className="mt-4 grid list-none grid-cols-2 gap-4 sm:grid-cols-3">
+            {mastered.map((node) => (
+              <li key={node.topicSlug} className="flex">
+                <TopicNode
+                  title={node.title}
+                  state={toNodeState(node)}
+                  onSelect={() => onSelect(node)}
+                />
+              </li>
+            ))}
+          </ul>
+        </details>
+      )}
     </section>
   );
 }

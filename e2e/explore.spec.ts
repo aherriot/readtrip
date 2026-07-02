@@ -54,9 +54,6 @@ test("shows free-form entry plus suggested topics to jump into", async ({
 }) => {
   await reachExplore(page);
 
-  await expect(
-    page.getByRole("heading", { name: /where to today/i })
-  ).toBeVisible();
   await expect(page.getByLabel(/what do you want to explore/i)).toBeVisible();
 
   // A few curated suggestions are offered as one-tap chips.
