@@ -355,13 +355,26 @@ test.describe("WorldMap / TopicNode — accessibility contract", () => {
   });
 
   test("each state carries a word, not color alone", async ({ page }) => {
-    // The status word is part of the node's accessible name, so state survives
-    // without color (a11y floor: never color-only).
-    for (const word of ["Locked", "Tap to explore", "Explored", "Mastered"]) {
+    // locked/mastered still show their status word as visible body text.
+    for (const word of ["Locked", "Mastered"]) {
       await expect(
         region(page).getByText(word, { exact: true }).first()
       ).toBeVisible();
     }
+    // suggested/explored trade the body-text word for a visible corner badge
+    // (icon + short word) plus an sr-only span carrying the full status word
+    // — so the accessible name is unchanged even though "Tap to explore" no
+    // longer appears as visible text.
+    for (const word of ["Deep", "New", "Explored"]) {
+      await expect(
+        region(page).getByText(word, { exact: true }).first()
+      ).toBeVisible();
+    }
+    await expect(
+      region(page)
+        .getByRole("button", { name: "Volcanoes Tap to explore" })
+        .first()
+    ).toBeAttached();
   });
 
   test("the map is a real list — the screen-reader-friendly equivalent", async ({

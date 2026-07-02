@@ -25,6 +25,11 @@ const COLLAPSED_ROWS = 2;
 const COLLAPSED_COLUMNS = 2;
 const COLLAPSED_COUNT = COLLAPSED_ROWS * COLLAPSED_COLUMNS;
 
+// Mastered topics are shown as compact rows, not full tiles, and paged in
+// batches — a child with 100 mastered topics shouldn't render 100 112px
+// tiles the moment they open the <details>.
+const MASTERED_PAGE_SIZE = 10;
+
 /**
  * The child's personalized world map of knowledge (docs/05). Explored topics are
  * lit, mastered ones stamped, and suggested neighbours invite the next tap. The
@@ -34,6 +39,7 @@ const COLLAPSED_COUNT = COLLAPSED_ROWS * COLLAPSED_COLUMNS;
  */
 export function WorldMap({ nodes, onSelect, onDismiss }: WorldMapProps) {
   const [expanded, setExpanded] = useState(false);
+  const [masteredShown, setMasteredShown] = useState(MASTERED_PAGE_SIZE);
 
   if (nodes.length === 0) return null;
 
@@ -47,6 +53,9 @@ export function WorldMap({ nodes, onSelect, onDismiss }: WorldMapProps) {
   const hasMore = active.length > COLLAPSED_COUNT;
   const visible = expanded ? active : active.slice(0, COLLAPSED_COUNT);
   const remaining = active.length - COLLAPSED_COUNT;
+
+  const masteredVisible = mastered.slice(0, masteredShown);
+  const masteredRemaining = mastered.length - masteredShown;
 
   return (
     <section
@@ -67,6 +76,7 @@ export function WorldMap({ nodes, onSelect, onDismiss }: WorldMapProps) {
               <TopicNode
                 title={node.title}
                 state={toNodeState(node)}
+                kind={node.kind}
                 onSelect={() => onSelect(node)}
                 onDismiss={onDismiss ? () => onDismiss(node) : undefined}
               />
@@ -93,17 +103,38 @@ export function WorldMap({ nodes, onSelect, onDismiss }: WorldMapProps) {
             ⭐ {mastered.length} topic{mastered.length === 1 ? "" : "s"}{" "}
             mastered
           </summary>
-          <ul className="mt-4 grid list-none grid-cols-2 gap-4 sm:grid-cols-3">
-            {mastered.map((node) => (
-              <li key={node.topicSlug} className="flex">
-                <TopicNode
-                  title={node.title}
-                  state={toNodeState(node)}
-                  onSelect={() => onSelect(node)}
-                />
+          <ul className="mt-3 flex list-none flex-col divide-y divide-surface-rule">
+            {masteredVisible.map((node) => (
+              <li key={node.topicSlug}>
+                <button
+                  type="button"
+                  onClick={() => onSelect(node)}
+                  className="flex w-full items-center gap-2 py-3 text-left transition-colors hover:bg-surface-ink/5"
+                >
+                  <span aria-hidden="true" className="text-base leading-none">
+                    🏅
+                  </span>
+                  <span className="flex-1 font-body text-sm text-surface-ink">
+                    {node.title}
+                  </span>
+                  <span className="font-body text-xs text-surface-ink-soft">
+                    Mastered
+                  </span>
+                </button>
               </li>
             ))}
           </ul>
+          {masteredRemaining > 0 && (
+            <Button
+              type="button"
+              variant="ghost"
+              size="md"
+              className="mt-2 w-full"
+              onClick={() => setMasteredShown((n) => n + MASTERED_PAGE_SIZE)}
+            >
+              Show {Math.min(MASTERED_PAGE_SIZE, masteredRemaining)} more
+            </Button>
+          )}
         </details>
       )}
     </section>

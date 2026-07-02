@@ -8,12 +8,9 @@
 import { and, asc, eq, inArray } from "drizzle-orm";
 import { db } from "@/lib/db";
 import { mapNodes, topicProgress } from "@/lib/db/schema";
-import type { MapNodeView } from "./nodeState";
+import type { MapNodeView, SuggestionKind } from "./nodeState";
 
-/** A suggestion's pool: LLM neighbour of what was just explored, or a curated,
- * unrelated starter offered for breadth. Caps below keep the map from growing
- * into an unbounded, all-one-flavor pile (docs/05). */
-export type SuggestionKind = "deep" | "diverse";
+export type { SuggestionKind };
 
 const SUGGESTION_CAPS: Record<SuggestionKind, number> = {
   deep: 8,
@@ -30,6 +27,7 @@ export async function getChildMap(childId: string): Promise<MapNodeView[]> {
       topicSlug: mapNodes.topicSlug,
       title: mapNodes.title,
       status: mapNodes.status,
+      kind: mapNodes.kind,
     })
     .from(mapNodes)
     .where(eq(mapNodes.childId, childId));
@@ -57,6 +55,7 @@ export async function getChildMap(childId: string): Promise<MapNodeView[]> {
       title: n.title,
       status: n.status === "explored" ? "explored" : "suggested",
       mastered: masteredSlugs.has(n.topicSlug),
+      kind: n.kind === "deep" || n.kind === "diverse" ? n.kind : null,
     }));
 }
 

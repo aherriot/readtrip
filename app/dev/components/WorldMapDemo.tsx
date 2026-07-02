@@ -6,11 +6,13 @@ import type { MapNodeView, TopicNodeState } from "@/lib/map/nodeState";
 
 // The map lives on the night/play surface; render the demo there so the glow +
 // aqua/gold accents read as intended. Handlers are no-ops — this is a gallery.
-const STATES: TopicNodeState[] = [
-  "locked",
-  "suggested",
-  "explored",
-  "mastered",
+// `suggested` gets two entries (deep/diverse) since the kind changes its badge.
+const NODE_VARIANTS: { state: TopicNodeState; kind?: "deep" | "diverse" }[] = [
+  { state: "locked" },
+  { state: "suggested", kind: "deep" },
+  { state: "suggested", kind: "diverse" },
+  { state: "explored" },
+  { state: "mastered" },
 ];
 
 const SAMPLE_NODES: MapNodeView[] = [
@@ -19,36 +21,42 @@ const SAMPLE_NODES: MapNodeView[] = [
     title: "Dinosaurs",
     status: "explored",
     mastered: true,
+    kind: "deep",
   },
   {
     topicSlug: "volcanoes",
     title: "Volcanoes",
     status: "explored",
     mastered: false,
+    kind: "deep",
   },
   {
     topicSlug: "outer-space",
     title: "Outer Space",
     status: "suggested",
     mastered: false,
+    kind: "deep",
   },
   {
     topicSlug: "sharks",
     title: "Sharks",
     status: "suggested",
     mastered: false,
+    kind: "deep",
   },
   {
     topicSlug: "the-human-body",
     title: "The Human Body",
     status: "suggested",
     mastered: false,
+    kind: "diverse",
   },
   {
     topicSlug: "wild-weather",
     title: "Wild Weather",
     status: "suggested",
     mastered: false,
+    kind: "diverse",
   },
 ];
 
@@ -63,9 +71,14 @@ export function WorldMapDemo() {
         <p className="font-display text-xs tracking-wide text-surface-ink-soft uppercase">
           TopicNode — every state (icon + word + color)
         </p>
-        <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
-          {STATES.map((state) => (
-            <TopicNode key={state} title="Volcanoes" state={state} />
+        <div className="grid grid-cols-2 gap-4 sm:grid-cols-5">
+          {NODE_VARIANTS.map(({ state, kind }) => (
+            <TopicNode
+              key={`${state}-${kind ?? ""}`}
+              title="Volcanoes"
+              state={state}
+              kind={kind}
+            />
           ))}
         </div>
       </div>
