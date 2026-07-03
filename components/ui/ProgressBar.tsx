@@ -58,7 +58,7 @@ export function ProgressBar({
         aria-valuemin={0}
         aria-valuemax={100}
         aria-valuetext={`${rounded}%`}
-        className="relative h-3 w-full overflow-hidden rounded-pill bg-surface-ink/15"
+        className="relative h-3 w-full overflow-hidden rounded-pill bg-surface-ink/(--tint-soft)"
       >
         <div
           className={cn(

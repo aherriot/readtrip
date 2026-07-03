@@ -85,7 +85,7 @@ export function Modal({
               type="button"
               onClick={onClose}
               aria-label="Close"
-              className="-mr-1 -mt-1 flex h-11 w-11 shrink-0 items-center justify-center rounded-pill text-surface-ink-soft hover:bg-surface-ink/10"
+              className="-mr-1 -mt-1 flex h-11 w-11 shrink-0 items-center justify-center rounded-pill text-surface-ink-soft hover:bg-surface-ink/(--tint-wash)"
             >
               <svg
                 viewBox="0 0 20 20"

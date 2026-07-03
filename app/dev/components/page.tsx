@@ -95,7 +95,13 @@ const ACCENTS: Swatch[] = [
     name: "coral",
     token: "--coral",
     meta: "#FF6B5C",
-    note: "Secondary · retry",
+    note: "Wrong answer · delete",
+  },
+  {
+    name: "orchid",
+    token: "--orchid",
+    meta: "#D65DB1",
+    note: "Secondary · playful",
   },
   {
     name: "aqua",
@@ -179,7 +185,7 @@ const SEMANTIC: Swatch[] = [
   {
     name: "focus-ring",
     token: "--focus-ring",
-    meta: "#FFD24B",
+    meta: "= sun",
     note: "Focus indicator",
   },
 ];
@@ -347,7 +353,7 @@ function PrimitiveTokens() {
               <div key={r.name} className="flex flex-col items-center gap-2">
                 <div
                   className={cn(
-                    "h-16 w-16 border border-surface-rule bg-surface-accent/25",
+                    "h-16 w-16 border border-surface-rule bg-surface-accent/(--tint-fill)",
                     r.cls
                   )}
                 />
@@ -534,6 +540,7 @@ function BadgeVariants() {
         <div className="flex flex-wrap items-center gap-3">
           <Badge tone="leaf">Leaf</Badge>
           <Badge tone="coral">Coral</Badge>
+          <Badge tone="orchid">Orchid</Badge>
           <Badge tone="aqua">Aqua</Badge>
           <Badge tone="violet">Violet</Badge>
           <Badge tone="sky">Sky</Badge>

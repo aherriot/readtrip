@@ -37,7 +37,7 @@ export function XPBar({ xp, className }: XPBarProps) {
   return (
     <div className={cn("flex items-center gap-3", className)}>
       <span
-        className="shrink-0 rounded-pill bg-sun/20 px-3 py-1 font-display text-sm font-semibold whitespace-nowrap text-surface-ink"
+        className="shrink-0 rounded-pill bg-sun/(--tint-fill) px-3 py-1 font-display text-sm font-semibold whitespace-nowrap text-surface-ink"
         // The number is echoed in the progress bar's live summary below; keep
         // this chip out of the a11y tree so it isn't announced twice.
         aria-hidden="true"

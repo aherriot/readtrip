@@ -23,9 +23,9 @@ export interface QuizChoiceProps {
 const stateStyles: Record<QuizChoiceState, string> = {
   default:
     "border-surface-rule bg-surface-panel not-disabled:hover:border-surface-accent",
-  selected: "border-surface-accent bg-surface-accent/10",
-  correct: "border-leaf bg-leaf/20",
-  retry: "border-coral bg-coral/15",
+  selected: "border-surface-accent bg-surface-accent/(--tint-wash)",
+  correct: "border-leaf bg-leaf/(--tint-fill)",
+  retry: "border-coral bg-coral/(--tint-soft)",
 };
 
 type Feedback = { icon: string; label: string; tone: BadgeTone };

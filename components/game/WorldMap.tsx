@@ -140,7 +140,7 @@ export function WorldMap({ nodes, onSelect, onDismiss }: WorldMapProps) {
                 <button
                   type="button"
                   onClick={() => onSelect(node)}
-                  className="flex w-full items-center gap-2 py-3 text-left transition-colors hover:bg-surface-ink/5"
+                  className="flex w-full items-center gap-2 py-3 text-left transition-colors hover:bg-surface-ink/(--tint-wash)"
                 >
                   <span aria-hidden="true" className="text-base leading-none">
                     🏅

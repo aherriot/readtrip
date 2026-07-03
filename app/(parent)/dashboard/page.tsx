@@ -71,7 +71,7 @@ function ModelMix({ metrics }: { metrics: DashboardMetrics }) {
               </Text>
             </div>
             <div
-              className="h-2 w-full overflow-hidden rounded-pill bg-surface-ink/10"
+              className="h-2 w-full overflow-hidden rounded-pill bg-surface-ink/(--tint-wash)"
               role="presentation"
             >
               <div

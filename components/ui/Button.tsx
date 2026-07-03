@@ -65,10 +65,10 @@ const variantStyles: Record<ButtonVariant, string> = {
     "border-2 border-transparent bg-sun text-[var(--ink)] not-disabled:hover:brightness-95",
   // Outline that reads on either surface; fills softly on hover (never hover-only meaning).
   secondary:
-    "border-2 border-coral text-surface-ink bg-transparent not-disabled:hover:bg-coral/15",
+    "border-2 border-orchid text-surface-ink bg-transparent not-disabled:hover:bg-orchid/(--tint-soft)",
   // Quiet, for tertiary actions; still a real focusable button.
   ghost:
-    "border-2 border-transparent bg-transparent text-surface-ink not-disabled:hover:bg-surface-ink/10",
+    "border-2 border-transparent bg-transparent text-surface-ink not-disabled:hover:bg-surface-ink/(--tint-wash)",
 };
 
 const sizeStyles: Record<ButtonSize, string> = {
