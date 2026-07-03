@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { Text } from "@/components/ui/Text";
@@ -42,6 +42,26 @@ export function QuizCard({
   const [triedWrong, setTriedWrong] = useState<Set<number>>(new Set());
   const [solved, setSolved] = useState(false);
   const [answered, setAnswered] = useState(false);
+  const topRef = useRef<HTMLDivElement>(null);
+  const advanceRef = useRef<HTMLButtonElement>(null);
+
+  // This card remounts fresh per question (see QuizRunner's `key={index}`), so
+  // scroll back to the prompt each time — otherwise the viewport stays where
+  // the previous question's advance button was, below the new question.
+  useEffect(() => {
+    topRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+  }, []);
+
+  // The advance button only appears once solved, and can land below the fold
+  // on longer questions — bring it into view rather than making the child hunt.
+  useEffect(() => {
+    if (solved) {
+      advanceRef.current?.scrollIntoView({
+        behavior: "smooth",
+        block: "nearest",
+      });
+    }
+  }, [solved]);
 
   function choose(index: number) {
     if (solved || triedWrong.has(index)) return;
@@ -66,6 +86,7 @@ export function QuizCard({
 
   return (
     <Card elevated padding="lg" className="flex w-full flex-col gap-5">
+      <div ref={topRef} />
       <Text size="sm" tone="soft">
         Question {questionNumber} of {totalQuestions}
       </Text>
@@ -92,7 +113,7 @@ export function QuizCard({
       <div aria-live="polite" className="flex flex-col gap-4">
         {solved && (
           <>
-            <Button onClick={onAdvance}>
+            <Button ref={advanceRef} onClick={onAdvance}>
               {isLast ? "Finish" : "Next question"}
             </Button>
           </>
