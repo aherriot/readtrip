@@ -29,7 +29,7 @@ export async function suggestTopics(
     model,
     system: TOPIC_MAP_SYSTEM,
     user: topicMapUserPrompt(opts),
-    maxTokens: 400,
+    maxTokens: 500,
     effort: pickEffort("topic_map"),
     childId: opts.childId ?? null,
   });
@@ -37,7 +37,11 @@ export async function suggestTopics(
   const parsed = TopicSuggestionsSchema.safeParse(extractJson(text));
   if (!parsed.success) return [];
 
-  // Defensive: never surface a topic the child already explored.
-  const explored = new Set(opts.exploredSlugs ?? []);
-  return parsed.data.suggestions.filter((s) => !explored.has(s.topicSlug));
+  // Defensive: never surface a topic the child already explored or dismissed,
+  // even though the prompt already asks the model to avoid both.
+  const avoid = new Set([
+    ...(opts.exploredSlugs ?? []),
+    ...(opts.dismissedSlugs ?? []),
+  ]);
+  return parsed.data.suggestions.filter((s) => !avoid.has(s.topicSlug));
 }

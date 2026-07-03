@@ -53,10 +53,14 @@ export const TopicSuggestionsSchema = z.object({
           .min(1)
           .max(80)
           .regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/),
+        // "neighbor": connects naturally to the current/seed topic. "different":
+        // deliberate breadth, unrelated to it — keeps the map from narrowing
+        // entirely onto one interest (docs/05).
+        kind: z.enum(["neighbor", "different"]),
       })
     )
     .min(1)
-    .max(6),
+    .max(8),
 });
 export type TopicSuggestions = z.infer<typeof TopicSuggestionsSchema>;
 
