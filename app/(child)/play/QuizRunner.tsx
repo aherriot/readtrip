@@ -279,6 +279,17 @@ function SteerResult({
   // until the child dismisses it. This is the XP/game level — reading-level
   // changes are parent-approved and never surface to the child.
   const [levelUpDismissed, setLevelUpDismissed] = useState(false);
+  const actionsRef = useRef<HTMLDivElement>(null);
+
+  // The reward (arriving async) or the deepening form toggle can both push
+  // these actions below the fold — bring them back into view rather than
+  // leaving the child scrolled to wherever the quiz left off.
+  useEffect(() => {
+    actionsRef.current?.scrollIntoView({
+      behavior: "smooth",
+      block: "nearest",
+    });
+  }, [reward, deepening]);
 
   function submitFollowUp(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -328,7 +339,10 @@ function SteerResult({
             autoComplete="off"
             maxLength={200}
           />
-          <div className="flex flex-wrap justify-center gap-3">
+          <div
+            ref={actionsRef}
+            className="flex flex-wrap justify-center gap-3 scroll-mb-8"
+          >
             <Button type="submit">Go deeper</Button>
             <Button
               type="button"
@@ -341,7 +355,10 @@ function SteerResult({
           </div>
         </form>
       ) : (
-        <div className="flex flex-wrap justify-center gap-3">
+        <div
+          ref={actionsRef}
+          className="flex flex-wrap justify-center gap-3 scroll-mb-8"
+        >
           <Button onClick={() => setDeepening(true)}>Go deeper</Button>
           <Button variant="secondary" size="md" onClick={onExplore}>
             Explore something new
