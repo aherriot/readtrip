@@ -33,6 +33,17 @@ export interface TopicMapRequest {
   dismissedSlugs?: string[];
 }
 
+// A long-running child's explored/dismissed history can grow to hundreds of
+// slugs. Sending the whole thing bloats the prompt for no real benefit — the
+// most recent history is what's actually predictive of "already covered" —
+// and a runaway-long avoid-list only raises the odds the model's own reply
+// gets tangled up in it. Keep the most recent entries only.
+const MAX_AVOID_SLUGS = 40;
+
+function recentSlugs(slugs: string[]): string[] {
+  return slugs.slice(-MAX_AVOID_SLUGS);
+}
+
 export function topicMapUserPrompt(req: TopicMapRequest): string {
   const lines = req.currentTitle
     ? [`The child just explored: "${req.currentTitle}".`]
@@ -41,12 +52,12 @@ export function topicMapUserPrompt(req: TopicMapRequest): string {
       ];
   if (req.exploredSlugs && req.exploredSlugs.length > 0) {
     lines.push(
-      `They have already explored these (do not suggest them again): ${req.exploredSlugs.join(", ")}.`
+      `They have already explored these (do not suggest them again): ${recentSlugs(req.exploredSlugs).join(", ")}.`
     );
   }
   if (req.dismissedSlugs && req.dismissedSlugs.length > 0) {
     lines.push(
-      `They were offered these before and dismissed them without exploring (avoid these and similar topics): ${req.dismissedSlugs.join(", ")}.`
+      `They were offered these before and dismissed them without exploring (avoid these and similar topics): ${recentSlugs(req.dismissedSlugs).join(", ")}.`
     );
   }
   lines.push("", "Suggest where to go next as JSON now.");
