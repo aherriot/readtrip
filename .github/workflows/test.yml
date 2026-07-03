@@ -12,9 +12,9 @@ concurrency:
 
 jobs:
   # Fast static checks: no DB, no browsers. Runs typecheck, lint, prettier,
-  # design-system parity, and unit tests in parallel (via `npm run check` →
-  # run-p), so a typo fails in seconds without waiting on a Neon branch. Runs
-  # concurrently with the e2e and visual jobs below.
+  # and design-system parity in parallel (via `npm run check:static` → run-p),
+  # so a typo fails in seconds without waiting on a Neon branch. Runs
+  # concurrently with the unit, e2e, and visual jobs below.
   static:
     runs-on: ubuntu-latest
     steps:
@@ -28,10 +28,28 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      # typecheck + lint + format:check + check:design-system + test:unit,
+      # typecheck + lint + format:check + check:design-system + check:tint-scale,
       # aggregated so every failure is reported in one pass.
       - name: Static checks
-        run: npm run check
+        run: npm run check:static
+
+  # Unit tests: no DB, no browsers, but reported as their own check so they
+  # don't get lost inside the static aggregate.
+  unit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version-file: ".nvmrc"
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Unit tests
+        run: npm run test:unit
 
   # End-to-end leg: needs a real Next.js server + Postgres, so it owns the Neon
   # branch and Playwright browsers. Kept separate from `static` so the fast
