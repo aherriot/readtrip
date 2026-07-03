@@ -1,11 +1,11 @@
 // The calibration mini-game's adaptive logic (docs/04). A lightweight
-// binary-search over the 1..5 reading-level scale:
+// binary-search over the 1..7 reading-level scale:
 //
-//   start at L3
+//   start at L4
 //     correct → step up one level (cap the step at 1 to avoid overshoot)
 //     wrong   → step down one level
 //
-// It shows 2–3 passages and lands on a *starting* level; ongoing quiz-based
+// It shows 3–4 passages and lands on a *starting* level; ongoing quiz-based
 // adaptation refines it from there. Pure and unit-tested — no I/O, no DB. The
 // passages + grading live in ./passages and ./flow; this only reasons over the
 // sequence of graded answers.
@@ -14,11 +14,14 @@ import {
   type ReadingLevel,
 } from "../llm/prompts/readingLevel";
 
-/** Guessed starting level before we know anything (docs/04 default). */
-export const CALIBRATION_START_LEVEL: ReadingLevel = 3;
+/** Guessed starting level before we know anything (docs/04 default — the
+ * midpoint of the 1..7 scale). */
+export const CALIBRATION_START_LEVEL: ReadingLevel = 4;
 
-/** Never show more than this many passages — 2–3 is enough for a start point. */
-export const CALIBRATION_MAX_ROUNDS = 3;
+/** Never show more than this many passages. With a 7-level scale and a
+ * midpoint start, reaching either extreme takes 3 steps, so this leaves one
+ * spare round rather than cutting off exactly at the edge. */
+export const CALIBRATION_MAX_ROUNDS = 4;
 
 export interface CalibrationAnswer {
   level: ReadingLevel;

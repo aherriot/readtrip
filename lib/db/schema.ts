@@ -94,7 +94,7 @@ export const children = pgTable("Child", {
   avatarConfig: jsonb("avatarConfig").notNull(), // cosmetic items unlocked / equipped
 
   // Progression
-  readingLevel: integer("readingLevel").default(3).notNull(), // 1..5, see docs/04
+  readingLevel: integer("readingLevel").default(4).notNull(), // 1..7, see docs/04
   xp: integer("xp").default(0).notNull(),
   level: integer("level").default(1).notNull(),
 

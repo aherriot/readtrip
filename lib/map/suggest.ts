@@ -9,6 +9,7 @@
 import { cannedTopicSuggestions } from "@/lib/llm/cannedTopics";
 import { suggestTopics } from "@/lib/llm";
 import { isLlmOffline } from "@/lib/llm/client";
+import type { ReadingLevel } from "@/lib/llm/prompts/readingLevel";
 import { filterSafeTopics } from "@/lib/safety";
 import {
   getChildMap,
@@ -37,6 +38,7 @@ export async function refreshSuggestions(input: {
   childId: string;
   topicSlug: string;
   title: string;
+  readingLevel: ReadingLevel;
 }): Promise<void> {
   const map = await getChildMap(input.childId);
   const exploredSlugs = map
@@ -46,6 +48,7 @@ export async function refreshSuggestions(input: {
 
   const suggestions = await modelSuggestions({
     childId: input.childId,
+    readingLevel: input.readingLevel,
     seed: { slug: input.topicSlug, title: input.title },
     exploredSlugs,
     dismissedSlugs,
@@ -65,7 +68,10 @@ export async function refreshSuggestions(input: {
  * been explored and dismissed so it doesn't repeat itself. Called on every
  * map read, so a freshly-emptied map never renders with zero tiles to tap.
  */
-export async function ensureSuggestions(childId: string): Promise<void> {
+export async function ensureSuggestions(
+  childId: string,
+  readingLevel: ReadingLevel
+): Promise<void> {
   const map = await getChildMap(childId);
   if (map.some((n) => n.status === "suggested")) return;
 
@@ -77,6 +83,7 @@ export async function ensureSuggestions(childId: string): Promise<void> {
 
   const suggestions = await modelSuggestions({
     childId,
+    readingLevel,
     seed: lastExplored
       ? { slug: lastExplored.topicSlug, title: lastExplored.title }
       : null,
@@ -98,6 +105,7 @@ export async function ensureSuggestions(childId: string): Promise<void> {
  * from), which asks for breadth topics instead. */
 async function modelSuggestions(input: {
   childId: string;
+  readingLevel: ReadingLevel;
   seed: { slug: string; title: string } | null;
   exploredSlugs: string[];
   dismissedSlugs: string[];
@@ -110,6 +118,7 @@ async function modelSuggestions(input: {
       )
     : await suggestTopics({
         currentTitle: input.seed?.title,
+        readingLevel: input.readingLevel,
         exploredSlugs: input.exploredSlugs,
         dismissedSlugs: input.dismissedSlugs,
         childId: input.childId,

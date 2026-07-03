@@ -48,9 +48,9 @@ describe("nextCalibrationLevel", () => {
   it("ends when a step would leave the scale (ceiling)", () => {
     expect(
       nextCalibrationLevel([
-        { level: 3, correct: true },
-        { level: 4, correct: true },
         { level: 5, correct: true },
+        { level: 6, correct: true },
+        { level: 7, correct: true },
       ])
     ).toBeNull();
   });
@@ -66,7 +66,7 @@ describe("nextCalibrationLevel", () => {
   });
 
   it("never shows more than the max number of rounds", () => {
-    for (let trueLevel = 1; trueLevel <= 5; trueLevel++) {
+    for (let trueLevel = 1; trueLevel <= 7; trueLevel++) {
       expect(simulate(trueLevel).shown.length).toBeLessThanOrEqual(
         CALIBRATION_MAX_ROUNDS
       );
@@ -104,7 +104,7 @@ describe("finalCalibrationLevel", () => {
   });
 
   it("recovers the child's true level across the whole scale", () => {
-    for (let trueLevel = 1; trueLevel <= 5; trueLevel++) {
+    for (let trueLevel = 1; trueLevel <= 7; trueLevel++) {
       expect(simulate(trueLevel).final).toBe(trueLevel);
     }
   });

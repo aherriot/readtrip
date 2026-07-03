@@ -32,6 +32,16 @@ export const CALIBRATION_PASSAGES: Record<ReadingLevel, CalibrationPassage> = {
   1: {
     id: "passage-l1",
     level: 1,
+    emoji: "🐱",
+    title: "The Cat",
+    text: "See the cat. The cat is soft. The cat says meow.",
+    question: "What does the cat say?",
+    options: ["Meow", "Woof", "Moo"],
+    answerIndex: 0,
+  },
+  2: {
+    id: "passage-l2",
+    level: 2,
     emoji: "☀️",
     title: "The Sun",
     text: "The sun is very big. It is a giant ball of fire. The sun gives us light. It also keeps us warm.",
@@ -39,9 +49,9 @@ export const CALIBRATION_PASSAGES: Record<ReadingLevel, CalibrationPassage> = {
     options: ["Light", "Rain", "Snow"],
     answerIndex: 0,
   },
-  2: {
-    id: "passage-l2",
-    level: 2,
+  3: {
+    id: "passage-l3",
+    level: 3,
     emoji: "🐝",
     title: "Busy Bees",
     text: "Bees are busy little insects. They live together in a hive. Bees fly to many flowers. They gather sweet nectar. Then they turn it into honey.",
@@ -49,9 +59,9 @@ export const CALIBRATION_PASSAGES: Record<ReadingLevel, CalibrationPassage> = {
     options: ["Bread", "Honey", "Milk"],
     answerIndex: 1,
   },
-  3: {
-    id: "passage-l3",
-    level: 3,
+  4: {
+    id: "passage-l4",
+    level: 4,
     emoji: "🌋",
     title: "Volcanoes",
     text: "Volcanoes are mountains that can erupt. When they do, hot melted rock pours out. This rock is called lava. Lava glows bright orange because it is so hot. When it cools, it becomes hard rock again.",
@@ -63,9 +73,9 @@ export const CALIBRATION_PASSAGES: Record<ReadingLevel, CalibrationPassage> = {
     ],
     answerIndex: 1,
   },
-  4: {
-    id: "passage-l4",
-    level: 4,
+  5: {
+    id: "passage-l5",
+    level: 5,
     emoji: "🐙",
     title: "Clever Octopuses",
     text: "Octopuses are among the cleverest creatures in the ocean. They have eight bendy arms lined with tiny suckers that grip almost anything. To hide from hungry predators, an octopus can change the color of its skin in a single second. Some can even squeeze their soft bodies through a gap no wider than a coin.",
@@ -77,9 +87,9 @@ export const CALIBRATION_PASSAGES: Record<ReadingLevel, CalibrationPassage> = {
     ],
     answerIndex: 0,
   },
-  5: {
-    id: "passage-l5",
-    level: 5,
+  6: {
+    id: "passage-l6",
+    level: 6,
     emoji: "🏔️",
     title: "Rivers of Ice",
     text: "Glaciers are colossal rivers of ice that form over centuries as fallen snow is pressed into dense, solid ice. Although they look completely still, glaciers actually creep downhill with astonishing slowness, scraping against the rock beneath them. Over thousands of years, this relentless grinding can gouge out entire valleys and reshape whole mountain ranges.",
@@ -90,6 +100,21 @@ export const CALIBRATION_PASSAGES: Record<ReadingLevel, CalibrationPassage> = {
       "By melting during summer storms",
     ],
     answerIndex: 1,
+  },
+  7: {
+    id: "passage-l7",
+    level: 7,
+    emoji: "🕳️",
+    title: "Collapsing Stars",
+    text: "A black hole forms when a massive star runs out of fuel and collapses under its own gravity, crushing its matter into an impossibly small point. The resulting gravitational pull is so intense that nothing, not even light, can escape once it crosses a boundary called the event horizon. Paradoxically, astronomers detect these invisible objects not by seeing them directly, but by observing how they warp light and fling nearby matter into blazing, superheated disks.",
+    question:
+      "How do astronomers detect black holes if light can't escape them?",
+    options: [
+      "By observing how they warp light and affect nearby matter",
+      "By listening for a loud roaring sound",
+      "By waiting for the black hole to glow on its own",
+    ],
+    answerIndex: 0,
   },
 };
 

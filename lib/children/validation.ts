@@ -24,7 +24,7 @@ export interface ChildInput {
   displayName: string;
   avatarColor: AvatarColor;
   /**
-   * Manually chosen reading level (1..5). Omitted on the create form — a new
+   * Manually chosen reading level (1..7). Omitted on the create form — a new
    * child's starting level comes from the calibration mini-game — and present
    * only when the parent edits the level directly.
    */

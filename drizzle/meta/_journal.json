@@ -50,6 +50,13 @@
       "when": 1783009054185,
       "tag": "0006_burly_human_robot",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1783110867762,
+      "tag": "0007_condemned_sleepwalker",
+      "breakpoints": true
     }
   ]
 }

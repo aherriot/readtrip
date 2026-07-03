@@ -6,6 +6,7 @@ import { Card } from "@/components/ui/Card";
 import { Heading } from "@/components/ui/Heading";
 import { Input } from "@/components/ui/Input";
 import { Modal } from "@/components/ui/Modal";
+import { Select } from "@/components/ui/Select";
 import { Text } from "@/components/ui/Text";
 import { cn } from "@/lib/ui/cn";
 import type { ChildProfile } from "@/lib/children/queries";
@@ -19,10 +20,7 @@ import {
   updateChildAction,
   type ProfileFormState,
 } from "./actions";
-import {
-  MAX_READING_LEVEL,
-  MIN_READING_LEVEL,
-} from "@/lib/llm/prompts/readingLevel";
+import { READING_LEVEL_OPTIONS } from "@/lib/llm/prompts/readingLevel";
 
 const FORM_IDLE: ProfileFormState = { status: "idle" };
 
@@ -258,19 +256,20 @@ function ChildForm({
         <ColorPicker defaultColor={child?.avatarColor ?? "aqua"} />
 
         {isEdit && (
-          <Input
+          <Select
             label="Reading level"
             name="readingLevel"
-            type="number"
-            inputMode="numeric"
-            min={MIN_READING_LEVEL}
-            max={MAX_READING_LEVEL}
-            step={1}
             defaultValue={child?.readingLevel ?? ""}
             size="md"
             required
-            hint={`${MIN_READING_LEVEL} (early reader) to ${MAX_READING_LEVEL} (advanced). Set this yourself anytime — it won't change on its own.`}
-          />
+            hint="Set this yourself anytime — it won't change on its own."
+          >
+            {READING_LEVEL_OPTIONS.map((option) => (
+              <option key={option.level} value={option.level}>
+                Level {option.level} · {option.ageBand} — {option.description}
+              </option>
+            ))}
+          </Select>
         )}
 
         {state.status === "error" && (
