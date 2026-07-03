@@ -1,4 +1,5 @@
 import { expect, test } from "@playwright/test";
+import { revealTopic } from "../helpers";
 
 /*
  * Warm up the local dev environment before the real specs fan out.
@@ -102,6 +103,7 @@ test("warm up the Neon branch and every route the suite hits", async ({
   // trip), so it needs its own hit too — and carries the loop through
   // /api/lesson, /api/quiz, and the finish-time /api/steer, /api/progress,
   // /api/map trio.
+  await revealTopic(page, /dinosaurs tap to explore/i);
   await page.getByRole("button", { name: /dinosaurs tap to explore/i }).click();
   await expect(
     page.getByRole("button", { name: /start the quiz/i })

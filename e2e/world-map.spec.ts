@@ -1,4 +1,5 @@
 import { expect, test, type Page } from "@playwright/test";
+import { revealTopic } from "./helpers";
 
 // The World map (docs/09 M4): the /play home is a personalized map of knowledge.
 // A new explorer's map is seeded with curated starter topics as "suggested"
@@ -49,7 +50,9 @@ test("a new map seeds suggested starter topics", async ({ page }) => {
   await expect(
     page.getByRole("heading", { name: /your world map/i })
   ).toBeVisible();
-  // Curated starters are seeded as tappable "suggested" nodes.
+  // Curated starters are seeded as tappable "suggested" nodes. Tile order is
+  // randomized, so Dinosaurs may sit behind "Show more" — reveal it first.
+  await revealTopic(page, /dinosaurs tap to explore/i);
   await expect(
     page.getByRole("button", { name: /dinosaurs tap to explore/i })
   ).toBeVisible();
@@ -66,6 +69,7 @@ test("exploring a map node lights it up as explored on return", async ({
   await reachMap(page);
 
   // Tap the Dinosaurs node → the lesson streams for that known topic.
+  await revealTopic(page, /dinosaurs tap to explore/i);
   await page.getByRole("button", { name: /dinosaurs tap to explore/i }).click();
   await expect(
     page.getByRole("region", { name: /lesson about dinosaurs/i })
@@ -108,6 +112,7 @@ test("dismissing a suggested topic permanently removes it from the map", async (
 }) => {
   await reachMap(page);
 
+  await revealTopic(page, /dinosaurs tap to explore/i);
   await expect(
     page.getByRole("button", { name: /dinosaurs tap to explore/i })
   ).toBeVisible();

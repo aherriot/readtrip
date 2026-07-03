@@ -1,4 +1,5 @@
 import { expect, test, type Page } from "@playwright/test";
+import { revealTopic } from "./helpers";
 
 // The Steer step (docs/09 M4): after finishing the quiz, the child chooses where
 // to go next — a "go deeper" follow-up that threads a new loop onto the one they
@@ -11,6 +12,7 @@ import { expect, test, type Page } from "@playwright/test";
 // the 2-question canned quiz correctly through to its result screen. Reusable so
 // a test can replay the *same* topic to build up per-topic progress.
 async function playDinosaursToDone(page: Page) {
+  await revealTopic(page, /dinosaurs tap to explore/i);
   await page.getByRole("button", { name: /dinosaurs tap to explore/i }).click();
   await expect(
     page.getByRole("button", { name: /start the quiz/i })

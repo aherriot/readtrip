@@ -1,4 +1,5 @@
 import { expect, test, type Page } from "@playwright/test";
+import { revealTopic } from "./helpers";
 
 // The quiz step (docs/09 M4): after the lesson, the child taps "Start the quiz",
 // /api/quiz generates a schema-valid quiz (and persists the Loop), and QuizCard
@@ -45,6 +46,7 @@ async function reachLessonDone(page: Page) {
   await input.fill("");
 
   // Suggestion → lesson streams → done state offers the quiz.
+  await revealTopic(page, /dinosaurs tap to explore/i);
   await page.getByRole("button", { name: /dinosaurs tap to explore/i }).click();
   await expect(
     page.getByRole("region", { name: /lesson about dinosaurs/i })

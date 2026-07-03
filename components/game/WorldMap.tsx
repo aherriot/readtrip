@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { Button } from "@/components/ui/Button";
 import { Heading } from "@/components/ui/Heading";
 import { Text } from "@/components/ui/Text";
@@ -33,18 +33,21 @@ const MASTERED_PAGE_SIZE = 10;
 /**
  * The child's personalized world map of knowledge (docs/05). Explored topics are
  * lit, mastered ones stamped, and suggested neighbours invite the next tap. The
- * "map" is rendered as a real list of buttons in a meaningful order (explored
- * first), which doubles as the screen-reader-friendly list view — it's never
- * purely spatial (a11y floor, docs/10). Lives on the night/play surface.
+ * "map" is rendered as a real list of buttons — randomized (see `orderNodes`) so
+ * explored ground doesn't perpetually crowd out new/dive tiles — which doubles
+ * as the screen-reader-friendly list view; it's never purely spatial (a11y
+ * floor, docs/10). Lives on the night/play surface.
  */
 export function WorldMap({ nodes, onSelect, onDismiss }: WorldMapProps) {
   const [expanded, setExpanded] = useState(false);
   const [masteredShown, setMasteredShown] = useState(MASTERED_PAGE_SIZE);
   const [masteredOpen, setMasteredOpen] = useState(false);
+  // Randomized once per node set, not on every re-render — otherwise toggling
+  // "Show more" or dismissing a topic (both local state changes on the same
+  // `nodes` prop) would reshuffle every tile out from under the child mid-tap.
+  const ordered = useMemo(() => orderNodes(nodes), [nodes]);
 
   if (nodes.length === 0) return null;
-
-  const ordered = orderNodes(nodes);
   // Mastered topics are "ground already covered" — keep them off the main map so
   // it doesn't grow into screens of scrolling, and tuck them behind a count the
   // child can expand. Everything still-to-do (explored + suggested) stays on top.

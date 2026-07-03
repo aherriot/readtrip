@@ -458,25 +458,30 @@ test.describe("WorldMap / TopicNode — accessibility contract", () => {
   test("more active topics than two rows sit behind a 'show more' toggle", async ({
     page,
   }) => {
+    // WorldMap's order is randomized (see lib/map/nodeState.ts orderNodes), so
+    // which of the 5 sample nodes lands as the 5th/hidden one varies run to
+    // run — assert the reveal/hide behavior by count, not by a fixed title.
     const toggle = region(page).getByRole("button", {
       name: /show 1 more topic/i,
     });
-    const node = region(page).getByRole("button", {
-      name: "Wild Weather Tap to explore",
-    });
-    await expect(node).toBeHidden();
+    const list = region(page).getByRole("list");
+    await expect(list.getByRole("listitem")).toHaveCount(4);
     await toggle.click();
-    await expect(node).toBeVisible();
+    await expect(list.getByRole("listitem")).toHaveCount(5);
     await region(page)
       .getByRole("button", { name: /show fewer topics/i })
       .click();
-    await expect(node).toBeHidden();
+    await expect(list.getByRole("listitem")).toHaveCount(4);
   });
 
   test("a node shows a visible focus ring when focused", async ({ page }) => {
-    const node = region(page).getByRole("button", {
-      name: "Outer Space Tap to explore",
-    });
+    // Any of the always-visible-first-four nodes will do; ordering is
+    // randomized, so don't pin this to a specific title (see above).
+    const node = region(page)
+      .getByRole("list")
+      .getByRole("listitem")
+      .first()
+      .getByRole("button");
     await node.focus();
     await expect(node).toBeFocused();
     const outlineWidth = await node.evaluate(

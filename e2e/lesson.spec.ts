@@ -1,4 +1,5 @@
 import { expect, test, type Page } from "@playwright/test";
+import { revealTopic } from "./helpers";
 
 // The lesson step (docs/09 M4): once a topic is resolved, /api/lesson streams a
 // level-appropriate lesson onto the field-journal reading surface. Real
@@ -52,6 +53,7 @@ test("tapping a suggestion streams a lesson onto the reading surface", async ({
 }) => {
   await reachExplore(page);
 
+  await revealTopic(page, /dinosaurs tap to explore/i);
   await page.getByRole("button", { name: /dinosaurs tap to explore/i }).click();
 
   // The reading view opens with the topic as its title...
@@ -96,8 +98,8 @@ test("the child can leave a lesson and explore something new", async ({
 }) => {
   await reachExplore(page);
 
-  // Outer Space, not Volcanoes: the map collapses to its first two rows by
-  // default (docs/10 density), and Volcanoes sorts past that cutoff.
+  // Tile order is randomized, so Outer Space may sit behind "Show more".
+  await revealTopic(page, /outer space tap to explore/i);
   await page
     .getByRole("button", { name: /outer space tap to explore/i })
     .click();
