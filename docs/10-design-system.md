@@ -46,16 +46,17 @@ text / UI).
 
 ### Night-sky (play) surface
 
-| Token              | Hex       | Use                           |
-| ------------------ | --------- | ----------------------------- |
-| `--bg-night`       | `#1B1F3B` | Map / play canvas             |
-| `--bg-night-panel` | `#2A2F55` | Cards/panels on night         |
-| `--ink-on-night`   | `#F4F2FF` | Text on night (≈15:1 ✓)       |
-| `--sun`            | `#FFC24B` | Primary action, XP (marigold) |
-| `--coral`          | `#FF6B5C` | Secondary / playful accent    |
-| `--aqua`           | `#36D6C3` | "Explored" / discovery        |
-| `--leaf`           | `#7BD66A` | Success / correct             |
-| `--violet`         | `#B388FF` | Tertiary accent / magic       |
+| Token              | Hex       | Use                                                                    |
+| ------------------ | --------- | ---------------------------------------------------------------------- |
+| `--bg-night`       | `#1B1F3B` | Map / play canvas                                                      |
+| `--bg-night-panel` | `#2A2F55` | Cards/panels on night                                                  |
+| `--ink-on-night`   | `#F4F2FF` | Text on night (≈15:1 ✓)                                                |
+| `--sun`            | `#FFC24B` | Primary action, XP (marigold)                                          |
+| `--berry`          | `#FF6FA5` | Secondary / playful accent                                             |
+| `--coral`          | `#FF6B5C` | Wrong answer / delete only — reads as a warning, not a plain secondary |
+| `--aqua`           | `#36D6C3` | "Explored" / discovery                                                 |
+| `--leaf`           | `#7BD66A` | Success / correct                                                      |
+| `--violet`         | `#B388FF` | Tertiary accent / magic                                                |
 
 > Bright accents are for **fills and large elements** on the dark canvas, not small text.
 > Buttons use a bright fill with **dark ink on top** (e.g. ink `#22263F` on `--sun` ≈9:1 ✓).
@@ -68,7 +69,7 @@ text / UI).
 | `--ink`      | `#22263F`                           | Body text (≈14:1 on paper ✓)                                 |
 | `--ink-soft` | `#4A4F6B`                           | Secondary text (≈7:1 ✓)                                      |
 | `--rule`     | `#E7E0D0`                           | Hairlines / dividers                                         |
-| accents      | reuse `--coral`, `--aqua`, `--leaf` | Highlights; always with a non-color cue too                  |
+| accents      | reuse `--berry`, `--aqua`, `--leaf` | Highlights; always with a non-color cue too                  |
 
 ### Semantic (works on both surfaces)
 
@@ -125,7 +126,7 @@ re-styling ad hoc.** Live in `components/ui` (primitives), `components/game`, an
 
 ### Primitives — `components/ui/`
 
-- **`Button`** — variants: `primary` (sun fill), `secondary` (coral outline), `ghost`;
+- **`Button`** — variants: `primary` (sun fill), `secondary` (berry outline), `ghost`;
   sizes `md` and `kid` (min 56–64px tall). Always renders a visible focus ring; never
   removes the outline. Icon-only buttons require an `aria-label`.
 - **`Card` / `Panel`** — surface-aware container (paper card vs. glowing night panel).

@@ -31,19 +31,50 @@ These re-resolve automatically under `data-surface="night|paper"`.
 | `text-surface-ink`      | `--surface-ink`      | Body text                                            |
 | `text-surface-ink-soft` | `--surface-ink-soft` | Secondary text, hints, placeholders                  |
 | `border-surface-rule`   | `--surface-rule`     | Hairlines, dividers, input borders                   |
-| `*-surface-accent`      | `--surface-accent`   | The surface's accent (aqua on night, coral on paper) |
+| `*-surface-accent`      | `--surface-accent`   | The surface's accent (aqua on night, berry on paper) |
 
 `--surface-elevation` is a CSS var (glow on night, soft shadow on paper) — use as
 `boxShadow: "var(--surface-elevation)"` or an arbitrary utility.
 
 ## Accent palette (surface-independent)
 
-`sun` (primary/XP), `coral` (secondary), `aqua` (discovery / "deep" suggestions), `leaf`
-(success), `violet` (magic / "new" breadth), `sky` (in-progress / "exploring" tiles) →
-utilities `bg-sun`, `text-coral`, `border-aqua`, `border-sky`, …
+`sun` (primary/XP), `berry` (secondary / playful), `coral` (wrong answer, delete — **not** a
+plain secondary color; it reads as an alarm/negative), `aqua` (discovery / "deep"
+suggestions), `leaf` (success), `violet` (magic / "new" breadth), `sky` (in-progress /
+"exploring" tiles) → utilities `bg-sun`, `text-berry`, `border-aqua`, `border-sky`, …
+
+> `coral` is reserved for danger-adjacent meaning: a wrong quiz answer, a delete action. For
+> any other secondary/emphasis use (a secondary button, an underline, a playful accent that
+> isn't warning of anything), reach for `berry` instead — it's the same visual weight without
+> the negative connotation.
 
 > Bright accents are for **fills and large elements**, not small text. Buttons use a bright
 > fill with **dark ink on top** (e.g. ink on `sun`).
+
+## Tint scale (translucent fills)
+
+Never hand-write a one-off opacity fraction on a color utility (`bg-sun/[37%]`, `bg-coral/8`,
+…). Tint any token color by name, via Tailwind v4's CSS-variable opacity-modifier shorthand —
+`bg-<color>/(--tint-<step>)` — referencing one of these three named steps in
+[`styles/tokens.css`](../../../../styles/tokens.css):
+
+| Step          | Value | Use                                                                    |
+| ------------- | ----- | ---------------------------------------------------------------------- |
+| `--tint-wash` | 10%   | Hover backgrounds, faint overlays (ghost button hover, list-row hover) |
+| `--tint-soft` | 15%   | Secondary-emphasis fills (secondary button hover, quiz choice fill)    |
+| `--tint-fill` | 20%   | Badge/chip/pill fills                                                  |
+
+```tsx
+// ✅ named step — self-documenting, one place to retune the whole family
+<span className="bg-sun/(--tint-fill)" />
+// ❌ a bare number — no longer means anything, can't be told apart from a typo
+<span className="bg-sun/20" />
+```
+
+These apply to any color utility — accents (`bg-sun/(--tint-fill)`), surface accents
+(`bg-surface-accent/(--tint-wash)`), and ink (`bg-surface-ink/(--tint-wash)`) alike.
+`npm run check:tint-scale` fails CI if a numeric opacity modifier sneaks back in on a token
+color utility.
 
 ## Semantic
 

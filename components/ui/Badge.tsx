@@ -1,7 +1,8 @@
 import type { HTMLAttributes, ReactNode } from "react";
 import { cn } from "@/lib/ui/cn";
 
-export type BadgeTone = "leaf" | "coral" | "aqua" | "violet" | "sky" | "sun";
+export type BadgeTone =
+  "leaf" | "coral" | "berry" | "aqua" | "violet" | "sky" | "sun";
 export type BadgeSize = "sm" | "xs";
 export type BadgeVariant = "text" | "tag";
 
@@ -26,12 +27,13 @@ export interface BadgeProps extends HTMLAttributes<HTMLSpanElement> {
 // pill inherits `--surface-ink` and reads on either surface with no per-surface
 // styling.
 const toneStyles: Record<BadgeTone, string> = {
-  leaf: "border-leaf bg-leaf/20",
-  coral: "border-coral bg-coral/20",
-  aqua: "border-aqua bg-aqua/20",
-  violet: "border-violet bg-violet/20",
-  sky: "border-sky bg-sky/20",
-  sun: "border-sun bg-sun/20",
+  leaf: "border-leaf bg-leaf/(--tint-fill)",
+  coral: "border-coral bg-coral/(--tint-fill)",
+  berry: "border-berry bg-berry/(--tint-fill)",
+  aqua: "border-aqua bg-aqua/(--tint-fill)",
+  violet: "border-violet bg-violet/(--tint-fill)",
+  sky: "border-sky bg-sky/(--tint-fill)",
+  sun: "border-sun bg-sun/(--tint-fill)",
 };
 
 const sizeStyles: Record<BadgeSize, string> = {

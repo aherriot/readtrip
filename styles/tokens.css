@@ -15,11 +15,34 @@
 :root {
   /* --- Brand accent palette (surface-independent) --- */
   --sun: #ffc24b; /* primary action, XP (marigold) */
-  --coral: #ff6b5c; /* secondary / playful accent */
+  /* Wrong-answer / retry / delete accent ONLY — reads as an alarm color, so
+     never use it for a plain secondary choice. See --berry for that. */
+  --coral: #ff6b5c;
+  --berry: #ff6fa5; /* secondary / playful accent (distinct from --coral's danger meaning) */
   --aqua: #36d6c3; /* discovery / "deep" suggestions */
   --leaf: #7bd66a; /* success / correct */
   --violet: #b388ff; /* tertiary accent / magic, "new" breadth */
   --sky: #5ab6ff; /* in-progress / "exploring" (distinct from aqua + violet) */
+
+  /*
+   * Contrast-tuned tints of --coral for SMALL text/icons (coral itself fails
+   * AA at small sizes — see --surface-danger below). Named + grouped with the
+   * primitive they derive from, instead of appearing as bare hex elsewhere.
+   */
+  --coral-a11y-night: #ffa89e; /* ≈6.9:1 on the night panel ✓ */
+  --coral-a11y-paper: #b23a2e; /* ≈5.8:1 on paper ✓ */
+
+  /*
+   * Standard tint scale for translucent fills over a surface (badge/chip
+   * backgrounds, hover washes, soft borders). Referenced by name via
+   * Tailwind's CSS-variable opacity-modifier shorthand — `bg-sun/(--tint-fill)`
+   * — never a bare numeric fraction, so every tinted fill in the app is
+   * pulled from this one named scale. See tokens.md for which step to reach
+   * for; enforced by `npm run check:tint-scale`.
+   */
+  --tint-wash: 10%; /* hover backgrounds, faint overlays */
+  --tint-soft: 15%; /* secondary-emphasis fills (retry/correct choice) */
+  --tint-fill: 20%; /* badge/chip/pill fills */
 
   /* --- Night-sky (play) palette --- */
   --bg-night: #1b1f3b;
@@ -67,7 +90,7 @@
   --surface-panel: var(--bg-night-panel);
   --surface-ink: var(--ink-on-night);
   --surface-ink-soft: var(--ink-soft-on-night);
-  --surface-rule: rgba(244, 242, 255, 0.16);
+  --surface-rule: color-mix(in srgb, var(--ink-on-night) 16%, transparent);
   --surface-accent: var(--aqua);
   /*
    * Danger/retry as SMALL text + icons. `--retry` (coral) is a bright accent —
@@ -75,9 +98,9 @@
    * messages use this contrast-safe, surface-tuned variant instead. See
    * docs/10 ("accents are for fills/large elements, not small text").
    */
-  --surface-danger: #ffa89e; /* ≈6.9:1 on the night panel ✓ */
+  --surface-danger: var(--coral-a11y-night);
   /* On night, elevation is a colored glow, not a drop shadow. */
-  --surface-elevation: 0 0 24px rgba(54, 214, 195, 0.18);
+  --surface-elevation: 0 0 24px color-mix(in srgb, var(--aqua) 18%, transparent);
 }
 
 /* Re-assert night (so a nested night region inside paper resets correctly). */
@@ -86,10 +109,10 @@
   --surface-panel: var(--bg-night-panel);
   --surface-ink: var(--ink-on-night);
   --surface-ink-soft: var(--ink-soft-on-night);
-  --surface-rule: rgba(244, 242, 255, 0.16);
+  --surface-rule: color-mix(in srgb, var(--ink-on-night) 16%, transparent);
   --surface-accent: var(--aqua);
-  --surface-danger: #ffa89e;
-  --surface-elevation: 0 0 24px rgba(54, 214, 195, 0.18);
+  --surface-danger: var(--coral-a11y-night);
+  --surface-elevation: 0 0 24px color-mix(in srgb, var(--aqua) 18%, transparent);
 }
 
 /* Field-journal: calm, warm paper with soft low-contrast shadows. */
@@ -99,7 +122,7 @@
   --surface-ink: var(--ink);
   --surface-ink-soft: var(--ink-soft);
   --surface-rule: var(--rule);
-  --surface-accent: var(--coral);
-  --surface-danger: #b23a2e; /* ≈5.8:1 on paper ✓ */
-  --surface-elevation: 0 2px 10px rgba(34, 38, 63, 0.08);
+  --surface-accent: var(--berry);
+  --surface-danger: var(--coral-a11y-paper);
+  --surface-elevation: 0 2px 10px color-mix(in srgb, var(--ink) 8%, transparent);
 }

@@ -23,7 +23,7 @@ export function ExpeditionStamp({ title, className }: ExpeditionStampProps) {
       aria-label={`${title} Master badge`}
       className={cn(
         "flex h-28 w-28 -rotate-6 flex-col items-center justify-center gap-0.5 rounded-full text-center",
-        "border-4 border-dashed border-sun bg-sun/15 text-surface-ink",
+        "border-4 border-dashed border-sun bg-sun/(--tint-soft) text-surface-ink",
         "shadow-[0_0_26px_-6px_var(--sun)] motion-safe:animate-stamp",
         className
       )}

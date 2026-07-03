@@ -47,12 +47,14 @@ const STATE: Record<TopicNodeState, { label: string; className: string }> = {
     label: "Exploring",
     // Faint sky glow places it on a light ladder: suggested (flat) → exploring
     // (soft glow) → mastered (bright gold glow), so progress reads by light too.
-    className: "border-sky bg-sky/15 shadow-[0_0_14px_-7px_var(--sky)]",
+    className:
+      "border-sky bg-sky/(--tint-soft) shadow-[0_0_14px_-7px_var(--sky)]",
   },
   mastered: {
     label: "Mastered",
     // Gold glow sells the "expedition stamp" — a fill + shadow, never small text.
-    className: "border-sun bg-sun/15 shadow-[0_0_22px_-6px_var(--sun)]",
+    className:
+      "border-sun bg-sun/(--tint-soft) shadow-[0_0_22px_-6px_var(--sun)]",
   },
 };
 
@@ -174,7 +176,7 @@ export function TopicNode({
             setLeaving(true);
           }}
           aria-label={`Dismiss ${title}`}
-          className="absolute -right-2 -top-2 flex h-11 w-11 items-center justify-center rounded-pill bg-surface text-surface-ink-soft shadow-[var(--surface-elevation)] hover:bg-surface-ink/10"
+          className="absolute -right-2 -top-2 flex h-11 w-11 items-center justify-center rounded-pill bg-surface text-surface-ink-soft shadow-[var(--surface-elevation)] hover:bg-surface-ink/(--tint-wash)"
         >
           <svg
             viewBox="0 0 20 20"

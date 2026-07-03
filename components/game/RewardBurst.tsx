@@ -23,7 +23,7 @@ export function RewardBurst({ xp, className }: RewardBurstProps) {
     <div
       aria-live="polite"
       className={cn(
-        "inline-flex items-center gap-2 rounded-pill bg-sun/20 px-4 py-2",
+        "inline-flex items-center gap-2 rounded-pill bg-sun/(--tint-fill) px-4 py-2",
         "font-display text-lg font-semibold text-surface-ink",
         "motion-safe:animate-burst",
         className
