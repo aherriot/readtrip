@@ -43,24 +43,26 @@ export const QuizSchema = z.object({
 export type Quiz = z.infer<typeof QuizSchema>;
 
 // --- topic_map suggestions ---
-export const TopicSuggestionsSchema = z.object({
-  suggestions: z
-    .array(
-      z.object({
-        title: z.string().min(1).max(80),
-        topicSlug: z
-          .string()
-          .min(1)
-          .max(80)
-          .regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/),
-        // "neighbor": connects naturally to the current/seed topic. "different":
-        // deliberate breadth, unrelated to it — keeps the map from narrowing
-        // entirely onto one interest (docs/05).
-        kind: z.enum(["neighbor", "different"]),
-      })
-    )
+// Item-level schema, validated one suggestion at a time (see topicMap.ts) so
+// one malformed item (e.g. a `kind` typo) doesn't sink an otherwise-good batch
+// — with up to 8 items per response, requiring the whole array to validate at
+// once made a full-batch rejection far more likely than it's worth.
+export const TopicSuggestionSchema = z.object({
+  title: z.string().min(1).max(80),
+  topicSlug: z
+    .string()
     .min(1)
-    .max(8),
+    .max(80)
+    .regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/),
+  // "neighbor": connects naturally to the current/seed topic. "different":
+  // deliberate breadth, unrelated to it — keeps the map from narrowing
+  // entirely onto one interest (docs/05).
+  kind: z.enum(["neighbor", "different"]),
+});
+export type TopicSuggestion = z.infer<typeof TopicSuggestionSchema>;
+
+export const TopicSuggestionsSchema = z.object({
+  suggestions: z.array(TopicSuggestionSchema).min(1).max(8),
 });
 export type TopicSuggestions = z.infer<typeof TopicSuggestionsSchema>;
 
