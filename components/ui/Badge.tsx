@@ -2,7 +2,7 @@ import type { HTMLAttributes, ReactNode } from "react";
 import { cn } from "@/lib/ui/cn";
 
 export type BadgeTone =
-  "leaf" | "coral" | "berry" | "aqua" | "violet" | "sky" | "sun";
+  "leaf" | "coral" | "orchid" | "aqua" | "violet" | "sky" | "sun";
 export type BadgeSize = "sm" | "xs";
 export type BadgeVariant = "text" | "tag";
 
@@ -29,7 +29,7 @@ export interface BadgeProps extends HTMLAttributes<HTMLSpanElement> {
 const toneStyles: Record<BadgeTone, string> = {
   leaf: "border-leaf bg-leaf/(--tint-fill)",
   coral: "border-coral bg-coral/(--tint-fill)",
-  berry: "border-berry bg-berry/(--tint-fill)",
+  orchid: "border-orchid bg-orchid/(--tint-fill)",
   aqua: "border-aqua bg-aqua/(--tint-fill)",
   violet: "border-violet bg-violet/(--tint-fill)",
   sky: "border-sky bg-sky/(--tint-fill)",

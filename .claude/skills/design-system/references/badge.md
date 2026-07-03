@@ -36,20 +36,20 @@ import { Badge } from "@/components/ui/Badge";
 
 ## Props
 
-| Prop        | Type                                                     | Default  | Notes                                                                                                                                                                    |
-| ----------- | -------------------------------------------------------- | -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `children`  | `ReactNode`                                              | —        | The status word — the meaning. Keep it a word or two.                                                                                                                    |
-| `tone`      | `leaf \| coral \| berry \| aqua \| violet \| sky \| sun` | —        | Semantic accent → token border + soft fill. Pick by meaning, not by look. `coral` is wrong-answer/delete only; reach for `berry` for a secondary/playful accent instead. |
-| `size`      | `"sm" \| "xs"`                                           | `"sm"`   | `sm` in reading flow; `xs` for a compact corner marker.                                                                                                                  |
-| `variant`   | `"text" \| "tag"`                                        | `"text"` | `text` = sentence-case pill; `tag` = uppercase display eyebrow.                                                                                                          |
-| `icon`      | `ReactNode`                                              | —        | Optional leading glyph — **always decorative** (rendered `aria-hidden`).                                                                                                 |
-| `className` | `string`                                                 | —        | Layout / positioning. Also where the caller sets `aria-hidden` on the pill.                                                                                              |
+| Prop        | Type                                                      | Default  | Notes                                                                                                                                                                     |
+| ----------- | --------------------------------------------------------- | -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `children`  | `ReactNode`                                               | —        | The status word — the meaning. Keep it a word or two.                                                                                                                     |
+| `tone`      | `leaf \| coral \| orchid \| aqua \| violet \| sky \| sun` | —        | Semantic accent → token border + soft fill. Pick by meaning, not by look. `coral` is wrong-answer/delete only; reach for `orchid` for a secondary/playful accent instead. |
+| `size`      | `"sm" \| "xs"`                                            | `"sm"`   | `sm` in reading flow; `xs` for a compact corner marker.                                                                                                                   |
+| `variant`   | `"text" \| "tag"`                                         | `"text"` | `text` = sentence-case pill; `tag` = uppercase display eyebrow.                                                                                                           |
+| `icon`      | `ReactNode`                                               | —        | Optional leading glyph — **always decorative** (rendered `aria-hidden`).                                                                                                  |
+| `className` | `string`                                                  | —        | Layout / positioning. Also where the caller sets `aria-hidden` on the pill.                                                                                               |
 
 Any other `<span>` attribute (`aria-hidden`, `id`, …) is forwarded.
 
 ## Surfaces
 
-Tones are `--surface-*`-adjacent tokens (leaf, coral, berry, aqua, violet, sky, sun) and the text is
+Tones are `--surface-*`-adjacent tokens (leaf, coral, orchid, aqua, violet, sky, sun) and the text is
 `currentColor`, so a badge inherits `--surface-ink` and reads on both night and paper with no
 per-surface styling.
 

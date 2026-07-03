@@ -98,9 +98,9 @@ const ACCENTS: Swatch[] = [
     note: "Wrong answer · delete",
   },
   {
-    name: "berry",
-    token: "--berry",
-    meta: "#FF6FA5",
+    name: "orchid",
+    token: "--orchid",
+    meta: "#D65DB1",
     note: "Secondary · playful",
   },
   {
@@ -185,7 +185,7 @@ const SEMANTIC: Swatch[] = [
   {
     name: "focus-ring",
     token: "--focus-ring",
-    meta: "#FFD24B",
+    meta: "= sun",
     note: "Focus indicator",
   },
 ];
@@ -540,7 +540,7 @@ function BadgeVariants() {
         <div className="flex flex-wrap items-center gap-3">
           <Badge tone="leaf">Leaf</Badge>
           <Badge tone="coral">Coral</Badge>
-          <Badge tone="berry">Berry</Badge>
+          <Badge tone="orchid">Orchid</Badge>
           <Badge tone="aqua">Aqua</Badge>
           <Badge tone="violet">Violet</Badge>
           <Badge tone="sky">Sky</Badge>

@@ -24,28 +24,28 @@ Tailwind utilities by the `@theme inline` block in
 
 These re-resolve automatically under `data-surface="night|paper"`.
 
-| Utility                 | Token                | Use                                                  |
-| ----------------------- | -------------------- | ---------------------------------------------------- |
-| `bg-surface`            | `--surface-bg`       | Page / region background                             |
-| `bg-surface-panel`      | `--surface-panel`    | Cards, inputs, panels                                |
-| `text-surface-ink`      | `--surface-ink`      | Body text                                            |
-| `text-surface-ink-soft` | `--surface-ink-soft` | Secondary text, hints, placeholders                  |
-| `border-surface-rule`   | `--surface-rule`     | Hairlines, dividers, input borders                   |
-| `*-surface-accent`      | `--surface-accent`   | The surface's accent (aqua on night, berry on paper) |
+| Utility                 | Token                | Use                                                   |
+| ----------------------- | -------------------- | ----------------------------------------------------- |
+| `bg-surface`            | `--surface-bg`       | Page / region background                              |
+| `bg-surface-panel`      | `--surface-panel`    | Cards, inputs, panels                                 |
+| `text-surface-ink`      | `--surface-ink`      | Body text                                             |
+| `text-surface-ink-soft` | `--surface-ink-soft` | Secondary text, hints, placeholders                   |
+| `border-surface-rule`   | `--surface-rule`     | Hairlines, dividers, input borders                    |
+| `*-surface-accent`      | `--surface-accent`   | The surface's accent (aqua on night, orchid on paper) |
 
 `--surface-elevation` is a CSS var (glow on night, soft shadow on paper) — use as
 `boxShadow: "var(--surface-elevation)"` or an arbitrary utility.
 
 ## Accent palette (surface-independent)
 
-`sun` (primary/XP), `berry` (secondary / playful), `coral` (wrong answer, delete — **not** a
+`sun` (primary/XP), `orchid` (secondary / playful), `coral` (wrong answer, delete — **not** a
 plain secondary color; it reads as an alarm/negative), `aqua` (discovery / "deep"
 suggestions), `leaf` (success), `violet` (magic / "new" breadth), `sky` (in-progress /
-"exploring" tiles) → utilities `bg-sun`, `text-berry`, `border-aqua`, `border-sky`, …
+"exploring" tiles) → utilities `bg-sun`, `text-orchid`, `border-aqua`, `border-sky`, …
 
 > `coral` is reserved for danger-adjacent meaning: a wrong quiz answer, a delete action. For
 > any other secondary/emphasis use (a secondary button, an underline, a playful accent that
-> isn't warning of anything), reach for `berry` instead — it's the same visual weight without
+> isn't warning of anything), reach for `orchid` instead — it's the same visual weight without
 > the negative connotation.
 
 > Bright accents are for **fills and large elements**, not small text. Buttons use a bright

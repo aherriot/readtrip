@@ -52,7 +52,7 @@ text / UI).
 | `--bg-night-panel` | `#2A2F55` | Cards/panels on night                                                  |
 | `--ink-on-night`   | `#F4F2FF` | Text on night (≈15:1 ✓)                                                |
 | `--sun`            | `#FFC24B` | Primary action, XP (marigold)                                          |
-| `--berry`          | `#FF6FA5` | Secondary / playful accent                                             |
+| `--orchid`         | `#D65DB1` | Secondary / playful accent                                             |
 | `--coral`          | `#FF6B5C` | Wrong answer / delete only — reads as a warning, not a plain secondary |
 | `--aqua`           | `#36D6C3` | "Explored" / discovery                                                 |
 | `--leaf`           | `#7BD66A` | Success / correct                                                      |
@@ -63,21 +63,21 @@ text / UI).
 
 ### Field-journal (reading) surface
 
-| Token        | Hex                                 | Use                                                          |
-| ------------ | ----------------------------------- | ------------------------------------------------------------ |
-| `--paper`    | `#FFFCF5`                           | Reading background (warm, but lighter than the cream cliché) |
-| `--ink`      | `#22263F`                           | Body text (≈14:1 on paper ✓)                                 |
-| `--ink-soft` | `#4A4F6B`                           | Secondary text (≈7:1 ✓)                                      |
-| `--rule`     | `#E7E0D0`                           | Hairlines / dividers                                         |
-| accents      | reuse `--berry`, `--aqua`, `--leaf` | Highlights; always with a non-color cue too                  |
+| Token        | Hex                                  | Use                                                          |
+| ------------ | ------------------------------------ | ------------------------------------------------------------ |
+| `--paper`    | `#FFFCF5`                            | Reading background (warm, but lighter than the cream cliché) |
+| `--ink`      | `#22263F`                            | Body text (≈14:1 on paper ✓)                                 |
+| `--ink-soft` | `#4A4F6B`                            | Secondary text (≈7:1 ✓)                                      |
+| `--rule`     | `#E7E0D0`                            | Hairlines / dividers                                         |
+| accents      | reuse `--orchid`, `--aqua`, `--leaf` | Highlights; always with a non-color cue too                  |
 
 ### Semantic (works on both surfaces)
 
-| Token          | Maps to                           | Meaning                                                 |
-| -------------- | --------------------------------- | ------------------------------------------------------- |
-| `--correct`    | `--leaf`                          | Right answer (always paired with ✓ icon + label)        |
-| `--retry`      | `--coral`                         | Try-again (never "wrong"/red-scary; paired with ↻ icon) |
-| `--focus-ring` | `#FFD24B` outer + `#1B1F3B` inner | High-contrast focus indicator                           |
+| Token          | Maps to                            | Meaning                                                 |
+| -------------- | ---------------------------------- | ------------------------------------------------------- |
+| `--correct`    | `--leaf`                           | Right answer (always paired with ✓ icon + label)        |
+| `--retry`      | `--coral`                          | Try-again (never "wrong"/red-scary; paired with ↻ icon) |
+| `--focus-ring` | `--sun` outer + `--bg-night` inner | High-contrast focus indicator                           |
 
 ## Typography
 
@@ -126,7 +126,7 @@ re-styling ad hoc.** Live in `components/ui` (primitives), `components/game`, an
 
 ### Primitives — `components/ui/`
 
-- **`Button`** — variants: `primary` (sun fill), `secondary` (berry outline), `ghost`;
+- **`Button`** — variants: `primary` (sun fill), `secondary` (orchid outline), `ghost`;
   sizes `md` and `kid` (min 56–64px tall). Always renders a visible focus ring; never
   removes the outline. Icon-only buttons require an `aria-label`.
 - **`Card` / `Panel`** — surface-aware container (paper card vs. glowing night panel).
