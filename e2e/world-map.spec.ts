@@ -1,5 +1,5 @@
 import { expect, test, type Page } from "@playwright/test";
-import { revealTopic } from "./helpers";
+import { reachExplore, revealTopic } from "./helpers";
 
 // The World map (docs/09 M4): the /play home is a personalized map of knowledge.
 // A new explorer's map is seeded with curated starter topics as "suggested"
@@ -10,38 +10,11 @@ import { revealTopic } from "./helpers";
 
 // Sign in → add a child → calibrate → land on the /play world map.
 async function reachMap(page: Page) {
-  const email = `e2e-map-${Date.now()}@example.com`;
-
-  await page.goto("/sign-in");
-  await page.getByPlaceholder("parent@example.com").fill(email);
-  await page.getByPlaceholder("Alex").fill("Map Parent");
-  await page.getByRole("button", { name: /dev sign-in/i }).click();
-
-  await expect(page).toHaveURL(/\/profiles/);
-  await page.getByRole("button", { name: /add an explorer/i }).click();
-  const dialog = page.getByRole("dialog");
-  await dialog.getByLabel("Name").fill("Wren");
-  await dialog.getByRole("button", { name: /create explorer/i }).click();
-
-  await page.getByRole("button", { name: /Wren/ }).click();
-  await expect(page).toHaveURL(/\/play\/calibrate/);
-  await page.getByRole("button", { name: /let's go/i }).click();
-
-  for (const passage of [/volcanoes/i, /busy bees/i, /the sun/i]) {
-    await expect(page.getByRole("heading", { name: passage })).toBeVisible();
-    await page.getByRole("button").first().click();
-  }
-  await page.getByRole("link", { name: /start exploring/i }).click();
-  await expect(page).toHaveURL(/\/play$/);
-
-  // Wait for the Explore island to hydrate before interacting.
-  await expect(async () => {
-    await page.getByLabel(/what do you want to explore/i).fill("ready?");
-    await expect(page.getByRole("button", { name: /^explore$/i })).toBeEnabled({
-      timeout: 1000,
-    });
-  }).toPass();
-  await page.getByLabel(/what do you want to explore/i).fill("");
+  await reachExplore(page, {
+    emailPrefix: "map",
+    parentName: "Map Parent",
+    childName: "Wren",
+  });
 }
 
 test("a new map seeds suggested starter topics", async ({ page }) => {

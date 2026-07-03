@@ -1,5 +1,5 @@
-import { expect, test, type Page } from "@playwright/test";
-import { revealTopic } from "./helpers";
+import { expect, test } from "@playwright/test";
+import { reachExplore, revealTopic } from "./helpers";
 
 // The Explore screen is the child's home once calibrated: free-form entry plus a
 // few curated suggestions to jump straight in. Free-form input hits the live LLM
@@ -7,53 +7,16 @@ import { revealTopic } from "./helpers";
 // concept that resolves client-side without a model call — and the rendering /
 // wiring around it. Needs a real Next server + DB (dev-credentials sign-in).
 
-// Sign in as a fresh parent, create a child, play through calibration, and land
-// on the Explore home. Tapping the first option each round is deterministic:
-// L3 wrong → L2 wrong → L1 correct → done.
-async function reachExplore(page: Page) {
-  const email = `e2e-explore-${Date.now()}@example.com`;
+const CHILD = {
+  emailPrefix: "explore",
+  parentName: "Explore Parent",
+  childName: "Nadia",
+};
 
-  await page.goto("/sign-in");
-  await page.getByPlaceholder("parent@example.com").fill(email);
-  await page.getByPlaceholder("Alex").fill("Explore Parent");
-  await page.getByRole("button", { name: /dev sign-in/i }).click();
-
-  await expect(page).toHaveURL(/\/profiles/);
-  await page.getByRole("button", { name: /add an explorer/i }).click();
-  const dialog = page.getByRole("dialog");
-  await dialog.getByLabel("Name").fill("Nadia");
-  await dialog.getByRole("button", { name: /create explorer/i }).click();
-
-  await page.getByRole("button", { name: /Nadia/ }).click();
-  await expect(page).toHaveURL(/\/play\/calibrate/);
-  await page.getByRole("button", { name: /let's go/i }).click();
-
-  // Wait for each passage to render before answering, or the clicks race the
-  // re-render. First option each round is the deterministic wrong→wrong→right path.
-  for (const passage of [/volcanoes/i, /busy bees/i, /the sun/i]) {
-    await expect(page.getByRole("heading", { name: passage })).toBeVisible();
-    await page.getByRole("button").first().click();
-  }
-  await page.getByRole("link", { name: /start exploring/i }).click();
-  await expect(page).toHaveURL(/\/play$/);
-
-  // The Explore island loads via a full navigation; wait for it to hydrate before
-  // the test interacts, or the first click/keystroke races the handler attaching.
-  // Typing enables the (server-rendered-disabled) Explore button only once React
-  // is live — use that as the hydration signal, then reset to idle.
-  const input = page.getByLabel(/what do you want to explore/i);
-  const exploreButton = page.getByRole("button", { name: /^explore$/i });
-  await expect(async () => {
-    await input.fill("ready?");
-    await expect(exploreButton).toBeEnabled({ timeout: 1000 });
-  }).toPass();
-  await input.fill("");
-}
-
-test("shows free-form entry plus suggested topics to jump into", async ({
+test("shows free-form entry plus suggested topics, with the Explore button gated on input", async ({
   page,
 }) => {
-  await reachExplore(page);
+  await reachExplore(page, CHILD);
 
   await expect(page.getByLabel(/what do you want to explore/i)).toBeVisible();
 
@@ -68,12 +31,6 @@ test("shows free-form entry plus suggested topics to jump into", async ({
   await expect(
     page.getByRole("button", { name: /outer space tap to explore/i })
   ).toBeVisible();
-});
-
-test("the Explore button stays disabled until something is typed", async ({
-  page,
-}) => {
-  await reachExplore(page);
 
   const exploreButton = page.getByRole("button", { name: /^explore$/i });
   await expect(exploreButton).toBeDisabled();
@@ -87,7 +44,7 @@ test("the Explore button stays disabled until something is typed", async ({
 test("tapping a suggestion resolves straight into a lesson", async ({
   page,
 }) => {
-  await reachExplore(page);
+  await reachExplore(page, CHILD);
 
   await revealTopic(page, /dinosaurs tap to explore/i);
   await page.getByRole("button", { name: /dinosaurs tap to explore/i }).click();
