@@ -7,6 +7,7 @@
 import { auth } from "@/lib/auth";
 import { getChild } from "@/lib/children/queries";
 import { getSelectedChildId } from "@/lib/children/selection";
+import { clampReadingLevel } from "@/lib/llm/prompts/readingLevel";
 import { recordExploredTopic } from "@/lib/map/queries";
 import { refreshSuggestions } from "@/lib/map/suggest";
 import { slugify } from "@/lib/llm";
@@ -73,6 +74,7 @@ export async function POST(request: Request) {
       childId,
       topicSlug: body.topicSlug,
       title: body.title,
+      readingLevel: clampReadingLevel(child.readingLevel),
     });
   } catch (err) {
     console.error("[map] failed to refresh suggestions:", err);

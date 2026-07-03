@@ -69,8 +69,8 @@ describe("adaptReadingLevel", () => {
   });
 
   it("never steps above the max or below the min level", () => {
-    expect(adaptReadingLevel(5, scores(5, [100, 100, 100]))).toEqual({
-      readingLevel: 5,
+    expect(adaptReadingLevel(7, scores(7, [100, 100, 100]))).toEqual({
+      readingLevel: 7,
       direction: null,
     });
     expect(adaptReadingLevel(1, scores(1, [0, 0, 0]))).toEqual({

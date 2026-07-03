@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { requireParent } from "@/lib/auth/session";
 import { getChild } from "@/lib/children/queries";
 import { getSelectedChildId } from "@/lib/children/selection";
+import { clampReadingLevel } from "@/lib/llm/prompts/readingLevel";
 import { getChildMap } from "@/lib/map/queries";
 import { ensureSuggestions } from "@/lib/map/suggest";
 import { ExploreEntry } from "./ExploreEntry";
@@ -29,7 +30,7 @@ export default async function PlayPage() {
   // nothing "suggested" to tap — a brand-new explorer, or one who's dismissed
   // or explored their way through everything offered so far — so the map is
   // never rendered empty.
-  await ensureSuggestions(child.id);
+  await ensureSuggestions(child.id, clampReadingLevel(child.readingLevel));
   const nodes = await getChildMap(child.id);
 
   return (

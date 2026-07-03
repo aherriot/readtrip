@@ -1,46 +1,54 @@
 # 04 — Reading Levels (calibration + adaptation)
 
-ReadTrip targets a wide age range (~5–12) with one adaptive product. The reading level is
+ReadTrip targets a wide age range (~3–14) with one adaptive product. The reading level is
 the dial that makes that possible. It's set by a **calibration mini-game** and then
 **continuously refined** from quiz performance.
 
 ## The reading-level scale
 
 Use a small, ordered set of internal levels rather than ages (a 7-year-old may read like
-a 9-year-old). Five tiers cover the range:
+a 9-year-old). Seven tiers cover the range:
 
 | Level | Rough band          | Style guidance fed to the LLM                                                    |
 | ----- | ------------------- | -------------------------------------------------------------------------------- |
-| L1    | Early reader (~5–6) | Very short sentences, common words, lots of concrete imagery, one idea at a time |
-| L2    | Emerging (~6–7)     | Short sentences, simple connectives, gentle new vocabulary with context          |
-| L3    | Developing (~8–9)   | Multi-sentence ideas, some domain words defined inline, simple cause/effect      |
-| L4    | Fluent (~9–11)      | Paragraphs, richer vocabulary, comparisons and analogies                         |
-| L5    | Advanced (~11–13)   | Nuance, multiple linked ideas, light abstraction, precise terms                  |
+| L1    | Toddler (~3–4)      | A handful of words per sentence, only the most basic everyday vocabulary         |
+| L2    | Early reader (~5)   | Very short sentences, common words, lots of concrete imagery, one idea at a time |
+| L3    | Emerging (~6–7)     | Short sentences, simple connectives, gentle new vocabulary with context          |
+| L4    | Developing (~8–9)   | Multi-sentence ideas, some domain words defined inline, simple cause/effect      |
+| L5    | Fluent (~10)        | Paragraphs, richer vocabulary, comparisons and analogies                         |
+| L6    | Advanced (~11–12)   | Nuance, multiple linked ideas, light abstraction, precise terms                  |
+| L7    | Early teen (~13–14) | Complex sentences, abstract/academic vocabulary, more nuanced or mature topics   |
 
-The level is a parameter in every lesson/quiz prompt. The _content_ adapts; the topic
-doesn't dumb down — a volcano is a volcano at every level.
+The level is a parameter in every lesson/quiz prompt, **and** in the topic-map suggestion
+prompt — higher levels are offered more complex or mature (but still wholesome) topics, not
+just harder wording of the same ones. The _content_ adapts; a topic itself doesn't dumb
+down at the low end — a volcano is a volcano at every level.
 
 ## Calibration mini-game (first session)
 
 Framed as "find your reading superpower," never as a test.
 
-1. Show a short passage at a guessed starting level (default L2–L3).
+1. Show a short passage at a guessed starting level (default L4, the midpoint).
 2. Ask **one** one-tap comprehension question about it.
-3. Adjust up or down and show a second (and optionally third) passage.
-4. Land on a starting level after 2–3 passages.
+3. Adjust up or down and show up to three more passages.
+4. Land on a starting level after 3–4 passages.
 
 It's a lightweight **binary-search**: correct + quick → step up; wrong or slow → step
-down. 2–3 rounds is enough for a confident _starting_ point; the rest is handled by
+down. 3–4 rounds is enough for a confident _starting_ point; the rest is handled by
 ongoing adaptation.
 
 ```
-start at L3
-  pass → try L4
-    pass → start at L4 (cap step at 1 to avoid overshoot)
-    fail → start at L3
-  fail → try L2
-    pass → start at L2
-    fail → start at L1
+start at L4
+  pass → try L5
+    pass → try L6
+      pass → start at L6 (cap step at 1 to avoid overshoot)
+      fail → start at L5
+    fail → start at L4
+  fail → try L3
+    pass → start at L3
+    fail → try L2
+      pass → start at L2
+      fail → start at L1
 ```
 
 Passages can be pre-generated and cached per level (they don't change per child), so

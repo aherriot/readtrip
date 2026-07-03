@@ -85,7 +85,7 @@ describe("validateChildInput", () => {
   });
 
   it("rejects an out-of-range or non-integer reading level", () => {
-    for (const readingLevel of ["0", "6", "-1", "2.5", "abc"]) {
+    for (const readingLevel of ["0", "8", "-1", "2.5", "abc"]) {
       const result = validateChildInput({
         displayName: "Ada",
         avatarColor: "aqua",

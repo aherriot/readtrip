@@ -28,7 +28,7 @@ test("a child calibrates, lands on a reading level, and isn't asked again", asyn
   await page.getByRole("button", { name: /let's go/i }).click();
 
   // The adaptive path is deterministic when we tap the *first* option each time:
-  // L3 (wrong) → L2 (wrong) → L1 (correct) → done, landing on reading level 1.
+  // L4 (wrong) → L3 (wrong) → L2 (correct) → done, landing on reading level 2.
   await expect(page.getByRole("heading", { name: /volcanoes/i })).toBeVisible();
   await page.getByRole("button").first().click();
 
@@ -51,7 +51,7 @@ test("a child calibrates, lands on a reading level, and isn't asked again", asyn
   await page.getByRole("button", { name: /switch explorer/i }).click();
   await expect(page).toHaveURL(/\/profiles/);
   await expect(page.getByRole("button", { name: /Bram/ })).toContainText(
-    /reading 1/i
+    /reading 2/i
   );
 
   // Re-entering doesn't repeat calibration — it's a one-time first run.
