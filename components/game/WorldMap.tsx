@@ -33,9 +33,10 @@ const MASTERED_PAGE_SIZE = 10;
 /**
  * The child's personalized world map of knowledge (docs/05). Explored topics are
  * lit, mastered ones stamped, and suggested neighbours invite the next tap. The
- * "map" is rendered as a real list of buttons in a meaningful order (explored
- * first), which doubles as the screen-reader-friendly list view — it's never
- * purely spatial (a11y floor, docs/10). Lives on the night/play surface.
+ * "map" is rendered as a real list of buttons — randomized (see `orderNodes`) so
+ * explored ground doesn't perpetually crowd out new/dive tiles — which doubles
+ * as the screen-reader-friendly list view; it's never purely spatial (a11y
+ * floor, docs/10). Lives on the night/play surface.
  */
 export function WorldMap({ nodes, onSelect, onDismiss }: WorldMapProps) {
   const [expanded, setExpanded] = useState(false);
