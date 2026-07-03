@@ -7,6 +7,7 @@ import { Heading } from "@/components/ui/Heading";
 import { Icon } from "@/components/ui/Icon";
 import { Input } from "@/components/ui/Input";
 import { ProgressBar } from "@/components/ui/ProgressBar";
+import { Select } from "@/components/ui/Select";
 import { Spinner } from "@/components/ui/Spinner";
 import { Text } from "@/components/ui/Text";
 import { cn } from "@/lib/ui/cn";
@@ -726,6 +727,48 @@ function InputVariants() {
   );
 }
 
+function SelectVariants() {
+  return (
+    <div className="flex flex-col gap-6">
+      <Variant title="Default (kid size)">
+        <Select
+          label="Reading level"
+          defaultValue={4}
+          hint="Set this yourself anytime — it won't change on its own."
+        >
+          <option value={3}>Level 3 · Ages 6–7 — 1st–2nd grade</option>
+          <option value={4}>Level 4 · Ages 8–9 — 3rd–4th grade</option>
+          <option value={5}>Level 5 · Age 10 — 5th grade</option>
+        </Select>
+      </Variant>
+      <Variant title="Error (icon + text + color)">
+        <Select
+          label="Favorite color"
+          defaultValue=""
+          error="Pick a color to continue."
+        >
+          <option value="" disabled>
+            Choose one…
+          </option>
+          <option value="aqua">Aqua</option>
+          <option value="coral">Coral</option>
+        </Select>
+      </Variant>
+      <Variant title="Hidden label + md size (dense)">
+        <Select label="Sort by" hideLabel size="md" defaultValue="recent">
+          <option value="recent">Most recent</option>
+          <option value="name">Name</option>
+        </Select>
+      </Variant>
+      <Variant title="Disabled">
+        <Select label="Locked field" defaultValue="a" disabled>
+          <option value="a">Can&apos;t change me</option>
+        </Select>
+      </Variant>
+    </div>
+  );
+}
+
 export default function ComponentGallery() {
   return (
     <main
@@ -781,6 +824,10 @@ export default function ComponentGallery() {
 
         <Section name="Input">
           <InputVariants />
+        </Section>
+
+        <Section name="Select">
+          <SelectVariants />
         </Section>
 
         {/* Modal manages its own open state, so it gets a bespoke section with

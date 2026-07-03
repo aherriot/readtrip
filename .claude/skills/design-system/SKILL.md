@@ -48,6 +48,7 @@ into `components/` and replace its row with a reference when you do).
 | ---------------- | ------------------------------------ | ------------------------------------------------------------------------------------ |
 | `Badge`          | ✅ [ref](references/badge.md)        | A compact status pill (icon + word + color) — quiz feedback, map-node status/kind.   |
 | `Input`          | ✅ [ref](references/input.md)        | Single-line text/number entry in a form (sign-in, profile name, search).             |
+| `Select`         | ✅ [ref](references/select.md)       | Choosing one of several fixed, described options in an adult form (reading level).   |
 | `Button`         | ✅ [ref](references/button.md)       | Any action/submit. Variants primary/secondary/ghost; `kid` size for child controls.  |
 | `Card` (`Panel`) | ✅ [ref](references/card.md)         | Group related content in a surface-aware container; `elevated` is the Panel look.    |
 | `Heading`        | ✅ [ref](references/heading.md)      | Headings on the type scale with the right semantic level.                            |
