@@ -1,8 +1,9 @@
 // Topic-map suggestions. LLM output, so it passes through the same
 // age-appropriateness guardrails as lessons/quizzes (docs/07) via the system
-// prompt, and is filtered against already-explored slugs. Returns validated
-// suggestions; on malformed output returns an empty list so the map degrades
-// gracefully rather than crashing.
+// prompt, and is filtered against already-explored/dismissed slugs. Each
+// suggestion is validated independently (see below) and malformed items are
+// dropped rather than failing; a response with no valid items at all returns
+// an empty list so the map degrades gracefully rather than crashing.
 import { callModel } from "./client";
 import {
   TOPIC_MAP_SYSTEM,
@@ -11,8 +12,8 @@ import {
 } from "./prompts/topicMap";
 import { pickEffort, pickModel } from "./router";
 import {
-  type TopicSuggestions,
-  TopicSuggestionsSchema,
+  type TopicSuggestion,
+  TopicSuggestionSchema,
   extractJson,
 } from "./schemas";
 
@@ -22,7 +23,7 @@ export interface TopicMapOptions extends TopicMapRequest {
 
 export async function suggestTopics(
   opts: TopicMapOptions
-): Promise<TopicSuggestions["suggestions"]> {
+): Promise<TopicSuggestion[]> {
   const model = pickModel("topic_map");
   const { text } = await callModel({
     task: "topic_map",
@@ -34,8 +35,26 @@ export async function suggestTopics(
     childId: opts.childId ?? null,
   });
 
-  const parsed = TopicSuggestionsSchema.safeParse(extractJson(text));
-  if (!parsed.success) return [];
+  const raw = extractJson(text);
+  const rawSuggestions =
+    typeof raw === "object" &&
+    raw !== null &&
+    Array.isArray((raw as { suggestions?: unknown }).suggestions)
+      ? (raw as { suggestions: unknown[] }).suggestions
+      : [];
+
+  // Validate item-by-item rather than the whole array at once: with up to 8
+  // suggestions per response, one malformed item (a `kind` typo, a bad slug)
+  // shouldn't sink an otherwise-good batch and leave the map with nothing.
+  const suggestions: TopicSuggestion[] = [];
+  for (const item of rawSuggestions) {
+    const parsed = TopicSuggestionSchema.safeParse(item);
+    if (parsed.success) {
+      suggestions.push(parsed.data);
+    } else {
+      console.error("[topic_map] dropping malformed suggestion:", item);
+    }
+  }
 
   // Defensive: never surface a topic the child already explored or dismissed,
   // even though the prompt already asks the model to avoid both.
@@ -43,5 +62,5 @@ export async function suggestTopics(
     ...(opts.exploredSlugs ?? []),
     ...(opts.dismissedSlugs ?? []),
   ]);
-  return parsed.data.suggestions.filter((s) => !avoid.has(s.topicSlug));
+  return suggestions.filter((s) => !avoid.has(s.topicSlug));
 }
