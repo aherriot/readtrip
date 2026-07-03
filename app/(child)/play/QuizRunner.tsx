@@ -310,13 +310,27 @@ function SteerResult({
       <Text tone="soft" measure aria-live="polite">
         You got {score.correct} of {score.total} on the first try.
       </Text>
-      {reward && (
-        <div className="flex w-full flex-col items-center gap-4">
-          <RewardBurst xp={reward.xpAwarded} />
-          <XPBar xp={reward.xp} className="max-w-xs" />
-          {reward.badgeTitle && <ExpeditionStamp title={reward.badgeTitle} />}
+      <div className="grid w-full justify-items-center">
+        {/*
+         * The reward arrives async (POST to /api/progress) — reserve its
+         * layout space with an invisible clone up front so the real burst,
+         * once it lands, doesn't shift the actions below it (CLS).
+         */}
+        <div
+          aria-hidden="true"
+          className="invisible col-start-1 row-start-1 flex w-full flex-col items-center gap-4"
+        >
+          <RewardBurst xp={0} />
+          <XPBar xp={0} className="max-w-xs" />
         </div>
-      )}
+        {reward && (
+          <div className="col-start-1 row-start-1 flex w-full flex-col items-center gap-4">
+            <RewardBurst xp={reward.xpAwarded} />
+            <XPBar xp={reward.xp} className="max-w-xs" />
+            {reward.badgeTitle && <ExpeditionStamp title={reward.badgeTitle} />}
+          </div>
+        )}
+      </div>
       {reward?.leveledUp && (
         <LevelUpCelebration
           open={!levelUpDismissed}
