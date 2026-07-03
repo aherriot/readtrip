@@ -1,4 +1,5 @@
 import { expect, test, type Page } from "@playwright/test";
+import { revealTopic } from "./helpers";
 
 // The Explore screen is the child's home once calibrated: free-form entry plus a
 // few curated suggestions to jump straight in. Free-form input hits the live LLM
@@ -56,11 +57,14 @@ test("shows free-form entry plus suggested topics to jump into", async ({
 
   await expect(page.getByLabel(/what do you want to explore/i)).toBeVisible();
 
-  // A few curated suggestions are offered as one-tap chips — the map's first
-  // two rows (docs/10 density), Outer Space included, Volcanoes past the fold.
+  // A few curated suggestions are offered as one-tap chips. Order is
+  // randomized (lib/map/nodeState.ts orderNodes), so a fixed pair isn't
+  // guaranteed to land pre-fold together — reveal each before asserting.
+  await revealTopic(page, /dinosaurs tap to explore/i);
   await expect(
     page.getByRole("button", { name: /dinosaurs tap to explore/i })
   ).toBeVisible();
+  await revealTopic(page, /outer space tap to explore/i);
   await expect(
     page.getByRole("button", { name: /outer space tap to explore/i })
   ).toBeVisible();
@@ -85,6 +89,7 @@ test("tapping a suggestion resolves straight into a lesson", async ({
 }) => {
   await reachExplore(page);
 
+  await revealTopic(page, /dinosaurs tap to explore/i);
   await page.getByRole("button", { name: /dinosaurs tap to explore/i }).click();
 
   // Known concept → resolves client-side (no /api/explore model round-trip) and

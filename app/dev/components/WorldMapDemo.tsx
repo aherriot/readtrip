@@ -85,7 +85,8 @@ export function WorldMapDemo() {
 
       <div className="flex flex-col gap-3">
         <p className="font-display text-xs tracking-wide text-surface-ink-soft uppercase">
-          WorldMap — explored first, then suggested
+          WorldMap — randomized, with a &ldquo;new&rdquo; + &ldquo;dive&rdquo;
+          tile up front
         </p>
         <WorldMap nodes={SAMPLE_NODES} onSelect={() => {}} />
       </div>
