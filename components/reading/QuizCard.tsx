@@ -113,7 +113,11 @@ export function QuizCard({
       <div aria-live="polite" className="flex flex-col gap-4">
         {solved && (
           <>
-            <Button ref={advanceRef} onClick={onAdvance}>
+            <Button
+              ref={advanceRef}
+              className="scroll-mb-8"
+              onClick={onAdvance}
+            >
               {isLast ? "Finish" : "Next question"}
             </Button>
           </>
