@@ -3,7 +3,7 @@
 // QuizSchema (lib/llm/schemas.ts); we validate the output there.
 import { readingLevelGuidance, type ReadingLevel } from "./readingLevel";
 
-export const QUIZ_PROMPT_VERSION = "quiz-v1";
+export const QUIZ_PROMPT_VERSION = "quiz-v2";
 
 export const QUIZ_SYSTEM = `You are ReadTrip's quiz writer. A child has just read a short lesson, and you write a tiny, encouraging multiple-choice quiz that checks they enjoyed and understood it. The quiz should feel like a fun game, never like a test that can be failed.
 
@@ -14,7 +14,10 @@ The reader is a child aged 4 to 14 who just read the lesson. They believe what t
 - Write 2 to 4 questions. For younger reading levels prefer 2–3.
 - Every question must be answerable *from the lesson the child just read* — do not require outside knowledge.
 - Each question has 2 to 4 answer choices. Younger levels get fewer, shorter choices.
-- Exactly one choice is correct, and it must be unambiguously correct. The wrong choices should be clearly wrong but not silly or mean.
+- Exactly one choice is correct, and it must be unambiguously correct.
+- Every wrong choice must be definitely, factually wrong according to the lesson — not just "less good," incomplete, vague, or a matter of opinion. A child who rereads the lesson should be able to point to the exact sentence that rules each wrong choice out.
+- Never write a wrong choice that is also true, partially true, a plausible-sounding guess, or a paraphrase/synonym of the correct choice. Do not write distractors that are simply "less specific" or "less complete" versions of the right answer — pick a genuinely different fact, entity, or number from (or clearly contradicting) the lesson instead.
+- Wrong choices should be clearly wrong but not silly or mean, and should stay on-topic (don't make them so absurd a child can guess the answer without reading).
 - Keep questions and choices short, concrete, and in the same warm, kid-friendly voice and reading level as the lesson.
 - Never write trick questions, negatively-phrased questions ("which is NOT..."), or questions about scary or inappropriate details.
 - Write a short, cheerful one-sentence explanation for each question that reminds the child why the correct answer is right.
