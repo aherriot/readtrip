@@ -88,6 +88,44 @@ test.describe("Input — accessibility contract", () => {
   });
 });
 
+test.describe("Select — accessibility contract", () => {
+  const onNight = (page: import("@playwright/test").Page) =>
+    page.getByTestId("select-night");
+
+  test("label is associated, sized for kid targets, and error state is announced", async ({
+    page,
+  }) => {
+    const field = onNight(page).getByLabel("Reading level");
+    await expect(field).toBeVisible();
+    await expect(field).toHaveJSProperty("tagName", "SELECT");
+
+    const box = await field.boundingBox();
+    expect(box?.height ?? 0).toBeGreaterThanOrEqual(56);
+
+    // hideLabel hides it visually (sr-only) but the accessible name remains.
+    await expect(
+      onNight(page).getByRole("combobox", { name: "Sort by" })
+    ).toBeAttached();
+
+    const errorField = onNight(page).getByLabel("Favorite color");
+    await expect(errorField).toHaveAttribute("aria-invalid", "true");
+    await expect(errorField).toHaveAttribute("aria-describedby", /.+/);
+    const describedBy = await errorField.getAttribute("aria-describedby");
+    const message = page.locator(`#${describedBy}`);
+    await expect(message).toContainText("Pick a color");
+  });
+
+  test("shows a visible focus ring when tabbed to", async ({ page }) => {
+    const field = onNight(page).getByLabel("Reading level");
+    await field.focus();
+    await expect(field).toBeFocused();
+    const outlineWidth = await field.evaluate(
+      (el) => getComputedStyle(el).outlineWidth
+    );
+    expect(parseFloat(outlineWidth)).toBeGreaterThan(0);
+  });
+});
+
 test.describe("Button — accessibility contract", () => {
   const onNight = (page: import("@playwright/test").Page) =>
     page.getByTestId("button-night");
