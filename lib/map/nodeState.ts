@@ -44,9 +44,9 @@ export function toNodeState(node: {
 const FRONT_WINDOW = 4;
 
 // The suggested pool's total ceiling (SUGGESTION_CAPS: deep 8 + diverse 4, see
-// lib/map/queries.ts) — the widest window worth guaranteeing "something new"
-// variety within, so a bored child doesn't have to dig past a wall of
-// explored/deep tiles to find a fresh topic.
+// lib/map/queries.ts) — the widest window worth guaranteeing fresh variety
+// within, so a bored child doesn't have to dig past a wall of explored/deep
+// tiles to find a new topic.
 const FRESH_WINDOW = 12;
 const MIN_FRESH_IN_WINDOW = 3;
 

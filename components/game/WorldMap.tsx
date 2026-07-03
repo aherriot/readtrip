@@ -20,7 +20,7 @@ export interface WorldMapProps {
 }
 
 // Two rows on the narrowest (2-column) layout — enough to orient without
-// pushing "Something new" and the free-form input far down the page.
+// pushing the free-form input far down the page.
 const COLLAPSED_ROWS = 2;
 const COLLAPSED_COLUMNS = 2;
 const COLLAPSED_COUNT = COLLAPSED_ROWS * COLLAPSED_COLUMNS;

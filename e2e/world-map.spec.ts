@@ -56,14 +56,9 @@ test("a new map seeds suggested starter topics", async ({ page }) => {
   await expect(
     page.getByRole("button", { name: /dinosaurs tap to explore/i })
   ).toBeVisible();
-  // The seeded map already *is* the diverse starters, so the separate
-  // "something new" section is redundant here and stays hidden.
-  await expect(
-    page.getByRole("heading", { name: /something new/i })
-  ).toBeHidden();
 });
 
-test("exploring a map node lights it up as explored on return", async ({
+test("exploring a map node lights it up as explored and the map keeps offering new suggestions", async ({
   page,
 }) => {
   await reachMap(page);
@@ -92,19 +87,14 @@ test("exploring a map node lights it up as explored on return", async ({
     page.getByRole("button", { name: /dinosaurs exploring/i })
   ).toBeVisible();
 
-  // Now that the map has narrowed to explored/suggested topics, a separate
-  // "something new" section offers fresh, unrelated starters for breadth —
-  // and never re-lists what's already on the map.
-  await expect(
-    page.getByRole("heading", { name: /something new/i })
-  ).toBeVisible();
-  const different = page.getByRole("group", {
-    name: /something new/i,
-  });
-  await expect(different.getByRole("button").first()).toBeVisible();
-  await expect(
-    different.getByRole("button", { name: /dinosaurs/i })
-  ).toBeHidden();
+  // The map itself keeps growing with fresh suggestions once a topic is
+  // explored (docs/05) — expand to see every tile and confirm at least one
+  // non-dinosaur topic is still on offer, and dinosaurs isn't re-suggested.
+  const toggle = page.getByRole("button", { name: /show \d+ more topics?/i });
+  if (await toggle.isVisible()) await toggle.click();
+  const suggested = page.getByRole("button", { name: /tap to explore/i });
+  await expect(suggested.first()).toBeVisible();
+  await expect(suggested.filter({ hasText: /dinosaurs/i })).toHaveCount(0);
 });
 
 test("dismissing a suggested topic permanently removes it from the map", async ({
@@ -122,14 +112,11 @@ test("dismissing a suggested topic permanently removes it from the map", async (
     page.getByRole("button", { name: /dinosaurs tap to explore/i })
   ).toBeHidden();
 
-  // Permanent: a full reload must not bring it back onto the map, nor let it
-  // resurface in "something new" (it's still a curated starter otherwise).
+  // Permanent: a full reload must not bring it back onto the map at all.
   await page.reload();
+  const toggle = page.getByRole("button", { name: /show \d+ more topics?/i });
+  if (await toggle.isVisible()) await toggle.click();
   await expect(
     page.getByRole("button", { name: /dinosaurs tap to explore/i })
-  ).toBeHidden();
-  const different = page.getByRole("group", { name: /something new/i });
-  await expect(
-    different.getByRole("button", { name: /dinosaurs/i })
   ).toBeHidden();
 });

@@ -10,7 +10,6 @@ import { Heading } from "@/components/ui/Heading";
 import { Input } from "@/components/ui/Input";
 import { Spinner } from "@/components/ui/Spinner";
 import { Text } from "@/components/ui/Text";
-import { freshStarters } from "@/lib/explore/topics";
 import type { MapNodeView } from "@/lib/map/nodeState";
 import { switchProfileAction } from "@/app/(parent)/profiles/actions";
 import { LessonReader, type LessonTopic } from "./LessonReader";
@@ -30,12 +29,9 @@ type Phase =
 
 export function ExploreEntry({
   initialNodes,
-  dismissedSlugs,
   childName,
 }: {
   initialNodes: MapNodeView[];
-  /** Permanently dismissed topics — excluded from every pool, not just the map. */
-  dismissedSlugs: string[];
   childName: string;
 }) {
   const router = useRouter();
@@ -202,16 +198,6 @@ export function ExploreEntry({
     );
   }
 
-  // Curated starters the child doesn't already have on their map — a breadth
-  // counterweight to the map's narrow-and-deep growth. If the map is all bugs,
-  // this still offers weather, space, dinosaurs… (docs/05: interest-driven, but
-  // never a filter bubble). Empty for a brand-new explorer whose seeded map
-  // already *is* the starters.
-  const differentTopics = freshStarters([
-    ...initialNodes.map((n) => n.topicSlug),
-    ...dismissedSlugs,
-  ]);
-
   return (
     <div className="flex w-full flex-col gap-8">
       <WorldMap
@@ -219,34 +205,6 @@ export function ExploreEntry({
         onSelect={startTopic}
         onDismiss={dismissTopic}
       />
-
-      {differentTopics.length > 0 && (
-        <div className="flex flex-col gap-3">
-          <Heading level={2}>Something new</Heading>
-          <Text tone="soft" size="sm">
-            Fresh ideas, nothing like your map so far — tap one to wander
-            somewhere new.
-          </Text>
-          <div
-            className="flex flex-wrap gap-3"
-            role="group"
-            aria-label="Something new"
-          >
-            {differentTopics.map((topic) => (
-              <Button
-                key={topic.topicSlug}
-                variant="secondary"
-                size="md"
-                disabled={busy}
-                onClick={() => startTopic(topic)}
-                leadingIcon={<span aria-hidden="true">{topic.emoji}</span>}
-              >
-                {topic.title}
-              </Button>
-            ))}
-          </div>
-        </div>
-      )}
 
       <form onSubmit={onSubmit} className="flex flex-col gap-4">
         <Text size="sm" tone="soft">

@@ -8,7 +8,11 @@ import { freshStarters, SUGGESTED_TOPICS } from "@/lib/explore/topics";
 import { suggestTopics } from "@/lib/llm";
 import { isLlmOffline } from "@/lib/llm/client";
 import { filterSafeTopics } from "@/lib/safety";
-import { getChildMap, saveSuggestedNeighbors } from "./queries";
+import {
+  getChildMap,
+  getDismissedTopicSlugs,
+  saveSuggestedNeighbors,
+} from "./queries";
 
 /** Cap how many neighbours we surface per topic so the map stays scannable. */
 const MAX_SUGGESTIONS = 4;
@@ -36,32 +40,95 @@ export async function refreshSuggestions(input: {
     .map((n) => n.topicSlug);
   const knownSlugs = map.map((n) => n.topicSlug);
 
-  const deep = isLlmOffline()
-    ? offlineSuggestions(input.topicSlug, exploredSlugs)
-    : await suggestTopics({
-        currentTitle: input.title,
-        exploredSlugs,
-        childId: input.childId,
-      });
+  const deep = await deepSuggestions({
+    childId: input.childId,
+    seedSlug: input.topicSlug,
+    seedTitle: input.title,
+    exploredSlugs,
+  });
   const diverse = freshStarters(
     [input.topicSlug, ...knownSlugs],
     MAX_DIVERSE_SUGGESTIONS
   );
+
+  const combined = [
+    ...deep.map((s) => ({ ...s, kind: "deep" as const })),
+    ...diverse.map((s) => ({ ...s, kind: "diverse" as const })),
+  ];
+
+  if (combined.length === 0) return;
+  await saveSuggestedNeighbors(input.childId, input.topicSlug, combined);
+}
+
+/**
+ * Guarantee the child's map always has something explorable, now that the
+ * "something new" chip row is gone and the map is the sole map-side source of
+ * suggestions. A no-op once any `suggested` node exists; otherwise backfills
+ * from whatever pool applies — deep neighbours of the last thing they
+ * explored, curated starters they haven't seen, or (the rare case of a child
+ * who dismissed every curated starter without ever exploring one) the curated
+ * set again, since nothing else is left to grow from. Called on every map
+ * read, so a freshly-emptied map (new explorer, or one dismissed down to
+ * nothing) never renders with zero tiles to tap.
+ */
+export async function ensureSuggestions(childId: string): Promise<void> {
+  const map = await getChildMap(childId);
+  if (map.some((n) => n.status === "suggested")) return;
+
+  const dismissedSlugs = await getDismissedTopicSlugs(childId);
+  const exploredSlugs = map
+    .filter((n) => n.status === "explored")
+    .map((n) => n.topicSlug);
+  const knownSlugs = [...map.map((n) => n.topicSlug), ...dismissedSlugs];
+
+  const lastExplored = map.findLast((n) => n.status === "explored");
+  const deep = lastExplored
+    ? await deepSuggestions({
+        childId,
+        seedSlug: lastExplored.topicSlug,
+        seedTitle: lastExplored.title,
+        exploredSlugs,
+      })
+    : [];
+
+  let diverse = freshStarters(knownSlugs, MAX_DIVERSE_SUGGESTIONS);
+  if (deep.length === 0 && diverse.length === 0) {
+    diverse = SUGGESTED_TOPICS.slice(0, MAX_DIVERSE_SUGGESTIONS);
+  }
+
+  const combined = [
+    ...deep.map((s) => ({ ...s, kind: "deep" as const })),
+    ...diverse.map((s) => ({ ...s, kind: "diverse" as const })),
+  ];
+  if (combined.length === 0) return;
+  // No single "current" topic these are neighbours of — the diverse-only case
+  // writes no edges, and the deep case's edges belong on `lastExplored`, not
+  // this placeholder, so an unmatched slug is intentional.
+  await saveSuggestedNeighbors(childId, "__ensure-suggestions__", combined);
+}
+
+/** LLM (or offline-fallback) neighbour suggestions, safety-filtered. Shared by
+ * both the post-explore refresh and the never-empty backfill above. */
+async function deepSuggestions(input: {
+  childId: string;
+  seedSlug: string;
+  seedTitle: string;
+  exploredSlugs: string[];
+}): Promise<{ title: string; topicSlug: string }[]> {
+  const deep = isLlmOffline()
+    ? offlineSuggestions(input.seedSlug, input.exploredSlugs)
+    : await suggestTopics({
+        currentTitle: input.seedTitle,
+        exploredSlugs: input.exploredSlugs,
+        childId: input.childId,
+      });
 
   // Safety backstop before anything is saved/shown: topic-map suggestions are
   // LLM output too (docs/07), so filter them through the same output rules as
   // lessons and quizzes. The topic_map prompt is the primary guardrail; this
   // drops any suggestion that drifts age-inappropriate. (Offline + curated
   // suggestions are already safe, so this is a no-op for them.)
-  const safeDeep = filterSafeTopics(deep).slice(0, MAX_SUGGESTIONS);
-
-  const combined = [
-    ...safeDeep.map((s) => ({ ...s, kind: "deep" as const })),
-    ...diverse.map((s) => ({ ...s, kind: "diverse" as const })),
-  ];
-
-  if (combined.length === 0) return;
-  await saveSuggestedNeighbors(input.childId, input.topicSlug, combined);
+  return filterSafeTopics(deep).slice(0, MAX_SUGGESTIONS);
 }
 
 // Offline stand-in for the topic_map model: curated starter topics minus the one
