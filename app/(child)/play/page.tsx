@@ -3,9 +3,8 @@ import { redirect } from "next/navigation";
 import { requireParent } from "@/lib/auth/session";
 import { getChild } from "@/lib/children/queries";
 import { getSelectedChildId } from "@/lib/children/selection";
-import { SUGGESTED_TOPICS } from "@/lib/explore/topics";
-import { getChildMap, getDismissedTopicSlugs } from "@/lib/map/queries";
-import type { MapNodeView } from "@/lib/map/nodeState";
+import { getChildMap } from "@/lib/map/queries";
+import { ensureSuggestions } from "@/lib/map/suggest";
 import { ExploreEntry } from "./ExploreEntry";
 
 export const metadata: Metadata = {
@@ -26,27 +25,12 @@ export default async function PlayPage() {
   // First run: find the child's reading level before the expedition starts.
   if (!child.calibratedAt) redirect("/play/calibrate");
 
-  // The child's personalized world map. A brand-new explorer has no nodes yet,
-  // so seed the display with the curated starters as "suggested" — the same
-  // concepts they resolve to, giving the map somewhere to begin.
-  const stored = await getChildMap(child.id);
-  // A dismissed curated starter must stay gone everywhere, not just off the
-  // map — otherwise it'd simply resurface in the "something new" chips, or
-  // (see below) get reseeded as if the child were brand-new.
-  const dismissedSlugs = await getDismissedTopicSlugs(child.id);
-  // "Brand new" means no map rows at all — not just none *displayed*. A child
-  // who dismissed every seeded starter still has rows (they're just hidden),
-  // so this must not fall back to reseeding the very topics they removed.
-  const isNewExplorer = stored.length === 0 && dismissedSlugs.length === 0;
-  const nodes: MapNodeView[] = isNewExplorer
-    ? SUGGESTED_TOPICS.map((t) => ({
-        topicSlug: t.topicSlug,
-        title: t.title,
-        status: "suggested",
-        mastered: false,
-        kind: "diverse",
-      }))
-    : stored;
+  // The child's personalized world map. Backfills before reading if it has
+  // nothing "suggested" to tap — a brand-new explorer, or one who's dismissed
+  // or explored their way through everything offered so far — so the map is
+  // never rendered empty.
+  await ensureSuggestions(child.id);
+  const nodes = await getChildMap(child.id);
 
   return (
     <main className="mx-auto flex min-h-screen w-full max-w-xl flex-col items-center gap-6 p-6">
@@ -54,11 +38,7 @@ export default async function PlayPage() {
         ReadTrip
       </span>
 
-      <ExploreEntry
-        initialNodes={nodes}
-        dismissedSlugs={dismissedSlugs}
-        childName={child.displayName}
-      />
+      <ExploreEntry initialNodes={nodes} childName={child.displayName} />
     </main>
   );
 }

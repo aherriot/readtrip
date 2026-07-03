@@ -85,8 +85,8 @@ export async function recordExploredTopic(
 /**
  * Topic slugs the child has permanently dismissed. Dismissed rows are excluded
  * from `getChildMap`'s display list, but callers computing *other* topic pools
- * (e.g. the "something new" curated starters) need this too, or a dismissed
- * curated topic would simply resurface there instead of on the map.
+ * (e.g. curated starters in `lib/map/suggest.ts`) need this too, or a
+ * dismissed curated topic would simply resurface there instead of on the map.
  */
 export async function getDismissedTopicSlugs(
   childId: string
@@ -108,10 +108,9 @@ export async function getDismissedTopicSlugs(
  * check (which looks across all statuses) permanently blocks it from ever being
  * re-suggested.
  *
- * Upserts rather than updates: a brand-new explorer's curated starter tiles are
- * synthetic (page.tsx seeds them for display without writing a MapNode row
- * until they're explored), so there may be nothing to update yet — dismissing
- * one still needs to persist a `dismissed` row or it would just reappear.
+ * Upserts rather than updates in case the row somehow doesn't exist yet —
+ * dismissing a topic must always persist a `dismissed` row or it would just
+ * reappear next time suggestions are backfilled.
  */
 export async function dismissTopic(
   childId: string,
