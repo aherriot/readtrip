@@ -1,10 +1,12 @@
 // Dynamic, interest-driven map suggestions (docs/05). After a child explores a
-// topic, the topic_map task proposes nearby topics to grow their map toward what
-// they love. Suggestions are LLM output, so they inherit the topic_map prompt's
-// age-appropriateness guardrails (docs/07) and are filtered against topics the
-// child already has. When no Anthropic key is configured (local dev / CI e2e) we
-// fall back to curated starter topics so the map still grows without the API.
-import { freshStarters, SUGGESTED_TOPICS } from "@/lib/explore/topics";
+// topic, the topic_map task proposes both nearby ("neighbor") topics and a
+// couple of unrelated ("different") ones for breadth, so the map doesn't
+// narrow entirely onto one interest. Suggestions are LLM output, so they
+// inherit the topic_map prompt's age-appropriateness guardrails (docs/07) and
+// are filtered against topics the child already has or dismissed. When no
+// Anthropic key is configured (local dev / CI e2e) we fall back to a
+// deterministic canned pool so the map still grows without the API.
+import { cannedTopicSuggestions } from "@/lib/llm/cannedTopics";
 import { suggestTopics } from "@/lib/llm";
 import { isLlmOffline } from "@/lib/llm/client";
 import { filterSafeTopics } from "@/lib/safety";
@@ -12,22 +14,24 @@ import {
   getChildMap,
   getDismissedTopicSlugs,
   saveSuggestedNeighbors,
+  type SuggestionKind,
 } from "./queries";
 
-/** Cap how many neighbours we surface per topic so the map stays scannable. */
-const MAX_SUGGESTIONS = 4;
-
-/** Cap how many curated "something different" starters we top up per event. */
-const MAX_DIVERSE_SUGGESTIONS = 4;
+/** Cap how many suggestions we ask for/keep per call, split by kind so one
+ * batch can't flood a bucket past what `saveSuggestedNeighbors`'s per-kind cap
+ * (queries.ts SUGGESTION_CAPS) intends — that cap only evicts *existing* rows
+ * to make room, it doesn't trim an oversized incoming batch itself. */
+const MAX_NEIGHBOR_SUGGESTIONS = 8;
+const MAX_DIFFERENT_SUGGESTIONS = 4;
 
 /**
- * Generate and persist neighbour suggestions for a just-explored topic. Reads
- * the child's map to avoid re-suggesting covered ground, asks the model (or the
- * offline fallback) for "deep" neighbours, tops up a few curated "diverse"
- * starters for breadth, and saves the result as `suggested` nodes + graph
- * edges. `saveSuggestedNeighbors` enforces the per-kind cap (docs/05), evicting
- * the oldest unengaged suggestions in a bucket before it grows past 8 deep / 4
- * diverse. Best-effort: callers should not block the child on this.
+ * Generate and persist suggestions for a just-explored topic. Reads the
+ * child's map to avoid re-suggesting covered ground, asks the model (or the
+ * offline fallback) for a mix of "neighbor" and "different" topics, and saves
+ * the result as `suggested` nodes + graph edges. `saveSuggestedNeighbors`
+ * enforces the per-kind cap (docs/05), evicting the oldest unengaged
+ * suggestions in a bucket before it grows past 8 deep / 4 diverse. Best-effort:
+ * callers should not block the child on this.
  */
 export async function refreshSuggestions(input: {
   childId: string;
@@ -38,38 +42,28 @@ export async function refreshSuggestions(input: {
   const exploredSlugs = map
     .filter((n) => n.status === "explored")
     .map((n) => n.topicSlug);
-  const knownSlugs = map.map((n) => n.topicSlug);
+  const dismissedSlugs = await getDismissedTopicSlugs(input.childId);
 
-  const deep = await deepSuggestions({
+  const suggestions = await modelSuggestions({
     childId: input.childId,
-    seedSlug: input.topicSlug,
-    seedTitle: input.title,
+    seed: { slug: input.topicSlug, title: input.title },
     exploredSlugs,
+    dismissedSlugs,
   });
-  const diverse = freshStarters(
-    [input.topicSlug, ...knownSlugs],
-    MAX_DIVERSE_SUGGESTIONS
-  );
 
-  const combined = [
-    ...deep.map((s) => ({ ...s, kind: "deep" as const })),
-    ...diverse.map((s) => ({ ...s, kind: "diverse" as const })),
-  ];
-
-  if (combined.length === 0) return;
-  await saveSuggestedNeighbors(input.childId, input.topicSlug, combined);
+  if (suggestions.length === 0) return;
+  await saveSuggestedNeighbors(input.childId, input.topicSlug, suggestions);
 }
 
 /**
  * Guarantee the child's map always has something explorable, now that the
- * "something new" chip row is gone and the map is the sole map-side source of
- * suggestions. A no-op once any `suggested` node exists; otherwise backfills
- * from whatever pool applies — deep neighbours of the last thing they
- * explored, curated starters they haven't seen, or (the rare case of a child
- * who dismissed every curated starter without ever exploring one) the curated
- * set again, since nothing else is left to grow from. Called on every map
- * read, so a freshly-emptied map (new explorer, or one dismissed down to
- * nothing) never renders with zero tiles to tap.
+ * "something new" chip row is gone and the map is the sole source of
+ * suggestions. A no-op once any `suggested` node exists; otherwise asks the
+ * model to grow from whatever the child last explored, or — for a brand-new
+ * explorer, or one who has dismissed every suggestion without exploring any —
+ * asks it for a fresh batch of starter topics instead, told what's already
+ * been explored and dismissed so it doesn't repeat itself. Called on every
+ * map read, so a freshly-emptied map never renders with zero tiles to tap.
  */
 export async function ensureSuggestions(childId: string): Promise<void> {
   const map = await getChildMap(childId);
@@ -79,67 +73,64 @@ export async function ensureSuggestions(childId: string): Promise<void> {
   const exploredSlugs = map
     .filter((n) => n.status === "explored")
     .map((n) => n.topicSlug);
-  const knownSlugs = [...map.map((n) => n.topicSlug), ...dismissedSlugs];
-
   const lastExplored = map.findLast((n) => n.status === "explored");
-  const deep = lastExplored
-    ? await deepSuggestions({
-        childId,
-        seedSlug: lastExplored.topicSlug,
-        seedTitle: lastExplored.title,
-        exploredSlugs,
-      })
-    : [];
 
-  let diverse = freshStarters(knownSlugs, MAX_DIVERSE_SUGGESTIONS);
-  if (deep.length === 0 && diverse.length === 0) {
-    diverse = SUGGESTED_TOPICS.slice(0, MAX_DIVERSE_SUGGESTIONS);
-  }
+  const suggestions = await modelSuggestions({
+    childId,
+    seed: lastExplored
+      ? { slug: lastExplored.topicSlug, title: lastExplored.title }
+      : null,
+    exploredSlugs,
+    dismissedSlugs,
+  });
 
-  const combined = [
-    ...deep.map((s) => ({ ...s, kind: "deep" as const })),
-    ...diverse.map((s) => ({ ...s, kind: "diverse" as const })),
-  ];
-  if (combined.length === 0) return;
-  // No single "current" topic these are neighbours of — the diverse-only case
-  // writes no edges, and the deep case's edges belong on `lastExplored`, not
+  if (suggestions.length === 0) return;
+  // No single "current" topic these are neighbours of — the starter-mode case
+  // writes no edges, and the seeded case's edges belong on `lastExplored`, not
   // this placeholder, so an unmatched slug is intentional.
-  await saveSuggestedNeighbors(childId, "__ensure-suggestions__", combined);
+  await saveSuggestedNeighbors(childId, "__ensure-suggestions__", suggestions);
 }
 
-/** LLM (or offline-fallback) neighbour suggestions, safety-filtered. Shared by
- * both the post-explore refresh and the never-empty backfill above. */
-async function deepSuggestions(input: {
+/** LLM (or offline-fallback) suggestions, safety-filtered and mapped onto the
+ * `deep`/`diverse` pools the map/DB layer expects. Shared by both the
+ * post-explore refresh and the never-empty backfill above. `seed` is the topic
+ * to grow neighbours from; pass `null` for starter-mode (no topic to grow
+ * from), which asks for breadth topics instead. */
+async function modelSuggestions(input: {
   childId: string;
-  seedSlug: string;
-  seedTitle: string;
+  seed: { slug: string; title: string } | null;
   exploredSlugs: string[];
-}): Promise<{ title: string; topicSlug: string }[]> {
-  const deep = isLlmOffline()
-    ? offlineSuggestions(input.seedSlug, input.exploredSlugs)
+  dismissedSlugs: string[];
+}): Promise<{ title: string; topicSlug: string; kind: SuggestionKind }[]> {
+  const avoidSlugs = [...input.exploredSlugs, ...input.dismissedSlugs];
+  const suggestions = isLlmOffline()
+    ? cannedTopicSuggestions(
+        input.seed ? [input.seed.slug, ...avoidSlugs] : avoidSlugs,
+        MAX_NEIGHBOR_SUGGESTIONS
+      )
     : await suggestTopics({
-        currentTitle: input.seedTitle,
+        currentTitle: input.seed?.title,
         exploredSlugs: input.exploredSlugs,
+        dismissedSlugs: input.dismissedSlugs,
         childId: input.childId,
       });
 
   // Safety backstop before anything is saved/shown: topic-map suggestions are
   // LLM output too (docs/07), so filter them through the same output rules as
   // lessons and quizzes. The topic_map prompt is the primary guardrail; this
-  // drops any suggestion that drifts age-inappropriate. (Offline + curated
+  // drops any suggestion that drifts age-inappropriate. (Canned offline
   // suggestions are already safe, so this is a no-op for them.)
-  return filterSafeTopics(deep).slice(0, MAX_SUGGESTIONS);
-}
+  const safe = filterSafeTopics(suggestions);
+  const neighbor = safe
+    .filter((s) => s.kind === "neighbor")
+    .slice(0, MAX_NEIGHBOR_SUGGESTIONS);
+  const different = safe
+    .filter((s) => s.kind === "different")
+    .slice(0, MAX_DIFFERENT_SUGGESTIONS);
 
-// Offline stand-in for the topic_map model: curated starter topics minus the one
-// just explored and anything already explored. Deterministic, so the map grows
-// predictably in dev and e2e.
-function offlineSuggestions(
-  currentSlug: string,
-  exploredSlugs: string[]
-): { title: string; topicSlug: string }[] {
-  const skip = new Set([currentSlug, ...exploredSlugs]);
-  return SUGGESTED_TOPICS.filter((t) => !skip.has(t.topicSlug))
-    .slice(0, MAX_SUGGESTIONS)
-    .map((t) => ({ title: t.title, topicSlug: t.topicSlug }));
+  return [...neighbor, ...different].map((s) => ({
+    title: s.title,
+    topicSlug: s.topicSlug,
+    kind: s.kind === "neighbor" ? "deep" : "diverse",
+  }));
 }

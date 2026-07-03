@@ -94,12 +94,22 @@ describe("NormalizeSchema", () => {
 });
 
 describe("TopicSuggestionsSchema", () => {
-  it("accepts 1-6 well-formed suggestions", () => {
+  it("accepts 1-8 well-formed suggestions", () => {
+    expect(
+      TopicSuggestionsSchema.safeParse({
+        suggestions: [
+          { title: "Volcanoes", topicSlug: "volcanoes", kind: "neighbor" },
+        ],
+      }).success
+    ).toBe(true);
+  });
+
+  it("rejects a suggestion missing kind", () => {
     expect(
       TopicSuggestionsSchema.safeParse({
         suggestions: [{ title: "Volcanoes", topicSlug: "volcanoes" }],
       }).success
-    ).toBe(true);
+    ).toBe(false);
   });
 
   it("rejects an empty suggestion list", () => {
