@@ -11,7 +11,12 @@ export default defineConfig({
   fullyParallel: true,
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 2 : 0,
-  workers: process.env.CI ? 1 : undefined,
+  // The "setup" project (below) pre-compiles every route and warms the DB
+  // before real specs fan out, so concurrent workers are safe even in CI —
+  // this was serial before that fix existed. GitHub-hosted runners are
+  // typically 2-4 vCPUs; keep this modest rather than trusting CPU auto-detect
+  // (which would pick 1 on a 2-core runner and buy nothing).
+  workers: process.env.CI ? 2 : undefined,
   reporter: process.env.CI ? [["html", { open: "never" }], ["list"]] : "list",
   // Generous default so a cold Next dev compile (first hit to a route) doesn't
   // flake when tests run alongside tsc/eslint/prettier under `npm run check`.

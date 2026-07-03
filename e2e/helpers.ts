@@ -34,18 +34,25 @@ export async function createChild(page: Page, name: string): Promise<void> {
   await dialog.getByRole("button", { name: /create explorer/i }).click();
 }
 
-// From the (already open) calibration intro: play through the deterministic
-// L3 (wrong) → L2 (wrong) → L1 (correct) path and land on hydrated-ready /play.
-export async function playThroughCalibration(page: Page): Promise<void> {
-  await page.getByRole("button", { name: /let's go/i }).click();
-
-  // Wait for each passage to render before answering, or the clicks race the
-  // re-render. First option each round is the deterministic wrong→wrong→right path.
-  for (const passage of [/volcanoes/i, /busy bees/i, /the sun/i]) {
-    await expect(page.getByRole("heading", { name: passage })).toBeVisible();
-    await page.getByRole("button").first().click();
+// From the (already open) /play/calibrate page: skip the 3-round mini-game via
+// the dev-only bypass route (app/api/dev/calibrate) and land on /play. Only
+// e2e/calibrate.spec.ts actually tests the mini-game itself — every other spec
+// just needs a calibrated child to reach the feature under test, so replaying
+// the real passages there is pure setup cost. The bypass still writes through
+// completeCalibration() (same as the real flow), just without the UI rounds.
+export async function skipCalibration(
+  page: Page,
+  readingLevel = 1
+): Promise<void> {
+  const res = await page.request.post("/api/dev/calibrate", {
+    data: { readingLevel },
+  });
+  if (!res.ok()) {
+    throw new Error(
+      `dev calibration bypass failed: ${res.status()} ${await res.text()}`
+    );
   }
-  await page.getByRole("link", { name: /start exploring/i }).click();
+  await page.goto("/play");
   await expect(page).toHaveURL(/\/play$/);
 }
 
@@ -76,6 +83,6 @@ export async function reachExplore(
 
   await page.getByRole("button", { name: new RegExp(opts.childName) }).click();
   await expect(page).toHaveURL(/\/play\/calibrate/);
-  await playThroughCalibration(page);
+  await skipCalibration(page);
   await waitForExploreHydration(page);
 }
