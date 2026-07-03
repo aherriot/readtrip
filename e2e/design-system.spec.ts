@@ -11,6 +11,24 @@ test.beforeEach(async ({ page }) => {
   // Route is pre-compiled by the setup project; confirm it's rendered before
   // asserting so a test never races a cold compile.
   await expect(page.getByTestId("gallery")).toBeVisible();
+
+  // The interactive demos (Modal, WorldMap, Rewards, Quiz) are separate client
+  // components — their onClick handlers only attach once React hydrates. The
+  // gallery testid above is present in the server-rendered HTML, so it proves
+  // nothing about hydration; a test whose first action is a click can race the
+  // handler attaching and silently no-op. Force a real click through here (same
+  // retry-until-it-works idiom as the Explore island hydration wait in
+  // e2e/helpers.ts), then reset it, so every test starts fully hydrated.
+  const trigger = page
+    .getByTestId("modal-night")
+    .getByRole("button", { name: "Open dialog" });
+  const dialog = page.getByRole("dialog", { name: "Ready to explore?" });
+  await expect(async () => {
+    await trigger.click();
+    await expect(dialog).toBeVisible({ timeout: 1000 });
+  }).toPass();
+  await page.keyboard.press("Escape");
+  await expect(dialog).toBeHidden();
 });
 
 test.describe("design system — accessibility", () => {
@@ -32,37 +50,31 @@ test.describe("Input — accessibility contract", () => {
   const onNight = (page: import("@playwright/test").Page) =>
     page.getByTestId("input-night");
 
-  test("label is programmatically associated", async ({ page }) => {
+  test("label is associated, sized for kid targets, and error state is announced", async ({
+    page,
+  }) => {
     const field = onNight(page).getByLabel("Display name");
     await expect(field).toBeVisible();
     await expect(field).toHaveJSProperty("tagName", "INPUT");
-  });
 
-  test("error sets aria-invalid and is announced via aria-describedby", async ({
-    page,
-  }) => {
-    const field = onNight(page).getByLabel("Email");
-    await expect(field).toHaveAttribute("aria-invalid", "true");
-
-    // Headless UI's Field wires aria-describedby → the error Description in a
-    // post-mount effect; wait for it (retrying matcher) rather than reading once.
-    await expect(field).toHaveAttribute("aria-describedby", /.+/);
-    const describedBy = await field.getAttribute("aria-describedby");
-    const message = page.locator(`#${describedBy}`);
-    await expect(message).toContainText("doesn't look like an email");
-  });
-
-  test("kid size meets the 56–64px target floor", async ({ page }) => {
-    const box = await onNight(page).getByLabel("Display name").boundingBox();
+    const box = await field.boundingBox();
     expect(box?.height ?? 0).toBeGreaterThanOrEqual(56);
-  });
 
-  test("hidden label is still exposed to assistive tech", async ({ page }) => {
     // hideLabel hides it visually (sr-only) but the accessible name remains,
     // so role+name still resolves.
     await expect(
       onNight(page).getByRole("searchbox", { name: "Filter" })
     ).toBeAttached();
+
+    const errorField = onNight(page).getByLabel("Email");
+    await expect(errorField).toHaveAttribute("aria-invalid", "true");
+
+    // Headless UI's Field wires aria-describedby → the error Description in a
+    // post-mount effect; wait for it (retrying matcher) rather than reading once.
+    await expect(errorField).toHaveAttribute("aria-describedby", /.+/);
+    const describedBy = await errorField.getAttribute("aria-describedby");
+    const message = page.locator(`#${describedBy}`);
+    await expect(message).toContainText("doesn't look like an email");
   });
 
   test("shows a visible focus ring when tabbed to", async ({ page }) => {
@@ -80,39 +92,33 @@ test.describe("Button — accessibility contract", () => {
   const onNight = (page: import("@playwright/test").Page) =>
     page.getByTestId("button-night");
 
-  test("renders a real <button> defaulting to type=button", async ({
+  test("renders a real, sized <button> across its variants (link, icon-only, disabled, loading)", async ({
     page,
   }) => {
     const btn = onNight(page).getByRole("button", { name: "Start exploring" });
     await expect(btn).toHaveJSProperty("tagName", "BUTTON");
     await expect(btn).toHaveAttribute("type", "button");
-  });
 
-  test("kid size meets the 56–64px target floor", async ({ page }) => {
-    const box = await onNight(page)
-      .getByRole("button", { name: "Start exploring" })
-      .boundingBox();
+    const box = await btn.boundingBox();
     expect(box?.height ?? 0).toBeGreaterThanOrEqual(56);
-  });
 
-  test("link variant renders a real <a> with href", async ({ page }) => {
     const link = onNight(page).getByRole("link", {
       name: "Check system health",
     });
     await expect(link).toHaveJSProperty("tagName", "A");
     await expect(link).toHaveAttribute("href", "/api/health");
-  });
 
-  test("icon-only button still has an accessible name", async ({ page }) => {
     await expect(
       onNight(page).getByRole("button", { name: "Search topics" })
     ).toBeVisible();
-  });
 
-  test("disabled button is not operable", async ({ page }) => {
     await expect(
       onNight(page).getByRole("button", { name: "Can't click me" })
     ).toBeDisabled();
+
+    const loading = onNight(page).getByRole("button", { name: "Charting…" });
+    await expect(loading).toBeDisabled();
+    await expect(loading).toHaveAttribute("aria-busy", "true");
   });
 
   test("shows a visible focus ring when focused (keyboard, no mouse)", async ({
@@ -126,31 +132,21 @@ test.describe("Button — accessibility contract", () => {
     );
     expect(parseFloat(outlineWidth)).toBeGreaterThan(0);
   });
-
-  test("a loading button is inert and marked busy", async ({ page }) => {
-    const btn = onNight(page).getByRole("button", { name: "Charting…" });
-    await expect(btn).toBeDisabled();
-    await expect(btn).toHaveAttribute("aria-busy", "true");
-  });
 });
 
 test.describe("Spinner — accessibility contract", () => {
   const onNight = (page: import("@playwright/test").Page) =>
     page.getByTestId("spinner-night");
 
-  test("a standing-alone spinner is a live status region naming the wait", async ({
+  test("a standing-alone spinner is a live status naming the wait; decorative ones expose no status role", async ({
     page,
   }) => {
     // role="status" is a live region (its content is announced, not its name),
-    // carrying sr-only text so a screen reader hears *what* is loading.
+    // carrying sr-only text so a screen reader hears *what* is loading. The
+    // size/tint variants are aria-hidden, so only this one contributes a status.
     const status = onNight(page).getByRole("status");
     await expect(status).toHaveCount(1);
     await expect(status).toContainText("Loading your lesson");
-  });
-
-  test("a decorative spinner exposes no status role", async ({ page }) => {
-    // The size/tint variants are aria-hidden — no accessible status to announce.
-    await expect(onNight(page).getByRole("status")).toHaveCount(1);
   });
 });
 
@@ -158,17 +154,13 @@ test.describe("Badge — contract", () => {
   const onNight = (page: import("@playwright/test").Page) =>
     page.getByTestId("badge-night");
 
-  test("pairs a status word with its color, not color alone", async ({
+  test("pairs a status word with its color, and hides a badge that mirrors an existing label", async ({
     page,
   }) => {
     // The word is the meaning — a screen reader reads it; color isn't the only
     // signal. (axe covers contrast globally; this asserts the word is present.)
     await expect(onNight(page).getByText("Yes!")).toBeVisible();
-  });
 
-  test("a tag badge that mirrors an existing label is hidden from assistive tech", async ({
-    page,
-  }) => {
     // The map-node style badge duplicates a status word announced elsewhere
     // (a node's sr-only label), so the caller marks it aria-hidden. The word
     // sits in an inner span, so the aria-hidden is on its Badge container.
@@ -187,21 +179,19 @@ test.describe("Desktop affordances — cursors", () => {
   const cursorOf = (locator: import("@playwright/test").Locator) =>
     locator.evaluate((el) => getComputedStyle(el).cursor);
 
-  test("an enabled button shows the pointer (hand) cursor", async ({
+  test("enabled and icon-only buttons show the pointer cursor; disabled shows not-allowed", async ({
     page,
   }) => {
     const btn = onNight(page).getByRole("button", { name: "Start exploring" });
     expect(await cursorOf(btn)).toBe("pointer");
-  });
 
-  test("an icon-only button shows the pointer cursor", async ({ page }) => {
-    const btn = onNight(page).getByRole("button", { name: "Search topics" });
-    expect(await cursorOf(btn)).toBe("pointer");
-  });
+    const icon = onNight(page).getByRole("button", { name: "Search topics" });
+    expect(await cursorOf(icon)).toBe("pointer");
 
-  test("a disabled button shows the not-allowed cursor", async ({ page }) => {
-    const btn = onNight(page).getByRole("button", { name: "Can't click me" });
-    expect(await cursorOf(btn)).toBe("not-allowed");
+    const disabled = onNight(page).getByRole("button", {
+      name: "Can't click me",
+    });
+    expect(await cursorOf(disabled)).toBe("not-allowed");
   });
 
   test("the Modal close button shows the pointer cursor", async ({ page }) => {
@@ -233,16 +223,15 @@ test.describe("Heading / Text — contract", () => {
   const onNight = (page: import("@playwright/test").Page) =>
     page.getByTestId("heading-night");
 
-  test("Heading renders the semantic level it's given", async ({ page }) => {
+  test("Heading renders the semantic level it's given, and Text renders body copy", async ({
+    page,
+  }) => {
     await expect(
       onNight(page).getByRole("heading", { level: 1, name: "Page title" })
     ).toBeVisible();
     await expect(
       onNight(page).getByRole("heading", { level: 3, name: "Subsection" })
     ).toBeVisible();
-  });
-
-  test("Text renders body copy", async ({ page }) => {
     await expect(onNight(page).getByText("Lead text introduces")).toBeVisible();
   });
 });
@@ -251,13 +240,12 @@ test.describe("Icon — accessibility contract", () => {
   const onNight = (page: import("@playwright/test").Page) =>
     page.getByTestId("icon-night");
 
-  test("labelled icon is exposed as an image with a name", async ({ page }) => {
+  test("labelled icons are exposed as named images; decorative icons are hidden", async ({
+    page,
+  }) => {
     await expect(
       onNight(page).getByRole("img", { name: "Favorite" }).first()
     ).toBeVisible();
-  });
-
-  test("decorative icon is hidden from assistive tech", async ({ page }) => {
     // Three labelled (sizes) + zero from the decorative example.
     await expect(
       onNight(page).getByRole("img", { name: "Favorite" })
@@ -269,21 +257,21 @@ test.describe("ProgressBar — accessibility contract", () => {
   const onNight = (page: import("@playwright/test").Page) =>
     page.getByTestId("progressbar-night");
 
-  test("exposes the progressbar role with aria values", async ({ page }) => {
+  test("exposes the progressbar role with aria values, clamping an out-of-100 value to a percentage", async ({
+    page,
+  }) => {
     const bar = onNight(page).getByRole("progressbar", {
       name: "Reading-level calibration",
     });
     await expect(bar).toHaveAttribute("aria-valuenow", "45");
     await expect(bar).toHaveAttribute("aria-valuemin", "0");
     await expect(bar).toHaveAttribute("aria-valuemax", "100");
-  });
 
-  test("clamps an out-of-100 value to a percentage", async ({ page }) => {
     // 7 / 12 → 58%.
-    const bar = onNight(page).getByRole("progressbar", {
+    const xpBar = onNight(page).getByRole("progressbar", {
       name: "XP to next level",
     });
-    await expect(bar).toHaveAttribute("aria-valuenow", "58");
+    await expect(xpBar).toHaveAttribute("aria-valuenow", "58");
   });
 });
 
@@ -291,7 +279,7 @@ test.describe("Quiz — accessibility contract", () => {
   const region = (page: import("@playwright/test").Page) =>
     page.getByTestId("quiz-paper");
 
-  test("choices are real buttons meeting the kid target floor", async ({
+  test("choices are real, kid-sized buttons whose feedback pairs color with an icon + word", async ({
     page,
   }) => {
     const choice = region(page).getByRole("button", {
@@ -300,11 +288,7 @@ test.describe("Quiz — accessibility contract", () => {
     await expect(choice).toHaveJSProperty("tagName", "BUTTON");
     const box = await choice.boundingBox();
     expect(box?.height ?? 0).toBeGreaterThanOrEqual(56);
-  });
 
-  test("feedback pairs color with an icon + word, not color alone", async ({
-    page,
-  }) => {
     // The resolved states carry a status word, so meaning survives without
     // color (a11y floor: never color-only). Assert via the choice's accessible
     // name — that's what a screen reader announces.
@@ -392,7 +376,7 @@ test.describe("WorldMap / TopicNode — accessibility contract", () => {
   const region = (page: import("@playwright/test").Page) =>
     page.getByTestId("worldmap-demo");
 
-  test("a node is a real button meeting the kid target floor", async ({
+  test("a node is a real, kid-sized button; locked nodes are disabled; the map is a real list; each state carries a word, not color alone", async ({
     page,
   }) => {
     const node = region(page).getByRole("button", {
@@ -401,15 +385,18 @@ test.describe("WorldMap / TopicNode — accessibility contract", () => {
     await expect(node).toHaveJSProperty("tagName", "BUTTON");
     const box = await node.boundingBox();
     expect(box?.height ?? 0).toBeGreaterThanOrEqual(56);
-  });
 
-  test("a locked node is disabled", async ({ page }) => {
     await expect(
       region(page).getByRole("button", { name: "Volcanoes Locked" })
     ).toBeDisabled();
-  });
 
-  test("each state carries a word, not color alone", async ({ page }) => {
+    const list = region(page).getByRole("list");
+    await expect(list).toBeVisible();
+    // Four of the six sample nodes are active (explored/suggested) and shown
+    // up front — two rows on the mobile layout — in DOM order (not purely
+    // spatial); the rest are behind "Show more" / the mastered disclosure.
+    await expect(list.getByRole("listitem")).toHaveCount(4);
+
     // locked/mastered still show their status word as visible body text.
     for (const word of ["Locked", "Mastered"]) {
       await expect(
@@ -430,17 +417,6 @@ test.describe("WorldMap / TopicNode — accessibility contract", () => {
         .getByRole("button", { name: "Volcanoes Tap to explore" })
         .first()
     ).toBeAttached();
-  });
-
-  test("the map is a real list — the screen-reader-friendly equivalent", async ({
-    page,
-  }) => {
-    const list = region(page).getByRole("list");
-    await expect(list).toBeVisible();
-    // Four of the six sample nodes are active (explored/suggested) and shown
-    // up front — two rows on the mobile layout — in DOM order (not purely
-    // spatial); the rest are behind "Show more" / the mastered disclosure.
-    await expect(list.getByRole("listitem")).toHaveCount(4);
   });
 
   test("mastered nodes sit behind a real, focusable disclosure", async ({
@@ -495,7 +471,7 @@ test.describe("Rewards — accessibility contract", () => {
   const region = (page: import("@playwright/test").Page) =>
     page.getByTestId("rewards-demo");
 
-  test("XPBar exposes a named progressbar with a real value", async ({
+  test("XPBar, ExpeditionStamp, and RewardBurst expose a named progressbar, a labelled image, and a polite XP announcement", async ({
     page,
   }) => {
     // 70 XP → Level 2, half-way; the bar is a labelled progressbar, and the
@@ -504,11 +480,7 @@ test.describe("Rewards — accessibility contract", () => {
       name: /Level 2:.*XP to the next level/,
     });
     await expect(bar).toHaveAttribute("aria-valuenow", "50");
-  });
 
-  test("ExpeditionStamp is a single labelled image, not color alone", async ({
-    page,
-  }) => {
     // The stamp carries the topic as its accessible name AND real "Master" text,
     // so mastery never reads by color/glow alone (a11y floor).
     await expect(
@@ -517,9 +489,7 @@ test.describe("Rewards — accessibility contract", () => {
     await expect(
       region(page).getByText("Master", { exact: true })
     ).toBeVisible();
-  });
 
-  test("RewardBurst announces the XP gain politely", async ({ page }) => {
     const burst = region(page).getByText("+20 XP");
     await expect(burst).toBeVisible();
     await expect(

@@ -1,4 +1,5 @@
-import { expect, test } from "@playwright/test";
+import { expect, test, type Page } from "@playwright/test";
+import { createChild, devSignIn } from "./helpers";
 
 // The calibration mini-game (docs/04) runs the first time a child enters the
 // app: a few short passages, one one-tap question each, landing on a starting
@@ -6,19 +7,10 @@ import { expect, test } from "@playwright/test";
 // provider upserts a parent); CI provides both via an ephemeral Neon branch.
 
 // Sign in as a fresh parent and create + open one child, landing on calibration.
-async function enterCalibration(page: import("@playwright/test").Page) {
+async function enterCalibration(page: Page) {
   const email = `e2e-calib-${Date.now()}@example.com`;
-
-  await page.goto("/sign-in");
-  await page.getByPlaceholder("parent@example.com").fill(email);
-  await page.getByPlaceholder("Alex").fill("Calib Parent");
-  await page.getByRole("button", { name: /dev sign-in/i }).click();
-
-  await expect(page).toHaveURL(/\/profiles/);
-  await page.getByRole("button", { name: /add an explorer/i }).click();
-  const dialog = page.getByRole("dialog");
-  await dialog.getByLabel("Name").fill("Bram");
-  await dialog.getByRole("button", { name: /create explorer/i }).click();
+  await devSignIn(page, email, "Calib Parent");
+  await createChild(page, "Bram");
 
   await page.getByRole("button", { name: /Bram/ }).click();
   await expect(page).toHaveURL(/\/play\/calibrate/);
