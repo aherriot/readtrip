@@ -58,6 +58,20 @@ const SAMPLE_NODES: MapNodeView[] = [
     mastered: false,
     kind: "diverse",
   },
+  {
+    topicSlug: "ancient-egypt",
+    title: "Ancient Egypt",
+    status: "suggested",
+    mastered: false,
+    kind: "diverse",
+  },
+  {
+    topicSlug: "the-solar-system",
+    title: "The Solar System",
+    status: "suggested",
+    mastered: false,
+    kind: "deep",
+  },
 ];
 
 export function WorldMapDemo() {

@@ -430,10 +430,10 @@ test.describe("WorldMap / TopicNode — accessibility contract", () => {
 
     const list = region(page).getByRole("list");
     await expect(list).toBeVisible();
-    // Four of the six sample nodes are active (explored/suggested) and shown
-    // up front — two rows on the mobile layout — in DOM order (not purely
-    // spatial); the rest are behind "Show more" / the mastered disclosure.
-    await expect(list.getByRole("listitem")).toHaveCount(4);
+    // Six of the seven active sample nodes (explored/suggested) are shown up
+    // front, in DOM order (not purely spatial); the rest are behind "Show
+    // more" / the mastered disclosure.
+    await expect(list.getByRole("listitem")).toHaveCount(6);
 
     // locked/mastered still show their status word as visible body text.
     for (const word of ["Locked", "Mastered"]) {
@@ -469,28 +469,28 @@ test.describe("WorldMap / TopicNode — accessibility contract", () => {
     await expect(node).toBeVisible();
   });
 
-  test("more active topics than two rows sit behind a 'show more' toggle", async ({
+  test("more active topics than the collapsed count sit behind a 'show more' toggle", async ({
     page,
   }) => {
     // WorldMap's order is randomized (see lib/map/nodeState.ts orderNodes), so
-    // which of the 5 sample nodes lands as the 5th/hidden one varies run to
+    // which of the 7 active sample nodes lands as the hidden one varies run to
     // run — assert the reveal/hide behavior by count, not by a fixed title.
     const toggle = region(page).getByRole("button", {
       name: /show 1 more topic/i,
     });
     const list = region(page).getByRole("list");
-    await expect(list.getByRole("listitem")).toHaveCount(4);
+    await expect(list.getByRole("listitem")).toHaveCount(6);
     await toggle.click();
-    await expect(list.getByRole("listitem")).toHaveCount(5);
+    await expect(list.getByRole("listitem")).toHaveCount(7);
     await region(page)
       .getByRole("button", { name: /show fewer topics/i })
       .click();
-    await expect(list.getByRole("listitem")).toHaveCount(4);
+    await expect(list.getByRole("listitem")).toHaveCount(6);
   });
 
   test("a node shows a visible focus ring when focused", async ({ page }) => {
-    // Any of the always-visible-first-four nodes will do; ordering is
-    // randomized, so don't pin this to a specific title (see above).
+    // Any of the always-visible nodes will do; ordering is randomized, so
+    // don't pin this to a specific title (see above).
     const node = region(page)
       .getByRole("list")
       .getByRole("listitem")
