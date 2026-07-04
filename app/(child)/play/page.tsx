@@ -39,7 +39,11 @@ export default async function PlayPage() {
         ReadTrip
       </span>
 
-      <ExploreEntry initialNodes={nodes} childName={child.displayName} />
+      <ExploreEntry
+        initialNodes={nodes}
+        childName={child.displayName}
+        xp={child.xp}
+      />
     </main>
   );
 }

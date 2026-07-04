@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useState, type FormEvent } from "react";
+import { XPBar } from "@/components/game/XPBar";
 import { WorldMap } from "@/components/game/WorldMap";
 import { ReadingView } from "@/components/reading/ReadingView";
 import { Button } from "@/components/ui/Button";
@@ -30,9 +31,11 @@ type Phase =
 export function ExploreEntry({
   initialNodes,
   childName,
+  xp,
 }: {
   initialNodes: MapNodeView[];
   childName: string;
+  xp: number;
 }) {
   const router = useRouter();
   const [phase, setPhase] = useState<Phase>({ name: "idle" });
@@ -200,6 +203,8 @@ export function ExploreEntry({
 
   return (
     <div className="flex w-full flex-col gap-8">
+      <XPBar xp={xp} />
+
       <WorldMap
         nodes={initialNodes}
         onSelect={startTopic}
