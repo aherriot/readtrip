@@ -6,6 +6,7 @@ import { Card } from "@/components/ui/Card";
 import { Heading } from "@/components/ui/Heading";
 import { ProgressBar } from "@/components/ui/ProgressBar";
 import { Text } from "@/components/ui/Text";
+import { QuizChoice } from "@/components/reading/QuizChoice";
 import type { CalibrationStep, SubmittedAnswer } from "@/lib/calibration/flow";
 import type { CalibrationPassageView } from "@/lib/calibration/passages";
 
@@ -27,11 +28,13 @@ export function CalibrationGame({
   const [answers, setAnswers] = useState<SubmittedAnswer[]>([]);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
 
   async function submitAnswer(passageId: string, selectedIndex: number) {
     if (submitting) return;
     const nextAnswers = [...answers, { passageId, selectedIndex }];
     setSubmitting(true);
+    setSelectedIndex(selectedIndex);
     setError(null);
     try {
       const res = await fetch("/api/calibrate", {
@@ -42,6 +45,7 @@ export function CalibrationGame({
       if (!res.ok) throw new Error(`calibrate failed: ${res.status}`);
       const step = (await res.json()) as CalibrationStep;
       setAnswers(nextAnswers);
+      setSelectedIndex(null);
       if (step.done) {
         setPhase({ name: "done" });
       } else {
@@ -49,6 +53,7 @@ export function CalibrationGame({
       }
     } catch {
       // Roll back so the child can simply tap again.
+      setSelectedIndex(null);
       setError("Something went wrong. Let's try that one again!");
     } finally {
       setSubmitting(false);
@@ -140,16 +145,14 @@ export function CalibrationGame({
           </legend>
           <div className="flex flex-col gap-3">
             {passage.options.map((option, index) => (
-              <Button
+              <QuizChoice
                 key={option}
-                variant="secondary"
-                size="kid"
-                fullWidth
+                state={index === selectedIndex ? "selected" : "default"}
                 disabled={submitting}
-                onClick={() => submitAnswer(passage.id, index)}
+                onSelect={() => submitAnswer(passage.id, index)}
               >
                 {option}
-              </Button>
+              </QuizChoice>
             ))}
           </div>
         </fieldset>
