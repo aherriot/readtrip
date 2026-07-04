@@ -49,6 +49,7 @@ export function QuizDemo() {
           totalQuestions={2}
           isLast={false}
           onAdvance={() => {}}
+          autoScroll={false}
         />
       </div>
     </div>
