@@ -78,8 +78,9 @@ export async function POST(request: Request) {
   const { correct, pct } = scoreQuiz(body.firstChoices, loop.quiz);
 
   const result = await awardLoopProgress({
-    parentId: session.user.id,
     childId,
+    childXp: child.xp,
+    childLevel: child.level,
     loopId: loop.id,
     loopXpAwarded: loop.xpAwarded,
     topicSlug: loop.topicSlug,
@@ -87,9 +88,6 @@ export async function POST(request: Request) {
     correct,
     pct,
   });
-  if (!result) {
-    return Response.json({ error: "child-not-found" }, { status: 404 });
-  }
 
   return Response.json(result);
 }

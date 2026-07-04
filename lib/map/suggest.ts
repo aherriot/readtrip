@@ -11,6 +11,7 @@ import { suggestTopics } from "@/lib/llm";
 import { isLlmOffline } from "@/lib/llm/client";
 import type { ReadingLevel } from "@/lib/llm/prompts/readingLevel";
 import { filterSafeTopics } from "@/lib/safety";
+import type { MapNodeView } from "./nodeState";
 import {
   getChildMap,
   getDismissedTopicSlugs,
@@ -40,11 +41,13 @@ export async function refreshSuggestions(input: {
   title: string;
   readingLevel: ReadingLevel;
 }): Promise<void> {
-  const map = await getChildMap(input.childId);
+  const [map, dismissedSlugs] = await Promise.all([
+    getChildMap(input.childId),
+    getDismissedTopicSlugs(input.childId),
+  ]);
   const exploredSlugs = map
     .filter((n) => n.status === "explored")
     .map((n) => n.topicSlug);
-  const dismissedSlugs = await getDismissedTopicSlugs(input.childId);
 
   const suggestions = await modelSuggestions({
     childId: input.childId,
@@ -67,13 +70,18 @@ export async function refreshSuggestions(input: {
  * asks it for a fresh batch of starter topics instead, told what's already
  * been explored and dismissed so it doesn't repeat itself. Called on every
  * map read, so a freshly-emptied map never renders with zero tiles to tap.
+ *
+ * Returns the map the caller should render: the already-fetched one when
+ * nothing changed (the common case), or a fresh read after a backfill wrote
+ * new nodes — so a caller that needs the map anyway doesn't have to re-fetch
+ * it itself.
  */
 export async function ensureSuggestions(
   childId: string,
   readingLevel: ReadingLevel
-): Promise<void> {
+): Promise<MapNodeView[]> {
   const map = await getChildMap(childId);
-  if (map.some((n) => n.status === "suggested")) return;
+  if (map.some((n) => n.status === "suggested")) return map;
 
   const dismissedSlugs = await getDismissedTopicSlugs(childId);
   const exploredSlugs = map
@@ -91,11 +99,12 @@ export async function ensureSuggestions(
     dismissedSlugs,
   });
 
-  if (suggestions.length === 0) return;
+  if (suggestions.length === 0) return map;
   // No single "current" topic these are neighbours of — the starter-mode case
   // writes no edges, and the seeded case's edges belong on `lastExplored`, not
   // this placeholder, so an unmatched slug is intentional.
   await saveSuggestedNeighbors(childId, "__ensure-suggestions__", suggestions);
+  return getChildMap(childId);
 }
 
 /** LLM (or offline-fallback) suggestions, safety-filtered and mapped onto the

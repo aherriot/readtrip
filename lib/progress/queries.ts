@@ -12,8 +12,10 @@ import { levelForXp, xpForLoop } from "@/lib/gamification/xp";
 import { setLoopXpAwarded } from "@/lib/loops/queries";
 
 export interface AwardProgressInput {
-  parentId: string;
   childId: string;
+  /** The child's current xp/level, already fetched by the caller (avoids a duplicate lookup). */
+  childXp: number;
+  childLevel: number;
   loopId: string;
   /** Already-granted XP for this loop; > 0 short-circuits (award once only). */
   loopXpAwarded: number;
@@ -40,29 +42,22 @@ export interface AwardProgressResult {
 }
 
 /**
- * Award XP + progress for a completed loop, idempotently. Scoped by parentId so
- * a parent can only affect their own child; returns `null` if the child no
- * longer resolves. Re-running for an already-awarded loop is a no-op that
- * reports the child's current standing (so a client retry can't double-count).
+ * Award XP + progress for a completed loop, idempotently. The caller must have
+ * already resolved and ownership-checked the child (e.g. via getChild) and pass
+ * its current xp/level in, so this never re-fetches it. Re-running for an
+ * already-awarded loop is a no-op that reports the child's current standing (so
+ * a client retry can't double-count).
  */
 export async function awardLoopProgress(
   input: AwardProgressInput
-): Promise<AwardProgressResult | null> {
-  const child = await db.query.children.findFirst({
-    where: and(
-      eq(children.id, input.childId),
-      eq(children.parentId, input.parentId)
-    ),
-  });
-  if (!child) return null;
-
+): Promise<AwardProgressResult> {
   // Idempotency: a loop pays out exactly once. Report the current standing so
   // the UI still has something to show on a retry.
   if (input.loopXpAwarded > 0) {
     return {
       xpAwarded: input.loopXpAwarded,
-      xp: child.xp,
-      level: child.level,
+      xp: input.childXp,
+      level: input.childLevel,
       leveledUp: false,
       newlyMastered: false,
       badgeTitle: null,
@@ -71,9 +66,9 @@ export async function awardLoopProgress(
 
   // XP + level.
   const xpAwarded = xpForLoop(input.correct);
-  const xp = child.xp + xpAwarded;
+  const xp = input.childXp + xpAwarded;
   const level = levelForXp(xp);
-  const leveledUp = level > child.level;
+  const leveledUp = level > input.childLevel;
   await db
     .update(children)
     .set({ xp, level })

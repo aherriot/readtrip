@@ -22,25 +22,30 @@ const SUGGESTION_CAPS: Record<SuggestionKind, number> = {
  * TopicProgress. Ordering for display is the caller's concern (`orderNodes`).
  */
 export async function getChildMap(childId: string): Promise<MapNodeView[]> {
-  const nodes = await db
-    .select({
-      topicSlug: mapNodes.topicSlug,
-      title: mapNodes.title,
-      status: mapNodes.status,
-      kind: mapNodes.kind,
-    })
-    .from(mapNodes)
-    .where(eq(mapNodes.childId, childId));
+  // Fetched in parallel: node list and mastery flags are independent reads, and
+  // the Neon HTTP driver makes each query its own round trip, so there's no
+  // reason to pay their latency sequentially.
+  const [nodes, progress] = await Promise.all([
+    db
+      .select({
+        topicSlug: mapNodes.topicSlug,
+        title: mapNodes.title,
+        status: mapNodes.status,
+        kind: mapNodes.kind,
+      })
+      .from(mapNodes)
+      .where(eq(mapNodes.childId, childId)),
+    // Fold in mastery: a topic is mastered iff its TopicProgress row says so.
+    db
+      .select({
+        topicSlug: topicProgress.topicSlug,
+        mastered: topicProgress.mastered,
+      })
+      .from(topicProgress)
+      .where(eq(topicProgress.childId, childId)),
+  ]);
   if (nodes.length === 0) return [];
 
-  // Fold in mastery: a topic is mastered iff its TopicProgress row says so.
-  const progress = await db
-    .select({
-      topicSlug: topicProgress.topicSlug,
-      mastered: topicProgress.mastered,
-    })
-    .from(topicProgress)
-    .where(eq(topicProgress.childId, childId));
   const masteredSlugs = new Set(
     progress.filter((p) => p.mastered).map((p) => p.topicSlug)
   );

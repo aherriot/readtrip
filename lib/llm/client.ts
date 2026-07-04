@@ -7,6 +7,7 @@
 // and write an LlmCallLog row. Higher-level helpers (lesson, quiz, normalize,
 // safety) call these and never touch the SDK directly.
 import Anthropic from "@anthropic-ai/sdk";
+import { after } from "next/server";
 import { cachedSystem } from "./cache";
 import { logLlmCall } from "./log";
 import {
@@ -122,6 +123,21 @@ async function recordCall(
   });
 }
 
+// `after()` only works inside a request scope; it throws synchronously
+// otherwise (e.g. scripts/verify-llm.ts calling these helpers directly,
+// outside any route). Fall back to firing the write immediately there.
+function deferRecordCall(
+  opts: CallOptions,
+  usage: TokenUsage,
+  latencyMs: number
+): void {
+  try {
+    after(() => recordCall(opts, usage, latencyMs));
+  } catch {
+    void recordCall(opts, usage, latencyMs);
+  }
+}
+
 /** Make one Claude call, log it, and return the full text + usage. */
 export async function callModel(opts: CallOptions): Promise<CallResult> {
   const startedAt = Date.now();
@@ -129,7 +145,7 @@ export async function callModel(opts: CallOptions): Promise<CallResult> {
   const latencyMs = Date.now() - startedAt;
 
   const usage = toTokenUsage(response.usage);
-  await recordCall(opts, usage, latencyMs);
+  deferRecordCall(opts, usage, latencyMs);
 
   return {
     text: textFrom(response.content),
@@ -156,7 +172,7 @@ export async function streamModel(
   const latencyMs = Date.now() - startedAt;
 
   const usage = toTokenUsage(message.usage);
-  await recordCall(opts, usage, latencyMs);
+  deferRecordCall(opts, usage, latencyMs);
 
   return {
     text: textFrom(message.content),
