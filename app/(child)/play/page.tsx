@@ -4,7 +4,6 @@ import { requireParent } from "@/lib/auth/session";
 import { getChild } from "@/lib/children/queries";
 import { getSelectedChildId } from "@/lib/children/selection";
 import { clampReadingLevel } from "@/lib/llm/prompts/readingLevel";
-import { getChildMap } from "@/lib/map/queries";
 import { ensureSuggestions } from "@/lib/map/suggest";
 import { ExploreEntry } from "./ExploreEntry";
 
@@ -30,8 +29,10 @@ export default async function PlayPage() {
   // nothing "suggested" to tap — a brand-new explorer, or one who's dismissed
   // or explored their way through everything offered so far — so the map is
   // never rendered empty.
-  await ensureSuggestions(child.id, clampReadingLevel(child.readingLevel));
-  const nodes = await getChildMap(child.id);
+  const nodes = await ensureSuggestions(
+    child.id,
+    clampReadingLevel(child.readingLevel)
+  );
 
   return (
     <main className="mx-auto flex min-h-screen w-full max-w-xl flex-col items-center gap-6 p-6">
