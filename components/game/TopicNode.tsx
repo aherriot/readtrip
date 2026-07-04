@@ -158,7 +158,9 @@ export function TopicNode({
             {badge.text}
           </Badge>
         )}
-        <span className="font-display text-lg leading-tight">{title}</span>
+        <span className="line-clamp-2 break-words font-display text-lg leading-tight">
+          {title}
+        </span>
         {showLabelInline ? (
           <span className="font-body text-xs text-surface-ink-soft">
             {config.label}

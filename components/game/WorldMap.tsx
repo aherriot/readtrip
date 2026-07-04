@@ -148,7 +148,7 @@ export function WorldMap({ nodes, onSelect, onDismiss }: WorldMapProps) {
                   <span aria-hidden="true" className="text-base leading-none">
                     🏅
                   </span>
-                  <span className="flex-1 font-body text-sm text-surface-ink">
+                  <span className="min-w-0 flex-1 truncate font-body text-sm text-surface-ink">
                     {node.title}
                   </span>
                   <span className="font-body text-xs text-surface-ink-soft">
