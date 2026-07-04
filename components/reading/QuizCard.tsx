@@ -20,6 +20,12 @@ export interface QuizCardProps {
   onFirstAnswer?: (choiceIndex: number) => void;
   /** Advance to the next question (or finish). Only reachable once solved. */
   onAdvance: () => void;
+  /**
+   * Auto-scroll to the prompt on mount and to the advance button once solved.
+   * Defaults to true for the real quiz flow; set false when the card is
+   * embedded in a page that shouldn't be hijacked (e.g. a component gallery).
+   */
+  autoScroll?: boolean;
 }
 
 /**
@@ -38,6 +44,7 @@ export function QuizCard({
   isLast,
   onFirstAnswer,
   onAdvance,
+  autoScroll = true,
 }: QuizCardProps) {
   const [triedWrong, setTriedWrong] = useState<Set<number>>(new Set());
   const [solved, setSolved] = useState(false);
@@ -49,19 +56,20 @@ export function QuizCard({
   // scroll back to the prompt each time — otherwise the viewport stays where
   // the previous question's advance button was, below the new question.
   useEffect(() => {
+    if (!autoScroll) return;
     topRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
-  }, []);
+  }, [autoScroll]);
 
   // The advance button only appears once solved, and can land below the fold
   // on longer questions — bring it into view rather than making the child hunt.
   useEffect(() => {
-    if (solved) {
+    if (solved && autoScroll) {
       advanceRef.current?.scrollIntoView({
         behavior: "smooth",
         block: "nearest",
       });
     }
-  }, [solved]);
+  }, [solved, autoScroll]);
 
   function choose(index: number) {
     if (solved || triedWrong.has(index)) return;
