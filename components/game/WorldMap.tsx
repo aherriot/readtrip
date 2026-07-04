@@ -19,11 +19,9 @@ export interface WorldMapProps {
   onDismiss?: (node: MapNodeView) => void;
 }
 
-// Two rows on the narrowest (2-column) layout — enough to orient without
-// pushing the free-form input far down the page.
-const COLLAPSED_ROWS = 2;
-const COLLAPSED_COLUMNS = 2;
-const COLLAPSED_COUNT = COLLAPSED_ROWS * COLLAPSED_COLUMNS;
+// Enough to orient without pushing the free-form input far down the page —
+// three rows on the narrowest (2-column) layout, two rows at sm: (3-column).
+const COLLAPSED_COUNT = 6;
 
 // Mastered topics are shown as compact rows, not full tiles, and paged in
 // batches — a child with 100 mastered topics shouldn't render 100 112px
