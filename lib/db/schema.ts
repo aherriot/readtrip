@@ -6,6 +6,7 @@ import { relations } from "drizzle-orm";
 import {
   boolean,
   doublePrecision,
+  index,
   integer,
   jsonb,
   pgTable,
@@ -85,38 +86,42 @@ export const verificationTokens = pgTable(
 );
 
 // --- App tables ---
-export const children = pgTable("Child", {
-  id: id(),
-  parentId: text("parentId")
-    .notNull()
-    .references(() => users.id, { onDelete: "cascade" }),
-  displayName: text("displayName").notNull(),
-  avatarConfig: jsonb("avatarConfig").notNull(), // cosmetic items unlocked / equipped
+export const children = pgTable(
+  "Child",
+  {
+    id: id(),
+    parentId: text("parentId")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    displayName: text("displayName").notNull(),
+    avatarConfig: jsonb("avatarConfig").notNull(), // cosmetic items unlocked / equipped
 
-  // Progression
-  readingLevel: integer("readingLevel").default(4).notNull(), // 1..7, see docs/04
-  xp: integer("xp").default(0).notNull(),
-  level: integer("level").default(1).notNull(),
+    // Progression
+    readingLevel: integer("readingLevel").default(4).notNull(), // 1..7, see docs/04
+    xp: integer("xp").default(0).notNull(),
+    level: integer("level").default(1).notNull(),
 
-  // Adaptation: rolling quiz history feeds a *suggested* level (docs/04). The
-  // actual readingLevel only ever moves on a manual/parent-approved change, never
-  // silently from quiz results.
-  recentQuizScores: jsonb("recentQuizScores").notNull(), // e.g. [{ level, pct, at }]
-  // The level ongoing adaptation is pointing at (up or down), pending parent
-  // approval on the Profiles page. Null when there's nothing to suggest.
-  suggestedReadingLevel: integer("suggestedReadingLevel"),
-  // Set to the current reading level when a parent dismisses a suggestion ("not
-  // yet"). While it matches readingLevel, re-suggesting takes a much longer trend
-  // (RESUGGEST_WINDOW) so we don't nag. Cleared once a fresh suggestion fires or
-  // the level actually changes.
-  readingSuggestionSnoozedLevel: integer("readingSuggestionSnoozedLevel"),
+    // Adaptation: rolling quiz history feeds a *suggested* level (docs/04). The
+    // actual readingLevel only ever moves on a manual/parent-approved change, never
+    // silently from quiz results.
+    recentQuizScores: jsonb("recentQuizScores").notNull(), // e.g. [{ level, pct, at }]
+    // The level ongoing adaptation is pointing at (up or down), pending parent
+    // approval on the Profiles page. Null when there's nothing to suggest.
+    suggestedReadingLevel: integer("suggestedReadingLevel"),
+    // Set to the current reading level when a parent dismisses a suggestion ("not
+    // yet"). While it matches readingLevel, re-suggesting takes a much longer trend
+    // (RESUGGEST_WINDOW) so we don't nag. Cleared once a fresh suggestion fires or
+    // the level actually changes.
+    readingSuggestionSnoozedLevel: integer("readingSuggestionSnoozedLevel"),
 
-  // Set when the child finishes the calibration mini-game (docs/04). Null means
-  // "not calibrated yet" — the child app routes them into calibration first.
-  calibratedAt: timestamp("calibratedAt", { precision: 3, mode: "date" }),
+    // Set when the child finishes the calibration mini-game (docs/04). Null means
+    // "not calibrated yet" — the child app routes them into calibration first.
+    calibratedAt: timestamp("calibratedAt", { precision: 3, mode: "date" }),
 
-  createdAt: createdAt(),
-});
+    createdAt: createdAt(),
+  },
+  (t) => [index().on(t.parentId)]
+);
 
 export const topicProgress = pgTable(
   "TopicProgress",
@@ -169,53 +174,65 @@ export const mapNodes = pgTable(
     neighbors: jsonb("neighbors").notNull(), // adjacent topic slugs (graph edges)
     createdAt: createdAt(),
   },
-  (t) => [unique().on(t.childId, t.topicSlug)]
+  (t) => [unique().on(t.childId, t.topicSlug), index().on(t.childId)]
 );
 
-export const learningSessions = pgTable("LearningSession", {
-  id: id(),
-  childId: text("childId")
-    .notNull()
-    .references(() => children.id, { onDelete: "cascade" }),
-  startedAt: timestamp("startedAt", { precision: 3 }).defaultNow().notNull(),
-});
+export const learningSessions = pgTable(
+  "LearningSession",
+  {
+    id: id(),
+    childId: text("childId")
+      .notNull()
+      .references(() => children.id, { onDelete: "cascade" }),
+    startedAt: timestamp("startedAt", { precision: 3 }).defaultNow().notNull(),
+  },
+  (t) => [index().on(t.childId, t.startedAt)]
+);
 
-export const loops = pgTable("Loop", {
-  id: id(),
-  sessionId: text("sessionId")
-    .notNull()
-    .references(() => learningSessions.id, { onDelete: "cascade" }),
-  // Set when this loop is a "go deeper" follow-up drilling into another loop.
-  parentLoopId: text("parentLoopId").references((): AnyPgColumn => loops.id, {
-    onDelete: "set null",
-  }),
-  rawQuery: text("rawQuery"), // the child's original phrasing, pre-normalization
-  intent: text("intent").notNull(), // "topic" | "question"
-  topicSlug: text("topicSlug").notNull(),
-  readingLevel: integer("readingLevel").notNull(),
-  lessonText: text("lessonText").notNull(),
-  quizJson: jsonb("quizJson").notNull(),
-  quizPct: doublePrecision("quizPct"),
-  xpAwarded: integer("xpAwarded").default(0).notNull(),
-  createdAt: createdAt(),
-});
+export const loops = pgTable(
+  "Loop",
+  {
+    id: id(),
+    sessionId: text("sessionId")
+      .notNull()
+      .references(() => learningSessions.id, { onDelete: "cascade" }),
+    // Set when this loop is a "go deeper" follow-up drilling into another loop.
+    parentLoopId: text("parentLoopId").references((): AnyPgColumn => loops.id, {
+      onDelete: "set null",
+    }),
+    rawQuery: text("rawQuery"), // the child's original phrasing, pre-normalization
+    intent: text("intent").notNull(), // "topic" | "question"
+    topicSlug: text("topicSlug").notNull(),
+    readingLevel: integer("readingLevel").notNull(),
+    lessonText: text("lessonText").notNull(),
+    quizJson: jsonb("quizJson").notNull(),
+    quizPct: doublePrecision("quizPct"),
+    xpAwarded: integer("xpAwarded").default(0).notNull(),
+    createdAt: createdAt(),
+  },
+  (t) => [index().on(t.sessionId)]
+);
 
-export const llmCallLogs = pgTable("LlmCallLog", {
-  id: id(),
-  childId: text("childId").references(() => children.id, {
-    onDelete: "set null",
-  }),
-  task: text("task").notNull(), // "lesson" | "quiz_generate" | ...
-  model: text("model").notNull(),
-  inputTokens: integer("inputTokens").notNull(),
-  outputTokens: integer("outputTokens").notNull(),
-  cacheReadTokens: integer("cacheReadTokens").default(0).notNull(),
-  cacheCreateTokens: integer("cacheCreateTokens").default(0).notNull(),
-  latencyMs: integer("latencyMs").notNull(),
-  costUsd: doublePrecision("costUsd").notNull(),
-  safetyFlag: text("safetyFlag"), // null if clean
-  createdAt: createdAt(),
-});
+export const llmCallLogs = pgTable(
+  "LlmCallLog",
+  {
+    id: id(),
+    childId: text("childId").references(() => children.id, {
+      onDelete: "set null",
+    }),
+    task: text("task").notNull(), // "lesson" | "quiz_generate" | ...
+    model: text("model").notNull(),
+    inputTokens: integer("inputTokens").notNull(),
+    outputTokens: integer("outputTokens").notNull(),
+    cacheReadTokens: integer("cacheReadTokens").default(0).notNull(),
+    cacheCreateTokens: integer("cacheCreateTokens").default(0).notNull(),
+    latencyMs: integer("latencyMs").notNull(),
+    costUsd: doublePrecision("costUsd").notNull(),
+    safetyFlag: text("safetyFlag"), // null if clean
+    createdAt: createdAt(),
+  },
+  (t) => [index().on(t.childId)]
+);
 
 // Fixed-window rate limiting (lib/rate-limit). One row per limiter key (e.g.
 // `llm:<childId>`), holding the current window's start and request count. The
