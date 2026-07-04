@@ -121,10 +121,12 @@ export function CalibrationGame({
         <div data-surface="paper">
           <Card elevated padding="lg" className="flex flex-col gap-3">
             <div className="flex items-center gap-3">
-              <span className="text-3xl" aria-hidden="true">
+              <span className="shrink-0 text-3xl" aria-hidden="true">
                 {passage.emoji}
               </span>
-              <Heading level={2}>{passage.title}</Heading>
+              <Heading level={2} className="min-w-0 break-words">
+                {passage.title}
+              </Heading>
             </div>
             <Text size="lg" measure>
               {passage.text}

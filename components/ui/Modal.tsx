@@ -68,7 +68,11 @@ export function Modal({
         // otherwise bleed the page behind it into the baseline).
         data-testid="modal-panel"
         className={cn(
-          "relative z-10 w-full max-w-lg bg-surface text-surface-ink",
+          // `min-w-0` overrides the flex item's default `min-width: auto`,
+          // which otherwise floors the panel at its content's min-content
+          // width (e.g. a nowrap button label) and pushes it past the
+          // viewport on narrow phones instead of letting it shrink/wrap.
+          "relative z-10 w-full min-w-0 max-w-lg bg-surface text-surface-ink",
           // Full-width sheet (rounded top) on phones; floating card above.
           "max-h-[90vh] overflow-y-auto rounded-t-lg p-6 sm:rounded-lg sm:p-8",
           "shadow-[var(--surface-elevation)]",
@@ -77,7 +81,7 @@ export function Modal({
         )}
       >
         <div className="mb-4 flex items-start justify-between gap-4">
-          <DialogTitle className="font-display text-2xl font-semibold text-surface-ink">
+          <DialogTitle className="min-w-0 break-words font-display text-2xl font-semibold text-surface-ink">
             {title}
           </DialogTitle>
           {!hideCloseButton && (

@@ -62,10 +62,19 @@ function ModelMix({ metrics }: { metrics: DashboardMetrics }) {
         {metrics.modelMix.map((entry) => (
           <li key={entry.model} className="flex flex-col gap-1.5">
             <div className="flex items-baseline justify-between gap-3">
-              <Text as="span" size="sm" className="font-medium">
+              <Text
+                as="span"
+                size="sm"
+                className="min-w-0 truncate font-medium"
+              >
                 {modelLabel(entry.model)}
               </Text>
-              <Text as="span" size="sm" tone="soft" className="tabular-nums">
+              <Text
+                as="span"
+                size="sm"
+                tone="soft"
+                className="shrink-0 tabular-nums"
+              >
                 {formatCount(entry.calls)} calls · {formatPct(entry.share)} ·{" "}
                 {formatUsd(entry.costUsd)}
               </Text>

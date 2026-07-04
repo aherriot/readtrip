@@ -48,7 +48,7 @@ export function XPBar({ xp, className }: XPBarProps) {
         label={`Level ${level}: ${xpIntoLevel} of ${xpForLevel} XP to the next level`}
         value={filled ? pct : 0}
         tone="sun"
-        className="w-full"
+        className="w-full min-w-0"
       />
     </div>
   );
