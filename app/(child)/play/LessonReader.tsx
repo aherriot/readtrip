@@ -42,7 +42,12 @@ export function LessonReader({
   topic,
   onExplore,
   onGoDeeper,
-}: { topic: LessonTopic } & SteerHandlers) {
+  onLoopExplored,
+}: {
+  topic: LessonTopic;
+  /** Fired once the quiz is finished, to grow the map for this topic. */
+  onLoopExplored: (topic: { topicSlug: string; title: string }) => void;
+} & SteerHandlers) {
   const [text, setText] = useState("");
   const [status, setStatus] = useState<Status>("loading");
   const [redirect, setRedirect] = useState("");
@@ -152,6 +157,7 @@ export function LessonReader({
         lessonText={text}
         onExplore={onExplore}
         onGoDeeper={onGoDeeper}
+        onLoopExplored={onLoopExplored}
       />
     );
   }

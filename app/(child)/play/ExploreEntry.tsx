@@ -56,6 +56,12 @@ export function ExploreEntry({
   // One backfill attempt per mount — guards against React's dev double-invoke
   // and a refresh that re-runs the effect before the map has repopulated.
   const backfillAttempted = useRef(false);
+  // The in-flight map-growth request for the loop the child just finished (its
+  // response resolves only once the new neighbour suggestions are persisted).
+  // Started at quiz-finish so its LLM work overlaps the Steer screen; awaited by
+  // reset() so returning to the map reveals the grown set instead of a partial,
+  // stale-looking one.
+  const mapGrowth = useRef<Promise<unknown> | null>(null);
   // Bumps each time a new expedition starts so the reader remounts cleanly —
   // even a "go deeper" follow-up that resolves back to the same slug.
   const [expedition, setExpedition] = useState(0);
@@ -193,13 +199,42 @@ export function ExploreEntry({
     }
   }
 
+  // The just-finished loop's map growth (docs/05): light up the explored node
+  // and generate fresh neighbour suggestions. Fired from the quiz's finish so
+  // the LLM neighbour generation overlaps the Steer screen; the promise is held
+  // so reset() can await it before revealing the map. Not fire-and-forget any
+  // more — that let the child return to a half-written map (explored tile lit,
+  // new neighbours not yet persisted) that only filled in on a later refresh.
+  function recordLoopExplored(topic: { topicSlug: string; title: string }) {
+    mapGrowth.current = fetch("/api/map", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        topicSlug: topic.topicSlug,
+        title: topic.title,
+      }),
+    }).catch((err) => console.error("[map] failed:", err));
+  }
+
   function reset() {
     setPhase({ name: "idle" });
     setQuery("");
     setError(null);
-    // Re-fetch the server-rendered map so a topic just explored shows as lit and
-    // any new suggested neighbours appear.
+
+    const growth = mapGrowth.current;
+    mapGrowth.current = null;
+    // Light up the just-explored tile now from what's already persisted.
     router.refresh();
+    // If the neighbour suggestions are still generating, hold the "charting"
+    // beat over the map and reveal them once the write lands — so the map never
+    // shows a partial set that looks stale until a manual refresh.
+    if (growth) {
+      setCharting(true);
+      void growth.finally(() => {
+        setCharting(false);
+        router.refresh();
+      });
+    }
   }
 
   if (phase.name === "reading") {
@@ -209,6 +244,7 @@ export function ExploreEntry({
         topic={phase.topic}
         onExplore={reset}
         onGoDeeper={goDeeper}
+        onLoopExplored={recordLoopExplored}
       />
     );
   }
