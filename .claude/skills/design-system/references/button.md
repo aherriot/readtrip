@@ -19,6 +19,12 @@ import { Button } from "@/components/ui/Button";
 
 ## When **not** to use
 
+- **Submitting a `<form action={…}>`** → [`SubmitButton`](submit-button.md), not a bare
+  `<Button type="submit">`. It reflects the form's pending state (spinner + inert) for free,
+  so the tap gives immediate feedback instead of looking frozen until the action resolves or
+  the page navigates. Reach for `Button` directly only when you're driving `loading` yourself
+  (e.g. a `useActionState` form where you already have `pending`) or the control isn't a form
+  submit.
 - **Plain inline navigation** in a sentence → a regular text link, not a Button.
 - **Toggling a value** → a checkbox/switch primitive.
 - **Picking one of several answers** → `QuizChoice`, not a row of Buttons.
@@ -37,7 +43,8 @@ import { Button } from "@/components/ui/Button";
 | …rest                        | native `button`/`a` props             | —           | `onClick`, `type`, `disabled`, `target`, …                                                                                       |
 
 `type` defaults to `"button"` so a Button inside a form never submits by accident — set
-`type="submit"` explicitly on the submit action.
+`type="submit"` explicitly on the submit action, or reach for
+[`SubmitButton`](submit-button.md), which sets it and wires up the form's pending state.
 
 ## Surfaces
 

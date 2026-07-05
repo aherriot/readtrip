@@ -7,6 +7,7 @@ import { WorldMap } from "@/components/game/WorldMap";
 import { ReadingView } from "@/components/reading/ReadingView";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
+import { SubmitButton } from "@/components/ui/SubmitButton";
 import { Heading } from "@/components/ui/Heading";
 import { Input } from "@/components/ui/Input";
 import { Spinner } from "@/components/ui/Spinner";
@@ -240,9 +241,9 @@ export function ExploreEntry({
       </form>
 
       <form action={switchProfileAction} className="self-center">
-        <Button type="submit" variant="ghost" size="md">
+        <SubmitButton variant="ghost" size="md">
           Not {childName}? Switch explorer
-        </Button>
+        </SubmitButton>
       </form>
     </div>
   );

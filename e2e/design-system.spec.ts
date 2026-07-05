@@ -188,6 +188,29 @@ test.describe("Spinner — accessibility contract", () => {
   });
 });
 
+test.describe("SubmitButton — accessibility contract", () => {
+  const onNight = (page: import("@playwright/test").Page) =>
+    page.getByTestId("submitbutton-night");
+
+  test("renders a real submit button; a pending one is inert and announced busy", async ({
+    page,
+  }) => {
+    // A real <button type="submit"> inside its form — not a div, so keyboard +
+    // form submission come for free.
+    const save = onNight(page).getByRole("button", { name: "Save changes" });
+    await expect(save).toBeVisible();
+    await expect(save).toHaveAttribute("type", "submit");
+
+    // The forced-loading variant models the mid-submit state the form's own
+    // pending status drives in-app: disabled so it can't be double-fired, and
+    // aria-busy for screen readers — with the label kept so the control is still
+    // named while it works.
+    const busy = onNight(page).getByRole("button", { name: /always busy/i });
+    await expect(busy).toBeDisabled();
+    await expect(busy).toHaveAttribute("aria-busy", "true");
+  });
+});
+
 test.describe("Badge — contract", () => {
   const onNight = (page: import("@playwright/test").Page) =>
     page.getByTestId("badge-night");
