@@ -781,7 +781,7 @@ export default function ComponentGallery() {
       >
         <header className="flex flex-col gap-2">
           <h1 className="font-display text-3xl text-surface-ink">
-            Component gallery
+            Design System
           </h1>
           <p className="max-w-2xl font-body text-surface-ink-soft">
             Every design-system component, every variant, on both surfaces.
