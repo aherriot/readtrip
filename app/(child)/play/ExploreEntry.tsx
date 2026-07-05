@@ -1,7 +1,14 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useEffect, useRef, useState, type FormEvent } from "react";
+import {
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+  useTransition,
+  type FormEvent,
+} from "react";
 import { XPBar } from "@/components/game/XPBar";
 import { WorldMap } from "@/components/game/WorldMap";
 import { ReadingView } from "@/components/reading/ReadingView";
@@ -70,16 +77,35 @@ export function ExploreEntry({
   const [dismissing, setDismissing] = useState<Set<string>>(new Set());
 
   const busy = phase.name === "resolving";
+  const [, startTransition] = useTransition();
+
+  // Run a map-writing request behind the "charting" cover, then reveal the
+  // result in a single paint. Dropping the cover and refreshing in ONE
+  // transition means React commits the fresh tiles and the hidden loader
+  // together — the map renders once, rather than flashing an interim/stale set
+  // and re-cascading. Best-effort: a failed request just refreshes to whatever
+  // did persist. Shared by the empty-map backfill and the after-a-loop growth.
+  const chartMapUpdate = useCallback(
+    (work: Promise<unknown>) => {
+      setCharting(true);
+      void work
+        .catch((err) => console.error("[map] update failed:", err))
+        .finally(() => {
+          startTransition(() => {
+            setCharting(false);
+            router.refresh();
+          });
+        });
+    },
+    [router, startTransition]
+  );
 
   // Deferred map backfill: when the server rendered a map with nothing to tap,
   // generate suggestions off the render path (a possible Anthropic round-trip)
-  // and refresh once they land, so first paint never waited on the model. One
-  // attempt per empty-map episode — the guard resets once suggestions exist, so
-  // dismissing the last tile mid-session re-triggers it (the backfill used to
-  // run on every server render). Best-effort: a failure or an over-budget skip
-  // just drops back to the (possibly empty) map, where the child can still type
-  // their own idea. No cancellation — both the endpoint and `refresh` are
-  // idempotent, which also keeps it working under React's dev double-invoke.
+  // rather than blocking first paint on the model. One attempt per empty-map
+  // episode — the guard resets once suggestions exist, so dismissing the last
+  // tile mid-session re-triggers it (the backfill used to run on every server
+  // render).
   useEffect(() => {
     if (!needsSuggestions) {
       backfillAttempted.current = false;
@@ -87,19 +113,8 @@ export function ExploreEntry({
     }
     if (backfillAttempted.current) return;
     backfillAttempted.current = true;
-    setCharting(true);
-    void (async () => {
-      try {
-        await fetch("/api/map/ensure", { method: "POST" });
-      } catch (err) {
-        console.error("[map] failed to ensure suggestions:", err);
-      } finally {
-        setCharting(false);
-        // Re-read the server-rendered map so the new suggested tiles appear.
-        router.refresh();
-      }
-    })();
-  }, [needsSuggestions, router]);
+    chartMapUpdate(fetch("/api/map/ensure", { method: "POST" }));
+  }, [needsSuggestions, chartMapUpdate]);
 
   // For a "go deeper" follow-up, `parent` carries the loop to link back to and
   // its topic, threaded through so the follow-up resolves against that concept.
@@ -223,17 +238,13 @@ export function ExploreEntry({
 
     const growth = mapGrowth.current;
     mapGrowth.current = null;
-    // Light up the just-explored tile now from what's already persisted.
-    router.refresh();
-    // If the neighbour suggestions are still generating, hold the "charting"
-    // beat over the map and reveal them once the write lands — so the map never
-    // shows a partial set that looks stale until a manual refresh.
+    // If the loop's neighbour suggestions are still generating, cover the map
+    // with the charting beat and reveal the grown set in one paint; otherwise a
+    // plain refresh picks up the just-explored tile.
     if (growth) {
-      setCharting(true);
-      void growth.finally(() => {
-        setCharting(false);
-        router.refresh();
-      });
+      chartMapUpdate(growth);
+    } else {
+      router.refresh();
     }
   }
 
@@ -286,17 +297,11 @@ export function ExploreEntry({
     <div className="flex w-full flex-col gap-8">
       <XPBar xp={xp} />
 
-      <WorldMap
-        nodes={initialNodes}
-        onSelect={startTopic}
-        onDismiss={dismissTopic}
-      />
-
-      {/* Deferred backfill in progress: make it unmistakable that new tiles are
-          on the way — a spinner + caption over placeholder tiles in the exact
-          spot the real ones will land — so an empty map never reads as "nothing
-          happened". */}
-      {charting && (
+      {/* While a map update is generating (empty-map backfill or after-a-loop
+          growth), show placeholder tiles where the real ones will land — so the
+          map never reads as "nothing happened" — then swap to the real map in a
+          single paint once the data is ready (see chartMapUpdate). */}
+      {charting ? (
         <div
           className="flex flex-col gap-3"
           aria-live="polite"
@@ -308,6 +313,12 @@ export function ExploreEntry({
           </div>
           <MapTilesSkeleton />
         </div>
+      ) : (
+        <WorldMap
+          nodes={initialNodes}
+          onSelect={startTopic}
+          onDismiss={dismissTopic}
+        />
       )}
 
       <form onSubmit={onSubmit} className="flex flex-col gap-4">
