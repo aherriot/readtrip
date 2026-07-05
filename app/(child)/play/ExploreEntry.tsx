@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useState, type FormEvent } from "react";
+import { useEffect, useRef, useState, type FormEvent } from "react";
 import { XPBar } from "@/components/game/XPBar";
 import { WorldMap } from "@/components/game/WorldMap";
 import { ReadingView } from "@/components/reading/ReadingView";
@@ -15,6 +15,7 @@ import { Text } from "@/components/ui/Text";
 import type { MapNodeView } from "@/lib/map/nodeState";
 import { switchProfileAction } from "@/app/(parent)/profiles/actions";
 import { LessonReader, type LessonTopic } from "./LessonReader";
+import { MapTilesSkeleton } from "./PlaySkeleton";
 
 // What /api/explore resolves free-form input into (mirrors NormalizedTopic +
 // the original phrasing). Defined locally so this client island doesn't pull the
@@ -31,10 +32,17 @@ type Phase =
 
 export function ExploreEntry({
   initialNodes,
+  needsSuggestions,
   childName,
   xp,
 }: {
   initialNodes: MapNodeView[];
+  /**
+   * The server-rendered map had nothing "suggested" to tap. Rather than block
+   * first paint on the LLM-backed backfill (docs/05), we render immediately and
+   * kick it off here, after paint — then refresh to pick up the new tiles.
+   */
+  needsSuggestions: boolean;
   childName: string;
   xp: number;
 }) {
@@ -42,6 +50,12 @@ export function ExploreEntry({
   const [phase, setPhase] = useState<Phase>({ name: "idle" });
   const [query, setQuery] = useState("");
   const [error, setError] = useState<string | null>(null);
+  // While the deferred suggestion backfill is in flight, show a "charting" beat
+  // in the map region instead of an empty map.
+  const [charting, setCharting] = useState(false);
+  // One backfill attempt per mount — guards against React's dev double-invoke
+  // and a refresh that re-runs the effect before the map has repopulated.
+  const backfillAttempted = useRef(false);
   // Bumps each time a new expedition starts so the reader remounts cleanly —
   // even a "go deeper" follow-up that resolves back to the same slug.
   const [expedition, setExpedition] = useState(0);
@@ -50,6 +64,36 @@ export function ExploreEntry({
   const [dismissing, setDismissing] = useState<Set<string>>(new Set());
 
   const busy = phase.name === "resolving";
+
+  // Deferred map backfill: when the server rendered a map with nothing to tap,
+  // generate suggestions off the render path (a possible Anthropic round-trip)
+  // and refresh once they land, so first paint never waited on the model. One
+  // attempt per empty-map episode — the guard resets once suggestions exist, so
+  // dismissing the last tile mid-session re-triggers it (the backfill used to
+  // run on every server render). Best-effort: a failure or an over-budget skip
+  // just drops back to the (possibly empty) map, where the child can still type
+  // their own idea. No cancellation — both the endpoint and `refresh` are
+  // idempotent, which also keeps it working under React's dev double-invoke.
+  useEffect(() => {
+    if (!needsSuggestions) {
+      backfillAttempted.current = false;
+      return;
+    }
+    if (backfillAttempted.current) return;
+    backfillAttempted.current = true;
+    setCharting(true);
+    void (async () => {
+      try {
+        await fetch("/api/map/ensure", { method: "POST" });
+      } catch (err) {
+        console.error("[map] failed to ensure suggestions:", err);
+      } finally {
+        setCharting(false);
+        // Re-read the server-rendered map so the new suggested tiles appear.
+        router.refresh();
+      }
+    })();
+  }, [needsSuggestions, router]);
 
   // For a "go deeper" follow-up, `parent` carries the loop to link back to and
   // its topic, threaded through so the follow-up resolves against that concept.
@@ -211,6 +255,24 @@ export function ExploreEntry({
         onSelect={startTopic}
         onDismiss={dismissTopic}
       />
+
+      {/* Deferred backfill in progress: make it unmistakable that new tiles are
+          on the way — a spinner + caption over placeholder tiles in the exact
+          spot the real ones will land — so an empty map never reads as "nothing
+          happened". */}
+      {charting && (
+        <div
+          className="flex flex-col gap-3"
+          aria-live="polite"
+          aria-busy="true"
+        >
+          <div className="flex items-center justify-center gap-2">
+            <Spinner className="text-surface-ink-soft" />
+            <Text tone="soft">Charting your map…</Text>
+          </div>
+          <MapTilesSkeleton />
+        </div>
+      )}
 
       <form onSubmit={onSubmit} className="flex flex-col gap-4">
         <Text size="sm" tone="soft">
