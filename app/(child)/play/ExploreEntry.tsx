@@ -244,13 +244,13 @@ export function ExploreEntry({
 
     const growth = mapGrowth.current;
     mapGrowth.current = null;
-    // If the loop's neighbour suggestions are still generating, cover the map
-    // with the charting beat and reveal the grown set in one paint; otherwise a
-    // plain refresh picks up the just-explored tile.
+    // Only a finished loop changes the map — its explored tile plus grown
+    // neighbours. Cover the map with the charting beat while those land, then
+    // reveal the grown set once. With no loop (the child left a lesson before
+    // the quiz) nothing changed, so show the map as-is — no refresh, which would
+    // only reshuffle the tiles for no reason.
     if (growth) {
       chartMapUpdate(growth);
-    } else {
-      router.refresh();
     }
   }
 
@@ -303,12 +303,12 @@ export function ExploreEntry({
     <div className="flex w-full flex-col gap-8">
       <XPBar xp={xp} />
 
-      {/* Only cover the map with placeholder tiles when there's nothing to show
-          yet — the empty-map backfill — so a fresh map never reads as "nothing
-          happened". When the map already has tiles (e.g. after-a-loop growth),
-          keep it visible and interactive; chartMapUpdate swaps in the grown set
-          in a single paint. */}
-      {charting && initialNodes.length === 0 ? (
+      {/* Cover the map with placeholder tiles while it's being generated —
+          empty-map backfill or after-a-loop growth — then mount the real map
+          ONCE with the finished data. Showing the stale map first would let it
+          cascade in, then re-cascade/reshuffle when the grown set lands (the map
+          order is randomized per node set). */}
+      {charting ? (
         <div
           className="flex flex-col gap-3"
           aria-live="polite"
