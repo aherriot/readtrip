@@ -6,7 +6,6 @@ import {
   useEffect,
   useRef,
   useState,
-  useTransition,
   type FormEvent,
 } from "react";
 import { XPBar } from "@/components/game/XPBar";
@@ -77,27 +76,34 @@ export function ExploreEntry({
   const [dismissing, setDismissing] = useState<Set<string>>(new Set());
 
   const busy = phase.name === "resolving";
-  const [, startTransition] = useTransition();
 
-  // Run a map-writing request behind the "charting" cover, then reveal the
-  // result in a single paint. Dropping the cover and refreshing in ONE
-  // transition means React commits the fresh tiles and the hidden loader
-  // together — the map renders once, rather than flashing an interim/stale set
-  // and re-cascading. Best-effort: a failed request just refreshes to whatever
-  // did persist. Shared by the empty-map backfill and the after-a-loop growth.
+  // Lift the "charting" cover whenever a server refresh delivers a fresh map:
+  // the new tiles — or an unchanged empty map, if generation produced none —
+  // arrive in the same commit, so the cover drops without a flash and never
+  // sticks (the bug where tiles only appeared on a manual refresh). Skip the
+  // mount pass so the first render doesn't clear a cover a backfill is about to
+  // raise.
+  const firstRender = useRef(true);
+  useEffect(() => {
+    if (firstRender.current) {
+      firstRender.current = false;
+      return;
+    }
+    setCharting(false);
+  }, [initialNodes]);
+
+  // Run a map-writing request behind the charting cover, then refresh to pull
+  // the result; the effect above lifts the cover once the fresh map lands.
+  // Best-effort: a failed request just refreshes to whatever did persist. Shared
+  // by the empty-map backfill and the after-a-loop growth.
   const chartMapUpdate = useCallback(
     (work: Promise<unknown>) => {
       setCharting(true);
       void work
         .catch((err) => console.error("[map] update failed:", err))
-        .finally(() => {
-          startTransition(() => {
-            setCharting(false);
-            router.refresh();
-          });
-        });
+        .finally(() => router.refresh());
     },
-    [router, startTransition]
+    [router]
   );
 
   // Deferred map backfill: when the server rendered a map with nothing to tap,
@@ -297,11 +303,12 @@ export function ExploreEntry({
     <div className="flex w-full flex-col gap-8">
       <XPBar xp={xp} />
 
-      {/* While a map update is generating (empty-map backfill or after-a-loop
-          growth), show placeholder tiles where the real ones will land — so the
-          map never reads as "nothing happened" — then swap to the real map in a
-          single paint once the data is ready (see chartMapUpdate). */}
-      {charting ? (
+      {/* Only cover the map with placeholder tiles when there's nothing to show
+          yet — the empty-map backfill — so a fresh map never reads as "nothing
+          happened". When the map already has tiles (e.g. after-a-loop growth),
+          keep it visible and interactive; chartMapUpdate swaps in the grown set
+          in a single paint. */}
+      {charting && initialNodes.length === 0 ? (
         <div
           className="flex flex-col gap-3"
           aria-live="polite"

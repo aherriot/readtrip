@@ -104,7 +104,10 @@ export async function selectChildAction(formData: FormData): Promise<void> {
   if (!child) redirect("/profiles");
 
   await setSelectedChild(childId);
-  redirect("/play");
+  // A not-yet-calibrated child goes straight to calibration. /play would only
+  // redirect there itself — but not before the navigation flashes /play's
+  // map-shaped loading skeleton, so route there directly to avoid the flicker.
+  redirect(child.calibratedAt ? "/play" : "/play/calibrate");
 }
 
 export async function signOutAction(): Promise<void> {
