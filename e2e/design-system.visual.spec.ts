@@ -38,6 +38,7 @@ test.describe("design system — visual", () => {
     "icon",
     "progressbar",
     "spinner",
+    "submitbutton",
     "input",
     "select",
     "modal",

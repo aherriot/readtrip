@@ -3,6 +3,7 @@
 import { useActionState, useEffect, useId, useState } from "react";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
+import { SubmitButton } from "@/components/ui/SubmitButton";
 import { Heading } from "@/components/ui/Heading";
 import { Input } from "@/components/ui/Input";
 import { Modal } from "@/components/ui/Modal";
@@ -117,8 +118,7 @@ function ProfileCard({
     <Card elevated className="flex h-full flex-col gap-3">
       <form action={selectChildAction}>
         <input type="hidden" name="childId" value={child.id} />
-        <Button
-          type="submit"
+        <SubmitButton
           variant="ghost"
           fullWidth
           className="h-auto flex-col gap-3 py-5 not-disabled:motion-safe:hover:-translate-y-0.5"
@@ -128,7 +128,7 @@ function ProfileCard({
           <span className="text-sm text-surface-ink-soft">
             Level {child.level} · Reading {child.readingLevel}
           </span>
-        </Button>
+        </SubmitButton>
       </form>
       {child.suggestedReadingLevel !== null &&
         child.suggestedReadingLevel !== child.readingLevel && (
@@ -161,15 +161,15 @@ function ReadingSuggestion({ child }: { child: ChildProfile }) {
       <div className="flex flex-wrap justify-center gap-2">
         <form action={acceptReadingSuggestionAction}>
           <input type="hidden" name="childId" value={child.id} />
-          <Button type="submit" size="md">
+          <SubmitButton size="md">
             {goingUp ? "Move up" : "Ease down"}
-          </Button>
+          </SubmitButton>
         </form>
         <form action={dismissReadingSuggestionAction}>
           <input type="hidden" name="childId" value={child.id} />
-          <Button type="submit" variant="ghost" size="md">
+          <SubmitButton variant="ghost" size="md">
             Not yet
-          </Button>
+          </SubmitButton>
         </form>
       </div>
     </div>

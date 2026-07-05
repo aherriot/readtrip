@@ -9,6 +9,7 @@ import { Input } from "@/components/ui/Input";
 import { ProgressBar } from "@/components/ui/ProgressBar";
 import { Select } from "@/components/ui/Select";
 import { Spinner } from "@/components/ui/Spinner";
+import { SubmitButton } from "@/components/ui/SubmitButton";
 import { Text } from "@/components/ui/Text";
 import { cn } from "@/lib/ui/cn";
 import { LessonChunk } from "@/components/reading/LessonChunk";
@@ -493,6 +494,31 @@ function SpinnerVariants() {
   );
 }
 
+function SubmitButtonVariants() {
+  return (
+    <div className="flex flex-col gap-6">
+      <Variant title="Submits its enclosing form; goes busy while pending">
+        {/* An empty server action gives the form a real submit target so the
+            button renders in its resting state here. Its pending spinner only
+            appears mid-submit — see it live on /profiles (select an explorer)
+            or /play ("Switch explorer"). */}
+        <form
+          action={async () => {
+            "use server";
+          }}
+          className="flex flex-wrap gap-3"
+        >
+          <SubmitButton>Save changes</SubmitButton>
+          <SubmitButton variant="ghost" size="md">
+            Not yet
+          </SubmitButton>
+          <SubmitButton loading>Always busy (loading forced)</SubmitButton>
+        </form>
+      </Variant>
+    </div>
+  );
+}
+
 function BadgeVariants() {
   return (
     <div className="flex flex-col gap-6">
@@ -820,6 +846,10 @@ export default function ComponentGallery() {
 
         <Section name="Spinner">
           <SpinnerVariants />
+        </Section>
+
+        <Section name="SubmitButton">
+          <SubmitButtonVariants />
         </Section>
 
         <Section name="Input">
