@@ -1,8 +1,23 @@
+// A grid of placeholder map tiles, sized to match WorldMap's collapsed 6-tile,
+// 2/3-column grid so the real tiles land where the skeletons were. Shared by the
+// whole-route `loading.tsx` shell and the deferred-backfill "charting" state in
+// ExploreEntry, so both read as the same map taking shape.
+export function MapTilesSkeleton() {
+  return (
+    <div className="grid grid-cols-2 gap-3 sm:grid-cols-3" aria-hidden="true">
+      {Array.from({ length: 6 }).map((_, i) => (
+        <div
+          key={i}
+          className="h-28 animate-pulse rounded-lg border border-surface-rule bg-surface-panel"
+        />
+      ))}
+    </div>
+  );
+}
+
 // The play shell's loading placeholder: XP bar, a collapsed map grid, and the
 // explore input, sized to match the real ExploreEntry so the swap doesn't jump.
-// Shared by this route's `loading.tsx` (whole-route navigation fallback) and the
-// in-page <Suspense> boundary that streams the map while `ensureSuggestions`
-// (a possibly LLM-backed call) resolves — so the wordmark + shell paint first.
+// Used by this route's `loading.tsx` as the whole-route navigation fallback.
 export function PlayShellSkeleton() {
   return (
     <div className="flex w-full flex-col gap-8" aria-busy="true">
@@ -12,15 +27,7 @@ export function PlayShellSkeleton() {
         <div className="h-3 flex-1 animate-pulse rounded-pill bg-surface-panel" />
       </div>
 
-      {/* Map tiles (matches WorldMap's collapsed 6-tile, 2/3-column grid) */}
-      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3" aria-hidden="true">
-        {Array.from({ length: 6 }).map((_, i) => (
-          <div
-            key={i}
-            className="h-28 animate-pulse rounded-lg border border-surface-rule bg-surface-panel"
-          />
-        ))}
-      </div>
+      <MapTilesSkeleton />
 
       {/* Free-form explore input */}
       <div className="flex flex-col gap-4" aria-hidden="true">

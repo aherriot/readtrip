@@ -1,7 +1,13 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useState, type FormEvent } from "react";
+import {
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+  type FormEvent,
+} from "react";
 import { XPBar } from "@/components/game/XPBar";
 import { WorldMap } from "@/components/game/WorldMap";
 import { ReadingView } from "@/components/reading/ReadingView";
@@ -15,6 +21,7 @@ import { Text } from "@/components/ui/Text";
 import type { MapNodeView } from "@/lib/map/nodeState";
 import { switchProfileAction } from "@/app/(parent)/profiles/actions";
 import { LessonReader, type LessonTopic } from "./LessonReader";
+import { MapTilesSkeleton } from "./PlaySkeleton";
 
 // What /api/explore resolves free-form input into (mirrors NormalizedTopic +
 // the original phrasing). Defined locally so this client island doesn't pull the
@@ -31,10 +38,17 @@ type Phase =
 
 export function ExploreEntry({
   initialNodes,
+  needsSuggestions,
   childName,
   xp,
 }: {
   initialNodes: MapNodeView[];
+  /**
+   * The server-rendered map had nothing "suggested" to tap. Rather than block
+   * first paint on the LLM-backed backfill (docs/05), we render immediately and
+   * kick it off here, after paint — then refresh to pick up the new tiles.
+   */
+  needsSuggestions: boolean;
   childName: string;
   xp: number;
 }) {
@@ -42,6 +56,18 @@ export function ExploreEntry({
   const [phase, setPhase] = useState<Phase>({ name: "idle" });
   const [query, setQuery] = useState("");
   const [error, setError] = useState<string | null>(null);
+  // While the deferred suggestion backfill is in flight, show a "charting" beat
+  // in the map region instead of an empty map.
+  const [charting, setCharting] = useState(false);
+  // One backfill attempt per mount — guards against React's dev double-invoke
+  // and a refresh that re-runs the effect before the map has repopulated.
+  const backfillAttempted = useRef(false);
+  // The in-flight map-growth request for the loop the child just finished (its
+  // response resolves only once the new neighbour suggestions are persisted).
+  // Started at quiz-finish so its LLM work overlaps the Steer screen; awaited by
+  // reset() so returning to the map reveals the grown set instead of a partial,
+  // stale-looking one.
+  const mapGrowth = useRef<Promise<unknown> | null>(null);
   // Bumps each time a new expedition starts so the reader remounts cleanly —
   // even a "go deeper" follow-up that resolves back to the same slug.
   const [expedition, setExpedition] = useState(0);
@@ -50,6 +76,51 @@ export function ExploreEntry({
   const [dismissing, setDismissing] = useState<Set<string>>(new Set());
 
   const busy = phase.name === "resolving";
+
+  // Lift the "charting" cover whenever a server refresh delivers a fresh map:
+  // the new tiles — or an unchanged empty map, if generation produced none —
+  // arrive in the same commit, so the cover drops without a flash and never
+  // sticks (the bug where tiles only appeared on a manual refresh). Skip the
+  // mount pass so the first render doesn't clear a cover a backfill is about to
+  // raise.
+  const firstRender = useRef(true);
+  useEffect(() => {
+    if (firstRender.current) {
+      firstRender.current = false;
+      return;
+    }
+    setCharting(false);
+  }, [initialNodes]);
+
+  // Run a map-writing request behind the charting cover, then refresh to pull
+  // the result; the effect above lifts the cover once the fresh map lands.
+  // Best-effort: a failed request just refreshes to whatever did persist. Shared
+  // by the empty-map backfill and the after-a-loop growth.
+  const chartMapUpdate = useCallback(
+    (work: Promise<unknown>) => {
+      setCharting(true);
+      void work
+        .catch((err) => console.error("[map] update failed:", err))
+        .finally(() => router.refresh());
+    },
+    [router]
+  );
+
+  // Deferred map backfill: when the server rendered a map with nothing to tap,
+  // generate suggestions off the render path (a possible Anthropic round-trip)
+  // rather than blocking first paint on the model. One attempt per empty-map
+  // episode — the guard resets once suggestions exist, so dismissing the last
+  // tile mid-session re-triggers it (the backfill used to run on every server
+  // render).
+  useEffect(() => {
+    if (!needsSuggestions) {
+      backfillAttempted.current = false;
+      return;
+    }
+    if (backfillAttempted.current) return;
+    backfillAttempted.current = true;
+    chartMapUpdate(fetch("/api/map/ensure", { method: "POST" }));
+  }, [needsSuggestions, chartMapUpdate]);
 
   // For a "go deeper" follow-up, `parent` carries the loop to link back to and
   // its topic, threaded through so the follow-up resolves against that concept.
@@ -149,13 +220,38 @@ export function ExploreEntry({
     }
   }
 
+  // The just-finished loop's map growth (docs/05): light up the explored node
+  // and generate fresh neighbour suggestions. Fired from the quiz's finish so
+  // the LLM neighbour generation overlaps the Steer screen; the promise is held
+  // so reset() can await it before revealing the map. Not fire-and-forget any
+  // more — that let the child return to a half-written map (explored tile lit,
+  // new neighbours not yet persisted) that only filled in on a later refresh.
+  function recordLoopExplored(topic: { topicSlug: string; title: string }) {
+    mapGrowth.current = fetch("/api/map", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        topicSlug: topic.topicSlug,
+        title: topic.title,
+      }),
+    }).catch((err) => console.error("[map] failed:", err));
+  }
+
   function reset() {
     setPhase({ name: "idle" });
     setQuery("");
     setError(null);
-    // Re-fetch the server-rendered map so a topic just explored shows as lit and
-    // any new suggested neighbours appear.
-    router.refresh();
+
+    const growth = mapGrowth.current;
+    mapGrowth.current = null;
+    // Only a finished loop changes the map — its explored tile plus grown
+    // neighbours. Cover the map with the charting beat while those land, then
+    // reveal the grown set once. With no loop (the child left a lesson before
+    // the quiz) nothing changed, so show the map as-is — no refresh, which would
+    // only reshuffle the tiles for no reason.
+    if (growth) {
+      chartMapUpdate(growth);
+    }
   }
 
   if (phase.name === "reading") {
@@ -165,6 +261,7 @@ export function ExploreEntry({
         topic={phase.topic}
         onExplore={reset}
         onGoDeeper={goDeeper}
+        onLoopExplored={recordLoopExplored}
       />
     );
   }
@@ -206,11 +303,30 @@ export function ExploreEntry({
     <div className="flex w-full flex-col gap-8">
       <XPBar xp={xp} />
 
-      <WorldMap
-        nodes={initialNodes}
-        onSelect={startTopic}
-        onDismiss={dismissTopic}
-      />
+      {/* Cover the map with placeholder tiles while it's being generated —
+          empty-map backfill or after-a-loop growth — then mount the real map
+          ONCE with the finished data. Showing the stale map first would let it
+          cascade in, then re-cascade/reshuffle when the grown set lands (the map
+          order is randomized per node set). */}
+      {charting ? (
+        <div
+          className="flex flex-col gap-3"
+          aria-live="polite"
+          aria-busy="true"
+        >
+          <div className="flex items-center justify-center gap-2">
+            <Spinner className="text-surface-ink-soft" />
+            <Text tone="soft">Charting your map…</Text>
+          </div>
+          <MapTilesSkeleton />
+        </div>
+      ) : (
+        <WorldMap
+          nodes={initialNodes}
+          onSelect={startTopic}
+          onDismiss={dismissTopic}
+        />
+      )}
 
       <form onSubmit={onSubmit} className="flex flex-col gap-4">
         <Text size="sm" tone="soft">

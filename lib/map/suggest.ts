@@ -68,13 +68,14 @@ export async function refreshSuggestions(input: {
  * model to grow from whatever the child last explored, or — for a brand-new
  * explorer, or one who has dismissed every suggestion without exploring any —
  * asks it for a fresh batch of starter topics instead, told what's already
- * been explored and dismissed so it doesn't repeat itself. Called on every
- * map read, so a freshly-emptied map never renders with zero tiles to tap.
+ * been explored and dismissed so it doesn't repeat itself. Invoked from the
+ * `/api/map/ensure` endpoint, which /play calls from the client after paint
+ * when it renders a map with no suggested tiles — so this possible model
+ * round-trip stays off the render path and a freshly-emptied map still ends up
+ * with something to tap.
  *
- * Returns the map the caller should render: the already-fetched one when
- * nothing changed (the common case), or a fresh read after a backfill wrote
- * new nodes — so a caller that needs the map anyway doesn't have to re-fetch
- * it itself.
+ * Returns the resulting map: the already-fetched one when nothing changed (the
+ * common case / no-op), or a fresh read after a backfill wrote new nodes.
  */
 export async function ensureSuggestions(
   childId: string,
