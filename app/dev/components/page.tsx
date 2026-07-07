@@ -872,9 +872,9 @@ function SelectVariants() {
           defaultValue={4}
           hint="Set this yourself anytime — it won't change on its own."
         >
-          <option value={3}>Level 3 · Ages 6–7 — 1st–2nd grade</option>
-          <option value={4}>Level 4 · Ages 8–9 — 3rd–4th grade</option>
-          <option value={5}>Level 5 · Age 10 — 5th grade</option>
+          <option value={3}>Level 3 · Ages 6–7</option>
+          <option value={4}>Level 4 · Ages 8–9</option>
+          <option value={5}>Level 5 · Age 10</option>
         </Select>
       </Variant>
       <Variant title="Error (icon + text + color)">
