@@ -270,85 +270,118 @@
  * Composed by <JournalSheet> (components/layout). Surface-aware — desk, paper,
  * rule and shadow all track the --surface-* tokens.
  */
+/* Layer 1 — the WOOD DESK: a warm walnut surface filling the viewport, with a
+   simple plank-and-grain texture and a soft vignette for depth. The small
+   padding keeps the leather cover off the very screen edge so the binding stays
+   visible even on mobile, where the book otherwise fills the width. */
 .rt-desk {
   min-height: 100svh;
-  /* Clip the cover lip / page-stack edges when the sheet spans the full viewport
-     (mobile), so they never push a horizontal scrollbar. */
-  overflow-x: hidden;
+  padding: 12px;
   background-color: var(--surface-desk);
-  /* A gentle vignette so the desk recedes at the corners, plus a soft warm light
-     pooling near the top so the wide margins aren't a flat field — both kept
-     faint so the desk stays light, never dark or brown. */
   background-image:
     radial-gradient(
-      ellipse 90% 55% at 50% 8%,
-      color-mix(in srgb, var(--paper) 55%, transparent) 0%,
-      transparent 60%
+      ellipse 120% 90% at 50% 28%,
+      transparent 40%,
+      rgba(28, 16, 6, 0.28) 100%
     ),
-    radial-gradient(
-      ellipse 120% 85% at 50% 34%,
-      transparent 42%,
-      color-mix(in srgb, var(--ink) 9%, transparent) 100%
+    repeating-linear-gradient(
+      90deg,
+      rgba(255, 255, 255, 0.03) 0 1px,
+      transparent 1px 4px,
+      rgba(0, 0, 0, 0.04) 4px 5px,
+      transparent 5px 9px
+    ),
+    repeating-linear-gradient(
+      90deg,
+      transparent 0 138px,
+      rgba(0, 0, 0, 0.22) 138px 140px
     );
 }
 
-/* The page itself: warm paper + ruled lines, wider than the content column so it
-   carries generous book margins. The ruled lines live here (not the body) on
-   this surface, so they read as the page's rules rather than the desk's.
-   --rt-page sets the book width; callers can widen it (e.g. a landing page). */
-.rt-sheet {
+/* Layer 2 — the LEATHER COVER the page is bound into: a deep-brown board with a
+   soft grain, a beveled edge (light top / dark bottom), a saddle-stitch line,
+   and the cast shadow that lifts the whole book off the desk. Its padding is the
+   visible leather lip around the page. --rt-page sets the book width; callers can
+   widen it (e.g. the landing page). */
+.rt-cover {
   --rt-page: 56rem;
   position: relative;
+  display: flex;
+  flex-direction: column;
   margin-inline: auto;
   max-width: var(--rt-page);
-  min-height: 100svh;
-  background-color: var(--surface-bg);
-  background-image: repeating-linear-gradient(
-    to bottom,
-    transparent 0,
-    transparent calc(var(--journal-period) - 1px),
-    var(--journal-line) calc(var(--journal-period) - 1px),
-    var(--journal-line) var(--journal-period)
-  );
-  /* The bound book, from the page outward:
-     1. a hairline crease where the page meets the cover,
-     2. a warm taupe COVER LIP framing the page (the board it's bound into),
-     3. a thin darker board edge,
-     4. the whole book lifted off the desk with a soft cast shadow,
-     5. a gutter dip at each inner edge — the page curving toward the spine. */
+  min-height: calc(100svh - 24px);
+  padding: 14px;
+  border-radius: 12px;
+  background-color: var(--surface-cover);
+  background-image:
+    radial-gradient(
+      140px 90px at 22% 14%,
+      rgba(255, 255, 255, 0.06),
+      transparent 70%
+    ),
+    radial-gradient(
+      180px 120px at 82% 88%,
+      rgba(0, 0, 0, 0.22),
+      transparent 72%
+    ),
+    repeating-linear-gradient(
+      118deg,
+      rgba(0, 0, 0, 0.05) 0 2px,
+      transparent 2px 5px
+    ),
+    repeating-linear-gradient(
+      28deg,
+      rgba(255, 255, 255, 0.02) 0 2px,
+      transparent 2px 6px
+    );
   box-shadow:
-    inset 0 0 0 1px color-mix(in srgb, var(--ink) 7%, transparent),
-    0 0 0 10px var(--surface-cover),
-    0 0 0 12px color-mix(in srgb, var(--ink) 16%, transparent),
-    0 30px 58px -26px color-mix(in srgb, var(--ink) 42%, transparent),
-    0 10px 22px -14px color-mix(in srgb, var(--ink) 30%, transparent),
-    inset 20px 0 26px -22px color-mix(in srgb, var(--ink) 20%, transparent),
-    inset -20px 0 26px -22px color-mix(in srgb, var(--ink) 20%, transparent);
+    inset 0 1px 0 rgba(255, 255, 255, 0.14),
+    inset 0 -2px 4px rgba(0, 0, 0, 0.4),
+    0 24px 50px -20px rgba(18, 10, 4, 0.55),
+    0 9px 20px -12px rgba(18, 10, 4, 0.45);
 }
 
-/* Page-stack edges — two faint page slivers peeking past the cover on each fore-
-   edge, so the block reads as a stack of pages bound in the cover, not a single
-   sheet. They sit just past the cover lip and are clipped by .rt-desk on mobile. */
-.rt-sheet::before,
-.rt-sheet::after {
+/* The saddle-stitch — a pale dashed thread just inside the leather edge. */
+.rt-cover::before {
   content: "";
   position: absolute;
-  top: 5px;
-  bottom: 5px;
-  width: 4px;
-  background: repeating-linear-gradient(
-    to right,
-    color-mix(in srgb, var(--surface-bg) 88%, var(--ink)) 0 1px,
-    var(--surface-bg) 1px 2px
-  );
+  inset: 7px;
+  border: 1.5px dashed var(--surface-stitch);
+  border-radius: 7px;
+  opacity: 0.55;
+  pointer-events: none;
 }
-.rt-sheet::before {
-  left: -14px;
-  border-radius: 2px 0 0 2px;
-}
-.rt-sheet::after {
-  right: -14px;
-  border-radius: 0 2px 2px 0;
+
+/* Layer 3 — the PAGE: warm paper ruled with horizontal lines and the vertical
+   margin rule (the notebook margin — now page furniture on every JournalSheet),
+   dipping slightly at each side toward the binding. It fills the leather cover's
+   interior. --rt-margin is where the vertical rule sits from the page's left. */
+.rt-sheet {
+  --rt-margin: 2rem;
+  position: relative;
+  flex: 1;
+  border-radius: 4px;
+  background-color: var(--surface-bg);
+  background-image:
+    linear-gradient(
+      90deg,
+      transparent calc(var(--rt-margin) - 1px),
+      var(--journal-margin) calc(var(--rt-margin) - 1px),
+      var(--journal-margin) calc(var(--rt-margin) + 1px),
+      transparent calc(var(--rt-margin) + 1px)
+    ),
+    repeating-linear-gradient(
+      to bottom,
+      transparent 0,
+      transparent calc(var(--journal-period) - 1px),
+      var(--journal-line) calc(var(--journal-period) - 1px),
+      var(--journal-line) var(--journal-period)
+    );
+  box-shadow:
+    inset 0 0 0 1px color-mix(in srgb, var(--ink) 6%, transparent),
+    inset 22px 0 26px -24px color-mix(in srgb, var(--ink) 16%, transparent),
+    inset -22px 0 26px -24px color-mix(in srgb, var(--ink) 16%, transparent);
 }
 
 /* Hand-drawn "pen box": a transparent container whose ink border is waved into a

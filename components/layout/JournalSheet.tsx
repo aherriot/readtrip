@@ -1,21 +1,22 @@
 import type { CSSProperties, ReactNode } from "react";
 
 /**
- * The "open field journal on a desk" page frame.
+ * The "open field journal on a wood desk" page frame — three stacked layers:
+ * a wood desk (`.rt-desk`) fills the viewport; a leather cover (`.rt-cover`)
+ * binds the page and lifts it off the desk; the ruled page (`.rt-sheet`) fills
+ * the cover. So the wide desktop margins read as a leather-bound journal on a
+ * table, and even on mobile a sliver of desk + the leather binding stay visible.
+ * The page carries the horizontal rules + the vertical margin rule; the caller's
+ * content sits in a narrower centered column within it.
  *
- * A light greige desk (`.rt-desk`) fills the viewport; the ruled page
- * (`.rt-sheet`) rests on it — lifted by a soft shadow with page-stack edges — so
- * the wide desktop margins read as a book sitting on a table rather than empty
- * paper. The page is a fixed "book" width; the caller's content sits in a
- * narrower centered column within it, giving the page generous margins.
- *
- * Used by the full-bleed /play and /profiles surfaces (both the page and its
- * loading skeleton) so the frame is identical and the loading→ready swap never
- * flashes. The visual treatment lives entirely in `.rt-desk` / `.rt-sheet` (see
- * app/globals.css); this component only wires up the markup.
+ * Used by every product surface (and its loading skeleton) so the frame is
+ * identical and the loading→ready swap never flashes. The visual treatment lives
+ * entirely in `.rt-desk` / `.rt-cover` / `.rt-sheet` (see app/globals.css); this
+ * component only wires up the markup.
  *
  * `contentClassName` styles the inner content column (width, alignment, gap,
  * `mt-auto` footers all work — it's a `flex-1` flex column that fills the page).
+ * The page's left padding clears the vertical margin rule.
  */
 export function JournalSheet({
   children,
@@ -28,22 +29,26 @@ export function JournalSheet({
   contentClassName?: string;
   /** Marks the page as loading — sets `aria-busy` on the <main>. */
   busy?: boolean;
-  /** Widen the page for content that needs more room (e.g. the landing page). */
+  /** Widen the book for content that needs more room (e.g. the landing page). */
   wide?: boolean;
 }) {
   return (
     <div className="rt-desk">
-      <main
-        aria-busy={busy || undefined}
+      <div
         style={wide ? ({ "--rt-page": "72rem" } as CSSProperties) : undefined}
-        className="rt-sheet flex flex-col px-6 py-8 sm:px-12"
+        className="rt-cover"
       >
-        <div
-          className={`mx-auto flex w-full flex-1 flex-col ${contentClassName}`}
+        <main
+          aria-busy={busy || undefined}
+          className="rt-sheet flex flex-col py-8 pr-6 pl-9 sm:pr-12 sm:pl-16"
         >
-          {children}
-        </div>
-      </main>
+          <div
+            className={`mx-auto flex w-full flex-1 flex-col ${contentClassName}`}
+          >
+            {children}
+          </div>
+        </main>
+      </div>
     </div>
   );
 }
