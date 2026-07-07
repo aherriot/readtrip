@@ -1,7 +1,12 @@
 # Spinner
 
-A small "working on it" indicator for loading states. A ring drawn in `currentColor`, so
-it reads on either surface with no per-surface styling.
+A small "working on it" indicator for loading states. A doodled spiral in `currentColor` — the
+kind of absent-minded coil a bored person draws into the margin of a notebook — waved by the
+shared `#rt-doodle` turbulence filter (the same one every icon uses). A dash chases endlessly
+along the spiral, like a hand that can't stop re-tracing the same doodle, rather than a
+mechanical ring spinning. Unlike a tangle of crossing loops, a spiral never overlaps itself, so
+it reads as one deliberate doodle, not a scribbled-out mistake. Reads on either surface with no
+per-surface styling.
 Source: [`components/ui/Spinner.tsx`](../../../../components/ui/Spinner.tsx).
 
 ```tsx
@@ -48,8 +53,9 @@ with a token utility (`text-surface-accent`, `text-sun`) when you want it to pop
 - **Name it once.** Standing alone, pass `label` so screen readers hear what's loading. Inside
   a labelled control (a loading Button, or a screen whose heading already says it), leave
   `label` off so it isn't announced twice — then it's `aria-hidden`.
-- **Reduced motion.** Spins via `motion-safe:animate-spin`; the global floor turns it into a
-  still ring (still a clear loading glyph) when the user opts out of motion.
+- **Reduced motion.** The dash chases via `motion-safe:animate-scribble`; the global floor
+  freezes it in place, leaving the static spiral as a still (but still clearly hand-drawn)
+  loading glyph when the user opts out of motion.
 
 ## Do / Don't
 
