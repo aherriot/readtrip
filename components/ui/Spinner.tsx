@@ -1,4 +1,5 @@
 import { cn } from "@/lib/ui/cn";
+import { DOODLE_FILTER_ID } from "@/components/ui/icons/IconDefs";
 
 type SpinnerSize = "sm" | "md" | "lg";
 
@@ -17,17 +18,19 @@ export interface SpinnerProps {
 }
 
 const sizeStyles: Record<SpinnerSize, string> = {
-  sm: "h-4 w-4 border-2",
-  md: "h-6 w-6 border-2",
-  lg: "h-10 w-10 border-[3px]",
+  sm: "h-4 w-4",
+  md: "h-6 w-6",
+  lg: "h-10 w-10",
 };
 
 /**
- * A small "working on it" spinner (docs/10 loading states). A ring drawn in
- * `currentColor` — it inherits the text color of whatever contains it, so it
- * reads correctly on either surface with no per-surface styling. It spins via
- * Tailwind's `animate-spin`, gated on `motion-safe:` so the reduced-motion floor
- * turns it into a still ring (still a clear "loading" glyph, no movement).
+ * A small "working on it" spinner (docs/10 loading states) — a loop pen-drawn
+ * in `currentColor`, waved by the same `#rt-doodle` turbulence filter as the
+ * icon set, so it reads as a quickly-sketched circle rather than a mechanical
+ * ring. It inherits the text color of whatever contains it, so it reads
+ * correctly on either surface with no per-surface styling. It spins via
+ * Tailwind's `animate-spin`, gated on `motion-safe:` so the reduced-motion
+ * floor turns it into a still (but still visibly hand-drawn) loop.
  *
  * Pair it with text: on its own a spinner says "wait" but not "for what". Inside
  * a labelled control (a loading Button) leave `label` off; standing alone, pass
@@ -37,15 +40,31 @@ const sizeStyles: Record<SpinnerSize, string> = {
  */
 export function Spinner({ size = "md", label, className }: SpinnerProps) {
   const ring = (
-    <span
+    <svg
       aria-hidden="true"
+      viewBox="0 0 24 24"
       className={cn(
-        "inline-block shrink-0 rounded-full border-current border-t-transparent",
-        "motion-safe:animate-spin",
+        "shrink-0 motion-safe:animate-spin",
         sizeStyles[size],
         className
       )}
-    />
+    >
+      {/* An intentionally incomplete loop (not a full circle) — the gap reads
+          as a pen lifted mid-stroke, same visual grammar as the old
+          border-t-transparent ring but drawn by hand. */}
+      <g filter={`url(#${DOODLE_FILTER_ID})`}>
+        <circle
+          cx="12"
+          cy="12"
+          r="9"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2.75"
+          strokeLinecap="round"
+          strokeDasharray="42 14"
+        />
+      </g>
+    </svg>
   );
 
   // No label → decorative, hidden from assistive tech (the surrounding control
