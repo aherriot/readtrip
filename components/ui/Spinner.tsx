@@ -46,14 +46,16 @@ const SCRIBBLE_PATH =
 /**
  * A small "working on it" spinner (docs/10 loading states) — a doodled
  * spiral, not a mechanical ring, as if traced once and then endlessly
- * re-traced by a bored hand. The full spiral sits there faintly; a shorter
- * dash in the same `currentColor` chases along it forever
- * (`motion-safe:animate-scribble`), reading as restless retracing rather
- * than a spinning object. Waved by the shared `#rt-doodle` turbulence
- * filter, the same one the icon set uses, for an inked wobble. It inherits
- * the surrounding text color, so it reads correctly on either surface with
- * no per-surface styling. The reduced-motion floor freezes the chase,
- * leaving the static spiral as a still (but clearly hand-drawn) glyph.
+ * re-traced by a bored hand. The full spiral sits there faintly as a guide;
+ * a pen stroke in the same `currentColor` draws itself along it from start
+ * to end (`motion-safe:animate-scribble`), then the whole stroke resets and
+ * draws again — one continuous line growing at a time, never a fragment
+ * appearing mid-path while another lingers elsewhere. Waved by the shared
+ * `#rt-doodle` turbulence filter, the same one the icon set uses, for an
+ * inked wobble. It inherits the surrounding text color, so it reads
+ * correctly on either surface with no per-surface styling. The
+ * reduced-motion floor collapses the draw to its final frame, leaving the
+ * spiral fully drawn as a still (but still clearly hand-drawn) glyph.
  *
  * Pair it with text: on its own a spinner says "wait" but not "for what". Inside
  * a labelled control (a loading Button) leave `label` off; standing alone, pass
@@ -80,8 +82,13 @@ export function Spinner({ size = "md", label, className }: SpinnerProps) {
           strokeLinecap="round"
           className="opacity-30"
         />
-        {/* The pen re-tracing it — a shorter dash chasing endlessly along
-            the same spiral, like a hand that can't stop coiling it. */}
+        {/* The pen drawing it — a single dash exactly as long as the whole
+            path (pathLength normalizes it to 300), so animating its offset
+            from 300 (nothing showing) to 0 (fully drawn) reveals ONE
+            continuously growing line from the start, never two separate
+            fragments. It only reaches offset 0 — fully traced — right as
+            the loop restarts back to 300, so a new pass never begins until
+            the last one finished. */}
         <path
           d={SCRIBBLE_PATH}
           pathLength={300}
@@ -89,7 +96,7 @@ export function Spinner({ size = "md", label, className }: SpinnerProps) {
           stroke="currentColor"
           strokeWidth="1.8"
           strokeLinecap="round"
-          strokeDasharray="90 210"
+          strokeDasharray="300"
           className="motion-safe:animate-scribble"
         />
       </g>

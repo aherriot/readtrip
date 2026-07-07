@@ -78,10 +78,11 @@
      collapses its duration and the removal still fires immediately via
      `animationend`; `both` holds the faded-out final frame until then. */
   --animate-tile-out: tile-out 0.28s ease-in both;
-  /* Spinner: a dash chasing endlessly around the scribbled loops, like a
-     bored hand re-tracing the same doodle. Applied via
-     `motion-safe:animate-scribble` so the reduced-motion floor just leaves
-     the dash sitting still on the loop instead of looping the animation. */
+  /* Spinner: draws the spiral from start to end, then restarts — one
+     continuously growing line, never two disjoint fragments (see the
+     `scribble` keyframes below). Applied via `motion-safe:animate-scribble`
+     so the reduced-motion floor collapses it to the fully-drawn final
+     frame instead of looping the draw. */
   --animate-scribble: scribble 2.6s linear infinite;
 }
 
@@ -154,12 +155,20 @@
   }
 }
 
-/* Spinner's chasing dash: the path's `pathLength={300}` normalizes the curve,
-   so marching the dash offset one full pathLength tiles seamlessly — the
-   loop point is invisible no matter the dash pattern. */
+/* Spinner's draw-on: `stroke-dasharray: 300` (the path's `pathLength={300}`
+   normalizes the curve) makes the dash exactly as long as the whole path.
+   Offset 300 pushes it entirely past the end (nothing visible); offset 0
+   aligns it exactly with the path (fully visible). Animating between the
+   two reveals a single line growing from the start — never a marching
+   window that can wrap and split into two fragments. The loop only jumps
+   back to 300 (empty) once it has reached 0 (fully drawn), so a new pass
+   never starts before the last one finishes. */
 @keyframes scribble {
-  to {
-    stroke-dashoffset: -300;
+  0% {
+    stroke-dashoffset: 300;
+  }
+  100% {
+    stroke-dashoffset: 0;
   }
 }
 
