@@ -271,7 +271,7 @@ function ChildForm({
           >
             {READING_LEVEL_OPTIONS.map((option) => (
               <option key={option.level} value={option.level}>
-                Level {option.level} · {option.ageBand} — {option.description}
+                Level {option.level} · {option.ageBand}
               </option>
             ))}
           </Select>

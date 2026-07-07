@@ -42,10 +42,24 @@ export const metadata: Metadata = {
 };
 
 /** One labelled example block. */
-function Variant({ title, children }: { title: string; children: ReactNode }) {
+function Variant({
+  title,
+  children,
+  size = "xs",
+}: {
+  title: string;
+  children: ReactNode;
+  size?: "xs" | "sm";
+}) {
+  const sizeClass = size === "sm" ? "text-sm" : "text-xs";
   return (
     <div className="flex flex-col gap-2">
-      <p className="font-display text-xs tracking-wide text-surface-ink-soft uppercase">
+      <p
+        className={cn(
+          "font-display tracking-wide text-surface-ink-soft uppercase",
+          sizeClass
+        )}
+      >
         {title}
       </p>
       {children}
@@ -355,10 +369,16 @@ function PrimitiveTokens() {
 
       {/* Colour palette — the two-layer token system. */}
       <Card className="flex flex-col gap-6">
-        <Variant title="Layer 1 · Primitives — every raw colour (styles/tokens.css)">
+        <Variant
+          size="sm"
+          title="Layer 1 · Primitives — every raw colour (styles/tokens.css)"
+        >
           <SwatchGrid swatches={PRIMITIVES} />
         </Variant>
-        <Variant title="Layer 2 · Semantic — meaning mapped onto primitives (components read these)">
+        <Variant
+          size="sm"
+          title="Layer 2 · Semantic — meaning mapped onto primitives (components read these)"
+        >
           <SwatchGrid swatches={SEMANTIC} />
         </Variant>
       </Card>
@@ -852,9 +872,9 @@ function SelectVariants() {
           defaultValue={4}
           hint="Set this yourself anytime — it won't change on its own."
         >
-          <option value={3}>Level 3 · Ages 6–7 — 1st–2nd grade</option>
-          <option value={4}>Level 4 · Ages 8–9 — 3rd–4th grade</option>
-          <option value={5}>Level 5 · Age 10 — 5th grade</option>
+          <option value={3}>Level 3 · Ages 6–7</option>
+          <option value={4}>Level 4 · Ages 8–9</option>
+          <option value={5}>Level 5 · Age 10</option>
         </Select>
       </Variant>
       <Variant title="Error (icon + text + color)">
