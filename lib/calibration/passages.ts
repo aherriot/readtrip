@@ -8,14 +8,15 @@
 // The `answerIndex` is server-only. The client is handed a `CalibrationPassageView`
 // with the key stripped, so the mini-game can't be trivially cheated and the
 // starting level stays server-authoritative (graded in ./flow.ts).
+import type { IconName } from "@/components/ui/icons/glyphs";
 import type { ReadingLevel } from "../llm/prompts/readingLevel";
 
 export interface CalibrationPassage {
   /** Stable id sent back with the child's answer to grade it server-side. */
   id: string;
   level: ReadingLevel;
-  /** Decorative flavor for the passage card (aria-hidden). */
-  emoji: string;
+  /** Decorative flavor for the passage card (a unified-set icon, aria-hidden). */
+  icon: IconName;
   title: string;
   text: string;
   question: string;
@@ -32,7 +33,7 @@ export const CALIBRATION_PASSAGES: Record<ReadingLevel, CalibrationPassage> = {
   1: {
     id: "passage-l1",
     level: 1,
-    emoji: "🐱",
+    icon: "cat",
     title: "The Cat",
     text: "See the cat. The cat is soft. The cat says meow.",
     question: "What does the cat say?",
@@ -42,7 +43,7 @@ export const CALIBRATION_PASSAGES: Record<ReadingLevel, CalibrationPassage> = {
   2: {
     id: "passage-l2",
     level: 2,
-    emoji: "☀️",
+    icon: "sun",
     title: "The Sun",
     text: "The sun is very big. It is a giant ball of fire. The sun gives us light. It also keeps us warm.",
     question: "What does the sun give us?",
@@ -52,7 +53,7 @@ export const CALIBRATION_PASSAGES: Record<ReadingLevel, CalibrationPassage> = {
   3: {
     id: "passage-l3",
     level: 3,
-    emoji: "🐝",
+    icon: "bee",
     title: "Busy Bees",
     text: "Bees are busy little insects. They live together in a hive. Bees fly to many flowers. They gather sweet nectar. Then they turn it into honey.",
     question: "What do bees make?",
@@ -62,7 +63,7 @@ export const CALIBRATION_PASSAGES: Record<ReadingLevel, CalibrationPassage> = {
   4: {
     id: "passage-l4",
     level: 4,
-    emoji: "🌋",
+    icon: "volcano",
     title: "Volcanoes",
     text: "Volcanoes are mountains that can erupt. When they do, hot melted rock pours out. This rock is called lava. Lava glows bright orange because it is so hot. When it cools, it becomes hard rock again.",
     question: "Why does lava glow bright orange?",
@@ -76,7 +77,7 @@ export const CALIBRATION_PASSAGES: Record<ReadingLevel, CalibrationPassage> = {
   5: {
     id: "passage-l5",
     level: 5,
-    emoji: "🐙",
+    icon: "octopus",
     title: "Clever Octopuses",
     text: "Octopuses are among the cleverest creatures in the ocean. They have eight bendy arms lined with tiny suckers that grip almost anything. To hide from hungry predators, an octopus can change the color of its skin in a single second. Some can even squeeze their soft bodies through a gap no wider than a coin.",
     question: "How does an octopus hide from predators?",
@@ -90,7 +91,7 @@ export const CALIBRATION_PASSAGES: Record<ReadingLevel, CalibrationPassage> = {
   6: {
     id: "passage-l6",
     level: 6,
-    emoji: "🏔️",
+    icon: "mountain",
     title: "Rivers of Ice",
     text: "Glaciers are colossal rivers of ice that form over centuries as fallen snow is pressed into dense, solid ice. Although they look completely still, glaciers actually creep downhill with astonishing slowness, scraping against the rock beneath them. Over thousands of years, this relentless grinding can gouge out entire valleys and reshape whole mountain ranges.",
     question: "How do glaciers shape valleys?",
@@ -104,7 +105,7 @@ export const CALIBRATION_PASSAGES: Record<ReadingLevel, CalibrationPassage> = {
   7: {
     id: "passage-l7",
     level: 7,
-    emoji: "🕳️",
+    icon: "cave",
     title: "Collapsing Stars",
     text: "A black hole forms when a massive star runs out of fuel and collapses under its own gravity, crushing its matter into an impossibly small point. The resulting gravitational pull is so intense that nothing, not even light, can escape once it crosses a boundary called the event horizon. Paradoxically, astronomers detect these invisible objects not by seeing them directly, but by observing how they warp light and fling nearby matter into blazing, superheated disks.",
     question:
@@ -125,7 +126,7 @@ export function toPassageView(
   return {
     id: passage.id,
     level: passage.level,
-    emoji: passage.emoji,
+    icon: passage.icon,
     title: passage.title,
     text: passage.text,
     question: passage.question,

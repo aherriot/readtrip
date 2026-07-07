@@ -3,7 +3,9 @@ import { auth } from "@/lib/auth";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { Heading } from "@/components/ui/Heading";
+import { Icon } from "@/components/ui/Icon";
 import { Text } from "@/components/ui/Text";
+import type { IconName } from "@/components/ui/icons/glyphs";
 
 export const metadata: Metadata = {
   title: "ReadTrip — a curiosity engine for kids",
@@ -11,19 +13,19 @@ export const metadata: Metadata = {
     "ReadTrip turns a child's questions into guided reading adventures, tuned to their level and rewarding real understanding.",
 };
 
-const features = [
+const features: { icon: IconName; title: string; body: string }[] = [
   {
-    emoji: "🚀",
+    icon: "rocket",
     title: "Ask anything",
     body: "“Why is the sky blue?” “Tell me about sharks.” Every question becomes a short, guided reading adventure.",
   },
   {
-    emoji: "📚",
+    icon: "books",
     title: "Right-sized reading",
     body: "Explanations are tuned to each child's reading level — a 6- and an 11-year-old get the same wonder, different words.",
   },
   {
-    emoji: "⭐",
+    icon: "star",
     title: "Rewards for understanding",
     body: "Quick quizzes check what they learned. Points, levels, and badges celebrate comprehension — not just clicks.",
   },
@@ -64,9 +66,7 @@ export default async function Home() {
         <ul className="grid gap-6 text-left sm:grid-cols-3">
           {features.map((feature) => (
             <Card key={feature.title} as="li" className="flex flex-col gap-3">
-              <span aria-hidden="true" className="text-3xl">
-                {feature.emoji}
-              </span>
+              <Icon name={feature.icon} decorative size="xl" />
               <Heading level={3} size="lg">
                 {feature.title}
               </Heading>

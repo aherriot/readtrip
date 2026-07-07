@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { Heading } from "@/components/ui/Heading";
 import { Icon } from "@/components/ui/Icon";
+import { ICON_NAMES } from "@/components/ui/icons/glyphs";
 import { Input } from "@/components/ui/Input";
 import { ProgressBar } from "@/components/ui/ProgressBar";
 import { Select } from "@/components/ui/Select";
@@ -36,36 +37,6 @@ export const metadata: Metadata = {
   title: "Design system — component gallery",
   robots: { index: false, follow: false },
 };
-
-const SearchGlyph = () => (
-  <svg viewBox="0 0 20 20" className="h-5 w-5" fill="none" aria-hidden="true">
-    <circle cx="9" cy="9" r="5.5" stroke="currentColor" strokeWidth="2" />
-    <path
-      d="m13.5 13.5 3 3"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-    />
-  </svg>
-);
-
-const StarGlyph = () => (
-  <svg viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-    <path d="M10 1.5l2.6 5.3 5.9.9-4.3 4.1 1 5.8L10 14.9 4.8 17.6l1-5.8L1.5 7.7l5.9-.9L10 1.5z" />
-  </svg>
-);
-
-const ArrowGlyph = () => (
-  <svg viewBox="0 0 20 20" fill="none" aria-hidden="true">
-    <path
-      d="M4 10h11m0 0-4-4m4 4-4 4"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    />
-  </svg>
-);
 
 /** One labelled example block. */
 function Variant({ title, children }: { title: string; children: ReactNode }) {
@@ -176,7 +147,7 @@ const SEMANTIC: Swatch[] = [
     name: "correct",
     token: "--correct",
     meta: "= leaf",
-    note: "Right answer (+ ✓)",
+    note: "Right answer (+ check icon)",
   },
   {
     name: "retry",
@@ -430,21 +401,27 @@ function ButtonVariants() {
       </Variant>
       <Variant title="With icons">
         <div className="flex flex-wrap items-center gap-3">
-          <Button leadingIcon={<StarGlyph />}>Earn a stamp</Button>
-          <Button variant="secondary" trailingIcon={<ArrowGlyph />}>
+          <Button leadingIcon={<Icon name="star" decorative size="sm" />}>
+            Earn a stamp
+          </Button>
+          <Button
+            variant="secondary"
+            trailingIcon={<Icon name="arrow-right" decorative size="sm" />}
+          >
             Next
           </Button>
         </div>
       </Variant>
       <Variant title="Icon-only (requires aria-label)">
         <Button aria-label="Search topics" variant="ghost">
-          <Icon decorative>
-            <SearchGlyph />
-          </Icon>
+          <Icon name="search" decorative />
         </Button>
       </Variant>
       <Variant title="Link that looks like a button (renders an <a>)">
-        <Button href="/api/health" trailingIcon={<ArrowGlyph />}>
+        <Button
+          href="/api/health"
+          trailingIcon={<Icon name="arrow-right" decorative size="sm" />}
+        >
           Check system health
         </Button>
       </Variant>
@@ -524,10 +501,20 @@ function BadgeVariants() {
     <div className="flex flex-col gap-6">
       <Variant title="Feedback pills (icon + word + color) — the word is the meaning">
         <div className="flex flex-wrap items-center gap-3">
-          <Badge tone="leaf" icon="✓">
+          <Badge
+            tone="leaf"
+            icon={
+              <Icon name="check" decorative size="sm" accent="currentColor" />
+            }
+          >
             Yes!
           </Badge>
-          <Badge tone="coral" icon="↻">
+          <Badge
+            tone="coral"
+            icon={
+              <Icon name="retry" decorative size="sm" accent="currentColor" />
+            }
+          >
             Try again
           </Badge>
         </div>
@@ -596,25 +583,47 @@ function TypographyVariants() {
 function IconVariants() {
   return (
     <div className="flex flex-col gap-6">
-      <Variant title="Sizes (labelled — exposed as role=img)">
-        <div className="flex items-center gap-4 text-surface-accent">
-          <Icon label="Favorite" size="sm">
-            <StarGlyph />
-          </Icon>
-          <Icon label="Favorite" size="md">
-            <StarGlyph />
-          </Icon>
-          <Icon label="Favorite" size="lg">
-            <StarGlyph />
-          </Icon>
+      <Variant title="The unified set (hand-drawn doodle; token accent per glyph)">
+        <div className="grid grid-cols-6 gap-x-3 gap-y-4 sm:grid-cols-9">
+          {ICON_NAMES.map((name) => (
+            <span key={name} className="flex flex-col items-center gap-1">
+              <Icon name={name} size="lg" label={name} />
+              <span className="font-body text-[0.6rem] text-surface-ink-soft">
+                {name}
+              </span>
+            </span>
+          ))}
         </div>
       </Variant>
-      <Variant title="Decorative (hidden from assistive tech)">
-        <span className="inline-flex items-center gap-2 text-surface-ink">
+      <Variant title="Sizes (sm · md · lg · xl)">
+        <div className="flex items-end gap-4">
+          <Icon name="rocket" size="sm" label="rocket small" />
+          <Icon name="rocket" size="md" label="rocket medium" />
+          <Icon name="rocket" size="lg" label="rocket large" />
+          <Icon name="rocket" size="xl" label="rocket extra large" />
+        </div>
+      </Variant>
+      <Variant title="Accent override + a bespoke child <svg> (the escape hatch)">
+        <span className="inline-flex items-center gap-3 text-surface-ink">
+          <Icon name="star" accent="var(--sky)" label="Sky star" />
           <Icon decorative>
-            <SearchGlyph />
+            <svg viewBox="0 0 20 20" fill="none" aria-hidden="true">
+              <circle
+                cx="9"
+                cy="9"
+                r="5.5"
+                stroke="currentColor"
+                strokeWidth="2"
+              />
+              <path
+                d="m13.5 13.5 3 3"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+              />
+            </svg>
           </Icon>
-          <Text as="span">Search is labelled by this text</Text>
+          <Text as="span">A custom glyph still works</Text>
         </span>
       </Variant>
     </div>
@@ -704,7 +713,11 @@ function InputVariants() {
         />
       </Variant>
       <Variant title="Required + leading icon">
-        <Input label="Search topics" leadingIcon={<SearchGlyph />} required />
+        <Input
+          label="Search topics"
+          leadingIcon={<Icon name="search" decorative />}
+          required
+        />
       </Variant>
       <Variant title="Hidden label + md size (dense)">
         <Input

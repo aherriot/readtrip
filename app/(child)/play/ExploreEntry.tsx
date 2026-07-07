@@ -15,6 +15,7 @@ import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { SubmitButton } from "@/components/ui/SubmitButton";
 import { Heading } from "@/components/ui/Heading";
+import { Icon } from "@/components/ui/Icon";
 import { Input } from "@/components/ui/Input";
 import { Spinner } from "@/components/ui/Spinner";
 import { Text } from "@/components/ui/Text";
@@ -287,9 +288,7 @@ export function ExploreEntry({
         padding="lg"
         className="flex w-full flex-col items-center gap-4 text-center"
       >
-        <span className="text-5xl" aria-hidden="true">
-          🌈
-        </span>
+        <Icon name="rainbow" decorative size="xl" />
         <Heading level={2}>Let&apos;s find something else</Heading>
         <Text tone="soft" measure aria-live="polite">
           {phase.redirect}

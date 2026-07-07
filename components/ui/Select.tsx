@@ -9,6 +9,7 @@ import {
   Select as HeadlessSelect,
 } from "@headlessui/react";
 import { cn } from "@/lib/ui/cn";
+import { Icon } from "@/components/ui/Icon";
 
 type SelectSize = "md" | "kid";
 
@@ -106,20 +107,11 @@ export const Select = forwardRef<HTMLSelectElement, SelectProps>(
           >
             {children}
           </HeadlessSelect>
-          <svg
-            aria-hidden="true"
-            viewBox="0 0 20 20"
-            fill="none"
-            className="pointer-events-none absolute inset-y-0 right-4 my-auto h-5 w-5 text-surface-ink-soft"
-          >
-            <path
-              d="M5 8l5 5 5-5"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-          </svg>
+          <Icon
+            name="chevron-down"
+            decorative
+            className="pointer-events-none absolute inset-y-0 right-4 my-auto text-surface-ink-soft"
+          />
         </div>
 
         {hint && !error && (
@@ -130,18 +122,7 @@ export const Select = forwardRef<HTMLSelectElement, SelectProps>(
 
         {error && (
           <Description className="flex items-center gap-1.5 font-body text-xs text-surface-danger">
-            <svg
-              viewBox="0 0 20 20"
-              className="h-4 w-4 shrink-0"
-              fill="currentColor"
-              aria-hidden="true"
-            >
-              <path
-                fillRule="evenodd"
-                d="M10 1.5a8.5 8.5 0 1 0 0 17 8.5 8.5 0 0 0 0-17ZM9 6a1 1 0 1 1 2 0v4a1 1 0 1 1-2 0V6Zm1 9.25a1.25 1.25 0 1 0 0-2.5 1.25 1.25 0 0 0 0 2.5Z"
-                clipRule="evenodd"
-              />
-            </svg>
+            <Icon name="alert" decorative size="sm" />
             {error}
           </Description>
         )}

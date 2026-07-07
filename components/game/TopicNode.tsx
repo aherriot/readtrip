@@ -1,7 +1,9 @@
 "use client";
 
-import { useState, type ReactNode } from "react";
+import { useState } from "react";
 import { cn } from "@/lib/ui/cn";
+import { Icon } from "@/components/ui/Icon";
+import type { IconName } from "@/components/ui/icons/glyphs";
 import type { SuggestionKind, TopicNodeState } from "@/lib/map/nodeState";
 
 export interface TopicNodeProps {
@@ -23,38 +25,6 @@ export interface TopicNodeProps {
    */
   onDismiss?: () => void;
 }
-
-// Crisp stroked line icons (not emoji) so the strip glyphs match the tiles'
-// line-art frame. Decorative — the strip is `aria-hidden`; the word carries the
-// meaning. `currentColor` inherits the strip's `--surface-ink`, so they render
-// in the same near-white as the word.
-const iconProps = {
-  viewBox: "0 0 24 24",
-  fill: "none",
-  stroke: "currentColor",
-  strokeWidth: 2.4,
-  strokeLinecap: "round",
-  strokeLinejoin: "round",
-  className: "h-full w-full",
-} as const;
-
-const MagnifierIcon = () => (
-  <svg {...iconProps}>
-    <circle cx="11" cy="11" r="6" />
-    <path d="m20 20-3.2-3.2" />
-  </svg>
-);
-const CompassIcon = () => (
-  <svg {...iconProps} strokeWidth={2.2}>
-    <circle cx="12" cy="12" r="9" />
-    <path d="m15.5 8.5-2 5-5 2 2-5z" />
-  </svg>
-);
-const FlagIcon = () => (
-  <svg {...iconProps}>
-    <path d="M6 21V4M6 5h11l-2 4 2 4H6" />
-  </svg>
-);
 
 // Every state pairs a distinct status word with its color, so the node never
 // communicates by color alone (a11y floor). The word is always real text tied
@@ -98,20 +68,20 @@ type StripKind = "explored" | SuggestionKind;
 // differences are icon + word + color, never color alone).
 const STRIP: Record<
   StripKind,
-  { icon: ReactNode; text: string; className: string }
+  { icon: IconName; text: string; className: string }
 > = {
   explored: {
-    icon: <FlagIcon />,
+    icon: "flag",
     text: "Continue",
     className: "border-sky bg-sky/(--tint-fill)",
   },
   deep: {
-    icon: <MagnifierIcon />,
+    icon: "search",
     text: "Dive",
     className: "border-aqua bg-aqua/(--tint-fill)",
   },
   diverse: {
-    icon: <CompassIcon />,
+    icon: "compass",
     text: "New",
     className: "border-violet bg-violet/(--tint-fill)",
   },
@@ -201,7 +171,12 @@ export function TopicNode({
               strip.className
             )}
           >
-            <span className="h-3.5 w-3.5">{strip.icon}</span>
+            <Icon
+              name={strip.icon}
+              decorative
+              accent="currentColor"
+              size="sm"
+            />
             <span>{strip.text}</span>
           </div>
         )}
@@ -229,17 +204,7 @@ export function TopicNode({
           aria-label={`Dismiss ${title}`}
           className="absolute -right-2 -top-2 flex h-11 w-11 items-center justify-center rounded-pill bg-surface text-surface-ink-soft shadow-[var(--surface-elevation)] hover:bg-surface-ink/(--tint-wash)"
         >
-          <svg
-            viewBox="0 0 20 20"
-            className="h-4 w-4"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            aria-hidden="true"
-          >
-            <path d="m5 5 10 10M15 5 5 15" />
-          </svg>
+          <Icon name="close" decorative size="sm" />
         </button>
       )}
     </div>

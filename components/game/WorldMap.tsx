@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 import { Button } from "@/components/ui/Button";
 import { Heading } from "@/components/ui/Heading";
+import { Icon } from "@/components/ui/Icon";
 import { Text } from "@/components/ui/Text";
 import { orderNodes, toNodeState, type MapNodeView } from "@/lib/map/nodeState";
 import { TopicNode } from "./TopicNode";
@@ -122,8 +123,13 @@ export function WorldMap({ nodes, onSelect, onDismiss }: WorldMapProps) {
           className="mt-1 rounded-lg border border-surface-rule px-4 py-3"
         >
           <summary className="cursor-pointer font-body text-sm text-surface-ink-soft marker:text-surface-ink-soft">
-            🏅 {mastered.length} topic{mastered.length === 1 ? "" : "s"}{" "}
-            mastered
+            <Icon
+              name="medal"
+              decorative
+              size="sm"
+              className="mr-1 inline-flex translate-y-0.5"
+            />
+            {mastered.length} topic{mastered.length === 1 ? "" : "s"} mastered
           </summary>
           {/* Keyed on open state so the rows remount — and re-run their cascade
               — each time the child expands the disclosure, not just on mount
@@ -143,9 +149,7 @@ export function WorldMap({ nodes, onSelect, onDismiss }: WorldMapProps) {
                   onClick={() => onSelect(node)}
                   className="flex w-full items-center gap-2 py-3 text-left transition-colors hover:bg-surface-ink/(--tint-wash)"
                 >
-                  <span aria-hidden="true" className="text-base leading-none">
-                    🏅
-                  </span>
+                  <Icon name="medal" decorative size="sm" />
                   <span className="min-w-0 flex-1 truncate font-body text-sm text-surface-ink">
                     {node.title}
                   </span>

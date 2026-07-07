@@ -6,6 +6,7 @@ import { ReadingView } from "@/components/reading/ReadingView";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { Heading } from "@/components/ui/Heading";
+import { Icon } from "@/components/ui/Icon";
 import { Spinner } from "@/components/ui/Spinner";
 import { Text } from "@/components/ui/Text";
 import { toLessonChunks } from "@/lib/reading/chunks";
@@ -136,9 +137,7 @@ export function LessonReader({
         padding="lg"
         className="flex w-full flex-col items-center gap-4 text-center"
       >
-        <span className="text-5xl" aria-hidden="true">
-          🌈
-        </span>
+        <Icon name="rainbow" decorative size="xl" />
         <Heading level={2}>Let&apos;s find something else</Heading>
         <Text tone="soft" measure aria-live="polite">
           {redirect}
@@ -169,9 +168,7 @@ export function LessonReader({
         padding="lg"
         className="flex w-full flex-col items-center gap-4 text-center"
       >
-        <span className="text-5xl" aria-hidden="true">
-          🧭
-        </span>
+        <Icon name="compass" decorative size="xl" />
         <Heading level={2}>That trip got lost</Heading>
         <Text tone="soft" measure aria-live="polite">
           Something went wrong charting your lesson. Let&apos;s try again!
