@@ -27,17 +27,22 @@ export const GLYPHS = {
     <>
       <path
         {...ink}
-        d="M3.6 12c0-4.7 3.8-8.5 8.4-8.5S20.4 7.3 20.4 12s-3.8 8.5-8.4 8.5"
+        d="M2.8 12c0-5.1 4.1-9.2 9.2-9.2s9.2 4.1 9.2 9.2-4.1 9.2-9.2 9.2"
         stroke="var(--icon-accent)"
-        opacity="0.5"
+        opacity="0.6"
       />
-      <path {...ink} d="M6.5 12.4 10.3 16.4 17.7 7.4" strokeWidth="2" />
+      <path {...ink} d="M6 12.4 10.2 16.8 18.2 6.8" strokeWidth="2.4" />
     </>
   ),
   retry: (
     <>
-      <path {...ink} d="M19 12a7 7 0 1 1-2.1-5" stroke="var(--icon-accent)" />
-      <path {...pop} d="M17.4 3.4 17.6 8l-4.5-.8Z" />
+      <path
+        {...ink}
+        d="M20.5 12a8.5 8.5 0 1 1-2.5-6"
+        stroke="var(--icon-accent)"
+        strokeWidth="1.9"
+      />
+      <path {...pop} d="M18.6 2.6 18.8 8.2l-5.4-1Z" />
     </>
   ),
   close: <path {...ink} d="M6 6 18 18M18 6 6 18" strokeWidth="2" />,

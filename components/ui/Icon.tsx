@@ -66,10 +66,21 @@ export function Icon(props: IconProps) {
       aria-hidden={decorative ? true : undefined}
     >
       {named ? (
-        <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+        <svg
+          viewBox="0 0 24 24"
+          fill="none"
+          overflow="visible"
+          aria-hidden="true"
+        >
           {/* One shared filter gives every glyph the same inked, hand-drawn
-              waver — see IconDefs, mounted once in the root layout. */}
-          <g filter={`url(#${DOODLE_FILTER_ID})`}>{GLYPHS[props.name]}</g>
+              waver — see IconDefs, mounted once in the root layout. The inner
+              scale-about-center makes glyphs fill their box for consistent
+              optical weight (they're authored with a little breathing room). */}
+          <g filter={`url(#${DOODLE_FILTER_ID})`}>
+            <g transform="translate(12 12) scale(1.12) translate(-12 -12)">
+              {GLYPHS[props.name]}
+            </g>
+          </g>
         </svg>
       ) : (
         props.children

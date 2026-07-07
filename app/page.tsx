@@ -66,7 +66,7 @@ export default async function Home() {
         <ul className="grid gap-6 text-left sm:grid-cols-3">
           {features.map((feature) => (
             <Card key={feature.title} as="li" className="flex flex-col gap-3">
-              <Icon name={feature.icon} decorative size="lg" />
+              <Icon name={feature.icon} decorative size="xl" />
               <Heading level={3} size="lg">
                 {feature.title}
               </Heading>
