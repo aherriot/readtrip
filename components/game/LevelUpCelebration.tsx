@@ -1,6 +1,7 @@
 "use client";
 
 import { Button } from "@/components/ui/Button";
+import { Icon } from "@/components/ui/Icon";
 import { Modal } from "@/components/ui/Modal";
 import { Text } from "@/components/ui/Text";
 
@@ -39,11 +40,8 @@ export function LevelUpCelebration({
       hideCloseButton
     >
       <div className="flex flex-col items-center gap-4 text-center">
-        <span
-          className="text-6xl leading-none motion-safe:animate-burst"
-          aria-hidden="true"
-        >
-          🎉
+        <span className="motion-safe:animate-burst" aria-hidden="true">
+          <Icon name="party" decorative size="xl" />
         </span>
         <Text tone="soft" measure>
           You leveled up! New topics are opening on your map.

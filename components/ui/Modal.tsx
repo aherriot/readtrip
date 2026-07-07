@@ -8,6 +8,7 @@ import {
   DialogTitle,
 } from "@headlessui/react";
 import { cn } from "@/lib/ui/cn";
+import { Icon } from "@/components/ui/Icon";
 
 export interface ModalProps {
   /** Whether the dialog is shown. Controlled — the parent owns the state. */
@@ -22,7 +23,7 @@ export interface ModalProps {
    * is the night surface). Pass `paper` for reading-context dialogs.
    */
   surface?: "night" | "paper";
-  /** Hide the default close (✕) button when the body provides its own actions. */
+  /** Hide the default close button when the body provides its own actions. */
   hideCloseButton?: boolean;
 }
 
@@ -91,17 +92,7 @@ export function Modal({
               aria-label="Close"
               className="-mr-1 -mt-1 flex h-11 w-11 shrink-0 items-center justify-center rounded-pill text-surface-ink-soft hover:bg-surface-ink/(--tint-wash)"
             >
-              <svg
-                viewBox="0 0 20 20"
-                className="h-5 w-5"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                aria-hidden="true"
-              >
-                <path d="m5 5 10 10M15 5 5 15" />
-              </svg>
+              <Icon name="close" decorative />
             </button>
           )}
         </div>

@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { Heading } from "@/components/ui/Heading";
+import { Icon } from "@/components/ui/Icon";
 import { ProgressBar } from "@/components/ui/ProgressBar";
 import { Text } from "@/components/ui/Text";
 import { QuizChoice } from "@/components/reading/QuizChoice";
@@ -68,9 +69,7 @@ export function CalibrationGame({
           padding="lg"
           className="flex flex-col items-center gap-5 text-center"
         >
-          <span className="text-6xl" aria-hidden="true">
-            🦸
-          </span>
+          <Icon name="hero" decorative size="xl" />
           <Heading level={1}>Find your reading superpower</Heading>
           <Text tone="soft" measure>
             Hi, {childName}! Read a few short stories and answer one quick
@@ -96,9 +95,7 @@ export function CalibrationGame({
           padding="lg"
           className="flex flex-col items-center gap-5 text-center"
         >
-          <span className="text-6xl" aria-hidden="true">
-            🌟
-          </span>
+          <Icon name="star" decorative size="xl" />
           <Heading level={1}>You did it, {childName}!</Heading>
           <Text tone="soft" measure aria-live="polite">
             Your reading superpower is all set. Now let&apos;s go explore
@@ -126,9 +123,12 @@ export function CalibrationGame({
         <div data-surface="paper">
           <Card elevated padding="lg" className="flex flex-col gap-3">
             <div className="flex items-center gap-3">
-              <span className="shrink-0 text-3xl" aria-hidden="true">
-                {passage.emoji}
-              </span>
+              <Icon
+                name={passage.icon}
+                decorative
+                size="lg"
+                className="shrink-0"
+              />
               <Heading level={2} className="min-w-0 break-words">
                 {passage.title}
               </Heading>

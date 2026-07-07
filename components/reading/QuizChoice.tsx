@@ -1,6 +1,8 @@
 "use client";
 
 import { Badge, type BadgeTone } from "@/components/ui/Badge";
+import { Icon } from "@/components/ui/Icon";
+import type { IconName } from "@/components/ui/icons/glyphs";
 import { cn } from "@/lib/ui/cn";
 
 export type QuizChoiceState = "default" | "selected" | "correct" | "retry";
@@ -28,11 +30,11 @@ const stateStyles: Record<QuizChoiceState, string> = {
   retry: "border-coral bg-coral/(--tint-soft)",
 };
 
-type Feedback = { icon: string; label: string; tone: BadgeTone };
+type Feedback = { icon: IconName; label: string; tone: BadgeTone };
 
 const statusBadge: Partial<Record<QuizChoiceState, Feedback>> = {
-  correct: { icon: "✓", label: "Yes!", tone: "leaf" },
-  retry: { icon: "↻", label: "Try again", tone: "coral" },
+  correct: { icon: "check", label: "Yes!", tone: "leaf" },
+  retry: { icon: "retry", label: "Try again", tone: "coral" },
 };
 
 /**
@@ -68,7 +70,17 @@ export function QuizChoice({
           so the badge never covers the answer or the pill's border. */}
       {badge && (
         <span className="flex justify-end">
-          <Badge tone={badge.tone} icon={badge.icon}>
+          <Badge
+            tone={badge.tone}
+            icon={
+              <Icon
+                name={badge.icon}
+                decorative
+                size="sm"
+                accent="currentColor"
+              />
+            }
+          >
             {badge.label}
           </Badge>
         </span>

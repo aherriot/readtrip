@@ -9,6 +9,7 @@ import { QuizCard } from "@/components/reading/QuizCard";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { Heading } from "@/components/ui/Heading";
+import { Icon } from "@/components/ui/Icon";
 import { Input } from "@/components/ui/Input";
 import { ProgressBar } from "@/components/ui/ProgressBar";
 import { Spinner } from "@/components/ui/Spinner";
@@ -116,11 +117,8 @@ export function QuizRunner({
   if (phase.name === "loading") {
     return (
       <ResultShell>
-        <span
-          className="text-5xl motion-safe:animate-bounce"
-          aria-hidden="true"
-        >
-          🧩
+        <span className="motion-safe:animate-bounce" aria-hidden="true">
+          <Icon name="puzzle" decorative size="xl" />
         </span>
         <Heading level={2}>Building your quiz…</Heading>
         <Text tone="soft" aria-live="polite">
@@ -135,9 +133,7 @@ export function QuizRunner({
   if (phase.name === "error") {
     return (
       <ResultShell>
-        <span className="text-5xl" aria-hidden="true">
-          🧭
-        </span>
+        <Icon name="compass" decorative size="xl" />
         <Heading level={2}>That quiz got lost</Heading>
         <Text tone="soft" measure aria-live="polite">
           Something went wrong making your quiz. Your reading still counts!
@@ -150,9 +146,7 @@ export function QuizRunner({
   if (phase.name === "blocked") {
     return (
       <ResultShell>
-        <span className="text-5xl" aria-hidden="true">
-          🌈
-        </span>
+        <Icon name="rainbow" decorative size="xl" />
         <Heading level={2}>Let&apos;s find something else</Heading>
         <Text tone="soft" measure aria-live="polite">
           {phase.redirect}
@@ -308,9 +302,7 @@ function SteerResult({
 
   return (
     <ResultShell>
-      <span className="text-5xl" aria-hidden="true">
-        🌟
-      </span>
+      <Icon name="star" decorative size="xl" />
       <Heading level={2}>{resultMessage(score)}</Heading>
       <Text tone="soft" measure aria-live="polite">
         You got {score.correct} of {score.total} on the first try.

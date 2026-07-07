@@ -17,7 +17,9 @@ the rules you cannot break.
 
 1. **Compose components; don't re-style.** Need a control? Use the primitive from
    `components/ui/`. If one doesn't exist yet, build it _in_ `components/ui/` (and document
-   it here) rather than styling inline on a page.
+   it here) rather than styling inline on a page. **Need a glyph?** Use `<Icon name="…" />`
+   from the unified set — never an emoji or a raw `<svg>`; add new glyphs to
+   `components/ui/icons/glyphs.tsx`. See [references/icon.md](references/icon.md).
 2. **Never hardcode hex, px colors, or raw font sizes in pages.** Use tokens — through
    Tailwind utilities (`bg-surface`, `text-surface-ink`, `font-display`, `rounded-pill`,
    `text-2xl`) or `var(--token)`. See [references/tokens.md](references/tokens.md).
@@ -53,7 +55,7 @@ into `components/` and replace its row with a reference when you do).
 | `Card` (`Panel`) | ✅ [ref](references/card.md)          | Group related content in a surface-aware container; `elevated` is the Panel look.                                                         |
 | `Heading`        | ✅ [ref](references/heading.md)       | Headings on the type scale with the right semantic level.                                                                                 |
 | `Text`           | ✅ [ref](references/text.md)          | All body/label copy — Lexend, reading-legibility defaults. No raw font sizing.                                                            |
-| `Icon`           | ✅ [ref](references/icon.md)          | A sized wrapper that's either labelled (`role="img"`) or decorative.                                                                      |
+| `Icon`           | ✅ [ref](references/icon.md)          | The unified icon set: `<Icon name="…" />`, hand-drawn doodle glyphs from `components/ui/icons`. **No emoji / raw `<svg>` in pages.**      |
 | `Modal`          | ✅ [ref](references/modal.md)         | Focus-trapped dialog; `Escape`/backdrop close; returns focus to trigger.                                                                  |
 | `ProgressBar`    | ✅ [ref](references/progress-bar.md)  | Generic animated bar (XP, calibration, quiz progress).                                                                                    |
 | `Spinner`        | ✅ [ref](references/spinner.md)       | Indeterminate "working on it" loading indicator; pair with text. `Button` embeds it.                                                      |

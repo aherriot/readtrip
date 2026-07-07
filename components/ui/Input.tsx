@@ -9,6 +9,7 @@ import {
   Label,
 } from "@headlessui/react";
 import { cn } from "@/lib/ui/cn";
+import { Icon } from "@/components/ui/Icon";
 
 type InputSize = "md" | "kid";
 
@@ -131,18 +132,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(function Input(
 
       {error && (
         <Description className="flex items-center gap-1.5 font-body text-xs text-surface-danger">
-          <svg
-            viewBox="0 0 20 20"
-            className="h-4 w-4 shrink-0"
-            fill="currentColor"
-            aria-hidden="true"
-          >
-            <path
-              fillRule="evenodd"
-              d="M10 1.5a8.5 8.5 0 1 0 0 17 8.5 8.5 0 0 0 0-17ZM9 6a1 1 0 1 1 2 0v4a1 1 0 1 1-2 0V6Zm1 9.25a1.25 1.25 0 1 0 0-2.5 1.25 1.25 0 0 0 0 2.5Z"
-              clipRule="evenodd"
-            />
-          </svg>
+          <Icon name="alert" decorative size="sm" />
           {error}
         </Description>
       )}

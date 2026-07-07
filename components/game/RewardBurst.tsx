@@ -1,4 +1,5 @@
 import { cn } from "@/lib/ui/cn";
+import { Icon } from "@/components/ui/Icon";
 
 export interface RewardBurstProps {
   /** XP earned this loop — rendered as "+N XP". */
@@ -29,9 +30,7 @@ export function RewardBurst({ xp, className }: RewardBurstProps) {
         className
       )}
     >
-      <span className="text-2xl leading-none" aria-hidden="true">
-        ✨
-      </span>
+      <Icon name="sparkles" decorative accent="var(--sun)" size="lg" />
       <span>+{xp} XP</span>
     </div>
   );

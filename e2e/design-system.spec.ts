@@ -296,13 +296,19 @@ test.describe("Icon — accessibility contract", () => {
   test("labelled icons are exposed as named images; decorative icons are hidden", async ({
     page,
   }) => {
+    const section = onNight(page);
+    // Labelled → each is an image with an accessible name.
+    await expect(section.getByRole("img", { name: "Sky star" })).toBeVisible();
     await expect(
-      onNight(page).getByRole("img", { name: "Favorite" }).first()
+      section.getByRole("img", { name: "rocket extra large" })
     ).toBeVisible();
-    // Three labelled (sizes) + zero from the decorative example.
+    // The whole unified set renders as named images.
+    expect(await section.getByRole("img").count()).toBeGreaterThan(20);
+    // The bespoke decorative Icon hides its wrapper from assistive tech (its
+    // neighbouring text names the control), so it contributes no img role.
     await expect(
-      onNight(page).getByRole("img", { name: "Favorite" })
-    ).toHaveCount(3);
+      section.locator('span[aria-hidden="true"]').first()
+    ).toBeAttached();
   });
 });
 

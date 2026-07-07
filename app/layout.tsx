@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Fredoka, Lexend } from "next/font/google";
 import "./globals.css";
+import { IconDefs } from "@/components/ui/icons/IconDefs";
 
 // Display — Fredoka: rounded, warm, friendly without being babyish.
 const fredoka = Fredoka({
@@ -32,7 +33,10 @@ export default function RootLayout({
     <html lang="en" className={`${fredoka.variable} ${lexend.variable}`}>
       {/* Default surface is the night-sky play canvas; reading views opt into
           data-surface="paper" on their own container. */}
-      <body data-surface="night">{children}</body>
+      <body data-surface="night">
+        <IconDefs />
+        {children}
+      </body>
     </html>
   );
 }

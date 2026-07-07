@@ -1,4 +1,5 @@
 import { cn } from "@/lib/ui/cn";
+import { Icon } from "@/components/ui/Icon";
 
 export interface ExpeditionStampProps {
   /** The mastered topic, e.g. "Volcanoes" — rendered as "{title} Master". */
@@ -28,9 +29,7 @@ export function ExpeditionStamp({ title, className }: ExpeditionStampProps) {
         className
       )}
     >
-      <span className="text-3xl leading-none" aria-hidden="true">
-        🏅
-      </span>
+      <Icon name="medal" decorative size="lg" />
       <span className="max-w-[6rem] font-display text-sm leading-tight font-semibold break-words">
         {title}
       </span>
