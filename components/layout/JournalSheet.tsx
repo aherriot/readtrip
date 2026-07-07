@@ -1,8 +1,8 @@
 import type { CSSProperties, ReactNode } from "react";
 
 /**
- * The "open field journal on a wood desk" page frame — three stacked layers:
- * a wood desk (`.rt-desk`) fills the viewport; a leather cover (`.rt-cover`)
+ * The "open field journal on a desk" page frame — three stacked layers:
+ * a light desk (`.rt-desk`) fills the viewport; a leather cover (`.rt-cover`)
  * binds the page and lifts it off the desk; the ruled page (`.rt-sheet`) fills
  * the cover. So the wide desktop margins read as a leather-bound journal on a
  * table, and even on mobile a sliver of desk + the leather binding stay visible.

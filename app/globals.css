@@ -270,32 +270,28 @@
  * Composed by <JournalSheet> (components/layout). Surface-aware — desk, paper,
  * rule and shadow all track the --surface-* tokens.
  */
-/* Layer 1 — the WOOD DESK: a warm walnut surface filling the viewport, with a
-   simple plank-and-grain texture and a soft vignette for depth. The small
-   padding keeps the leather cover off the very screen edge so the binding stays
-   visible even on mobile, where the book otherwise fills the width. */
+/* Layer 1 — the DESK: a light warm-greige surface with a faint vignette for
+   depth. On mobile it has no padding, so the leather cover bleeds to the screen
+   edges and no desk shows; from `sm` up a small inset frames the book with a
+   sliver of desk on every side. */
 .rt-desk {
   min-height: 100svh;
-  padding: 12px;
+  padding: 0;
   background-color: var(--surface-desk);
-  background-image:
-    radial-gradient(
-      ellipse 120% 90% at 50% 28%,
-      transparent 40%,
-      rgba(28, 16, 6, 0.28) 100%
-    ),
-    repeating-linear-gradient(
-      90deg,
-      rgba(255, 255, 255, 0.03) 0 1px,
-      transparent 1px 4px,
-      rgba(0, 0, 0, 0.04) 4px 5px,
-      transparent 5px 9px
-    ),
-    repeating-linear-gradient(
-      90deg,
-      transparent 0 138px,
-      rgba(0, 0, 0, 0.22) 138px 140px
-    );
+  background-image: radial-gradient(
+    ellipse 120% 90% at 50% 30%,
+    transparent 55%,
+    color-mix(in srgb, var(--ink) 6%, transparent) 100%
+  );
+}
+@media (min-width: 40rem) {
+  .rt-desk {
+    padding: 16px;
+  }
+  .rt-cover {
+    min-height: calc(100svh - 32px);
+    border-radius: 12px;
+  }
 }
 
 /* Layer 2 — the LEATHER COVER the page is bound into: a deep-brown board with a
@@ -310,9 +306,11 @@
   flex-direction: column;
   margin-inline: auto;
   max-width: var(--rt-page);
-  min-height: calc(100svh - 24px);
+  /* Mobile: the cover fills the whole viewport (no desk visible), squared to the
+     edges. From `sm` up the desk's 16px inset frames it and the corners round. */
+  min-height: 100svh;
   padding: 14px;
-  border-radius: 12px;
+  border-radius: 0;
   background-color: var(--surface-cover);
   background-image:
     radial-gradient(
