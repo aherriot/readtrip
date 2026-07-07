@@ -73,7 +73,7 @@ test.describe("design system — visual", () => {
   // image, making the baseline depend on scroll position / gallery layout.
   test("modal — open dialog", async ({ page }) => {
     await page
-      .getByTestId("modal-night")
+      .getByTestId("modal")
       .getByRole("button", { name: "Open dialog" })
       .click();
     await expect(
