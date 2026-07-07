@@ -309,6 +309,19 @@
 .rt-inkbox.rt-inkbox--retry::after {
   border-color: var(--coral);
 }
+/* Pill radius: the round bits that survive the journal's squared-off language
+   (progress tracks, per tokens.md) still get the same double hand-inked
+   stroke, just traced round instead of the 3px "pen corner" square. */
+.rt-inkbox.rt-inkbox--pill::before,
+.rt-inkbox.rt-inkbox--pill::after {
+  border-radius: 999px;
+}
+/* Thin: a lighter stroke for small controls (the ProgressBar track) where the
+   default 1.8px pen box would read as too heavy against a 12px-tall bar. */
+.rt-inkbox.rt-inkbox--thin::before,
+.rt-inkbox.rt-inkbox--thin::after {
+  border-width: 1.1px;
+}
 
 /* Rubber stamp: a tilted, double-ruled ink frame pressed over content (the
    caller rotates + positions it). Two #rt-sketch-waved borders — an outer frame
