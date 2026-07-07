@@ -1,9 +1,11 @@
 # Spinner
 
-A small "working on it" indicator for loading states. A hand-drawn loop in `currentColor`,
-waved by the shared `#rt-doodle` turbulence filter (the same one every icon uses), so it reads
-as a quickly-sketched circle rather than a mechanical ring — and reads on either surface with
-no per-surface styling.
+A small "working on it" indicator for loading states. A scribbled tangle of loops in
+`currentColor` — the kind of absent-minded circles a bored person doodles into the margin of a
+notebook — waved by the shared `#rt-doodle` turbulence filter (the same one every icon uses). A
+dash chases endlessly around the loops, like a hand that can't stop re-tracing the same
+doodle, rather than a mechanical ring spinning. Reads on either surface with no per-surface
+styling.
 Source: [`components/ui/Spinner.tsx`](../../../../components/ui/Spinner.tsx).
 
 ```tsx
@@ -50,8 +52,9 @@ with a token utility (`text-surface-accent`, `text-sun`) when you want it to pop
 - **Name it once.** Standing alone, pass `label` so screen readers hear what's loading. Inside
   a labelled control (a loading Button, or a screen whose heading already says it), leave
   `label` off so it isn't announced twice — then it's `aria-hidden`.
-- **Reduced motion.** Spins via `motion-safe:animate-spin`; the global floor turns it into a
-  still (but still visibly hand-drawn) loop when the user opts out of motion.
+- **Reduced motion.** The dash chases via `motion-safe:animate-scribble`; the global floor
+  freezes it in place, leaving the static scribble as a still (but still clearly hand-drawn)
+  loading glyph when the user opts out of motion.
 
 ## Do / Don't
 

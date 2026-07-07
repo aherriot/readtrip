@@ -24,13 +24,28 @@ const sizeStyles: Record<SpinnerSize, string> = {
 };
 
 /**
- * A small "working on it" spinner (docs/10 loading states) — a loop pen-drawn
- * in `currentColor`, waved by the same `#rt-doodle` turbulence filter as the
- * icon set, so it reads as a quickly-sketched circle rather than a mechanical
- * ring. It inherits the text color of whatever contains it, so it reads
- * correctly on either surface with no per-surface styling. It spins via
- * Tailwind's `animate-spin`, gated on `motion-safe:` so the reduced-motion
- * floor turns it into a still (but still visibly hand-drawn) loop.
+ * Three loose, overlapping loops — the kind of absent-minded circles a bored
+ * person scribbles into the margin of a notebook, one drawn over the next
+ * without lifting the pen. `pathLength={300}` normalizes the (irregular,
+ * hand-authored) curve so the dash math below stays in round numbers no
+ * matter the exact geometry.
+ */
+const SCRIBBLE_PATH =
+  "M4 13a6 6 0 1 1 11 -3q1 3 -1 5" +
+  "a5 5 0 1 1 -9 -3q1.5 -3.5 5 -3" +
+  "a4 4 0 1 1 3 7q-3 2 -6 0";
+
+/**
+ * A small "working on it" spinner (docs/10 loading states) — a scribbled
+ * tangle of loops, not a mechanical ring, as if traced once and then
+ * endlessly re-traced by a bored hand. The full doodle sits there faintly;
+ * a shorter dash in the same `currentColor` chases around it forever
+ * (`motion-safe:animate-scribble`), reading as restless retracing rather
+ * than a spinning object. Waved by the shared `#rt-doodle` turbulence
+ * filter, the same one the icon set uses, for an inked wobble. It inherits
+ * the surrounding text color, so it reads correctly on either surface with
+ * no per-surface styling. The reduced-motion floor freezes the chase,
+ * leaving the static scribble as a still (but clearly hand-drawn) glyph.
  *
  * Pair it with text: on its own a spinner says "wait" but not "for what". Inside
  * a labelled control (a loading Button) leave `label` off; standing alone, pass
@@ -43,25 +58,31 @@ export function Spinner({ size = "md", label, className }: SpinnerProps) {
     <svg
       aria-hidden="true"
       viewBox="0 0 24 24"
-      className={cn(
-        "shrink-0 motion-safe:animate-spin",
-        sizeStyles[size],
-        className
-      )}
+      className={cn("shrink-0", sizeStyles[size], className)}
     >
-      {/* An intentionally incomplete loop (not a full circle) — the gap reads
-          as a pen lifted mid-stroke, same visual grammar as the old
-          border-t-transparent ring but drawn by hand. */}
       <g filter={`url(#${DOODLE_FILTER_ID})`}>
-        <circle
-          cx="12"
-          cy="12"
-          r="9"
+        {/* The doodle underneath — always fully drawn, faint, like a line
+            already sketched. */}
+        <path
+          d={SCRIBBLE_PATH}
+          pathLength={300}
           fill="none"
           stroke="currentColor"
-          strokeWidth="2.75"
+          strokeWidth="1.6"
           strokeLinecap="round"
-          strokeDasharray="42 14"
+          className="opacity-30"
+        />
+        {/* The pen re-tracing it — a shorter dash chasing endlessly around
+            the same loops, like a hand that can't stop circling. */}
+        <path
+          d={SCRIBBLE_PATH}
+          pathLength={300}
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="1.8"
+          strokeLinecap="round"
+          strokeDasharray="90 210"
+          className="motion-safe:animate-scribble"
         />
       </g>
     </svg>

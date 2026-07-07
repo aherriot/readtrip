@@ -78,6 +78,11 @@
      collapses its duration and the removal still fires immediately via
      `animationend`; `both` holds the faded-out final frame until then. */
   --animate-tile-out: tile-out 0.28s ease-in both;
+  /* Spinner: a dash chasing endlessly around the scribbled loops, like a
+     bored hand re-tracing the same doodle. Applied via
+     `motion-safe:animate-scribble` so the reduced-motion floor just leaves
+     the dash sitting still on the loop instead of looping the animation. */
+  --animate-scribble: scribble 2.6s linear infinite;
 }
 
 /* The "stamped into the journal" press: a big rotated stamp thuds down to rest. */
@@ -146,6 +151,15 @@
   100% {
     opacity: 0;
     transform: scale(0.9);
+  }
+}
+
+/* Spinner's chasing dash: the path's `pathLength={300}` normalizes the curve,
+   so marching the dash offset one full pathLength tiles seamlessly — the
+   loop point is invisible no matter the dash pattern. */
+@keyframes scribble {
+  to {
+    stroke-dashoffset: -300;
   }
 }
 
