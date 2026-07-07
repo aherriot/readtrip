@@ -202,18 +202,36 @@ export function TopicNode({
         )}
       </button>
       {dismissible && (
-        <button
-          type="button"
-          disabled={leaving}
-          onClick={(event) => {
-            event.stopPropagation();
-            setLeaving(true);
-          }}
-          aria-label={`Dismiss ${title}`}
-          className="absolute -right-2 -top-2 flex h-11 w-11 items-center justify-center rounded-pill bg-surface text-surface-ink-soft shadow-[var(--surface-elevation)] hover:bg-surface-ink/(--tint-wash)"
-        >
-          <Icon name="close" decorative size="sm" />
-        </button>
+        // Position on a wrapper, not the button: `rt-inkbox` forces
+        // `position: relative` (its pen-box strokes need a containing block), so
+        // the corner offset has to live one level up.
+        <div className="absolute -right-3 -top-3">
+          <button
+            type="button"
+            disabled={leaving}
+            onClick={(event) => {
+              event.stopPropagation();
+              setLeaving(true);
+            }}
+            aria-label={`Dismiss ${title}`}
+            className={cn(
+              // A hand-inked "cross it out" button: the journal's double-traced
+              // pen box (rt-inkbox) drawn round (--pill) and re-inked in the
+              // danger color (--danger → --surface-danger) so removing a topic
+              // reads as a struck-through, destructive mark rather than system
+              // chrome. Opaque paper fill keeps the X + ink legible over any
+              // tile; a danger wash deepens on hover. 48px clears the kid
+              // touch-target floor.
+              "rt-inkbox rt-inkbox--pill rt-inkbox--danger",
+              "flex h-12 w-12 items-center justify-center rounded-pill",
+              "bg-surface text-surface-danger shadow-[var(--surface-elevation)]",
+              "transition-colors not-disabled:hover:bg-surface-danger/(--tint-wash)",
+              "disabled:cursor-not-allowed"
+            )}
+          >
+            <Icon name="close" decorative size="md" />
+          </button>
+        </div>
       )}
     </div>
   );
