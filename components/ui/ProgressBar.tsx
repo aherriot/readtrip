@@ -1,6 +1,7 @@
 import type { HTMLAttributes } from "react";
 import { cn } from "@/lib/ui/cn";
 import { toPercent } from "@/lib/ui/progress";
+import { DOODLE_FILTER_ID } from "@/components/ui/icons/IconDefs";
 
 type ProgressTone = "accent" | "sun" | "leaf";
 
@@ -35,6 +36,12 @@ const toneStyles: Record<ProgressTone, string> = {
  * and a human `aria-valuetext`, so screen readers announce progress. The fill
  * animates; the global reduced-motion floor turns that into an instant update.
  *
+ * The track is a hand-inked pen box (the `.rt-inkbox` double stroke, same
+ * language as `Card`/`Button`) traced round via the `--pill` modifier — the
+ * one shape in the journal that stays round on purpose (tokens.md). The fill
+ * itself is waved by the shared `#rt-doodle` filter so its leading edge reads
+ * as a felt-tip stroke, not a mechanical bar.
+ *
  * Usage guidance: .claude/skills/design-system/references/progress-bar.md
  */
 export function ProgressBar({
@@ -58,14 +65,20 @@ export function ProgressBar({
         aria-valuemin={0}
         aria-valuemax={100}
         aria-valuetext={`${rounded}%`}
-        className="relative h-3 w-full overflow-hidden rounded-pill bg-surface-ink/(--tint-soft)"
+        className={cn(
+          "rt-inkbox rt-inkbox--pill rt-inkbox--thin",
+          "relative h-3 w-full rounded-pill bg-surface-ink/(--tint-soft)"
+        )}
       >
         <div
           className={cn(
             "h-full rounded-pill transition-[width] duration-500 ease-out",
             toneStyles[tone]
           )}
-          style={{ width: `${percent}%` }}
+          style={{
+            width: `${percent}%`,
+            filter: `url(#${DOODLE_FILTER_ID})`,
+          }}
         />
       </div>
       {showValue && (
