@@ -1,7 +1,6 @@
 "use client";
 
-import { useState } from "react";
-import { Badge, type BadgeTone } from "@/components/ui/Badge";
+import { useState, type ReactNode } from "react";
 import { cn } from "@/lib/ui/cn";
 import type { SuggestionKind, TopicNodeState } from "@/lib/map/nodeState";
 
@@ -12,7 +11,7 @@ export interface TopicNodeProps {
   state: TopicNodeState;
   /**
    * Deep (neighbour of an explored topic) vs. diverse (unrelated breadth
-   * starter). Only meaningful while `suggested`; picks the corner badge.
+   * starter). Only meaningful while `suggested`; picks the header strip.
    * Defaults to `"deep"` when omitted.
    */
   kind?: SuggestionKind | null;
@@ -25,11 +24,43 @@ export interface TopicNodeProps {
   onDismiss?: () => void;
 }
 
+// Crisp stroked line icons (not emoji) so the strip glyphs match the tiles'
+// line-art frame. Decorative — the strip is `aria-hidden`; the word carries the
+// meaning. `currentColor` inherits the strip's `--surface-ink`, so they render
+// in the same near-white as the word.
+const iconProps = {
+  viewBox: "0 0 24 24",
+  fill: "none",
+  stroke: "currentColor",
+  strokeWidth: 2.4,
+  strokeLinecap: "round",
+  strokeLinejoin: "round",
+  className: "h-full w-full",
+} as const;
+
+const MagnifierIcon = () => (
+  <svg {...iconProps}>
+    <circle cx="11" cy="11" r="6" />
+    <path d="m20 20-3.2-3.2" />
+  </svg>
+);
+const CompassIcon = () => (
+  <svg {...iconProps} strokeWidth={2.2}>
+    <circle cx="12" cy="12" r="9" />
+    <path d="m15.5 8.5-2 5-5 2 2-5z" />
+  </svg>
+);
+const FlagIcon = () => (
+  <svg {...iconProps}>
+    <path d="M6 21V4M6 5h11l-2 4 2 4H6" />
+  </svg>
+);
+
 // Every state pairs a distinct status word with its color, so the node never
 // communicates by color alone (a11y floor). The word is always real text tied
 // to the button — either visible (locked/mastered) or, for suggested/explored,
-// carried by the sr-only span below and mirrored by the visible corner badge
-// (BADGE) so sighted and screen-reader users get equivalent information.
+// carried by the sr-only span below and mirrored by the visible header strip
+// (STRIP) so sighted and screen-reader users get equivalent information.
 const STATE: Record<TopicNodeState, { label: string; className: string }> = {
   locked: {
     label: "Locked",
@@ -41,10 +72,10 @@ const STATE: Record<TopicNodeState, { label: string; className: string }> = {
     className: "border-aqua bg-surface-panel",
   },
   explored: {
-    // "Exploring" (not "Explored") — the child has started this topic but not
-    // yet mastered it, so it reads as in-progress. Sky-blue keeps it distinct
-    // from the aqua "deep" and violet "new" suggestions.
-    label: "Exploring",
+    // "Continue" — the child has started this topic but not yet mastered it, so
+    // it reads as a call to pick it back up. Sky-blue keeps it distinct from the
+    // aqua "deep" and violet "new" suggestions.
+    label: "Continue",
     // Faint sky glow places it on a light ladder: suggested (flat) → exploring
     // (soft glow) → mastered (bright gold glow), so progress reads by light too.
     className:
@@ -58,19 +89,32 @@ const STATE: Record<TopicNodeState, { label: string; className: string }> = {
   },
 };
 
-type BadgeKind = "explored" | SuggestionKind;
+type StripKind = "explored" | SuggestionKind;
 
-// The corner badge shown on suggested/explored nodes — a compact icon + word
-// that replaces the old full-width "Tap to explore"/"Explored" text row. All
-// three share the same shape/position so they read as one visual language
-// (docs/10: state differences are icon+color, never color alone).
-const BADGE: Record<
-  BadgeKind,
-  { icon: string; text: string; tone: BadgeTone }
+// The full-width header strip shown on suggested/explored nodes — a tinted bar
+// (icon + word) that spans the top of the tile so the title always sits *below*
+// it and can never crowd the marker. The tone tint + bottom rule carry the
+// color; the icon + near-white word carry the meaning (docs/10: state
+// differences are icon + word + color, never color alone).
+const STRIP: Record<
+  StripKind,
+  { icon: ReactNode; text: string; className: string }
 > = {
-  explored: { icon: "🚩", text: "Exploring", tone: "sky" },
-  deep: { icon: "🔎", text: "Dive", tone: "aqua" },
-  diverse: { icon: "🧭", text: "New", tone: "violet" },
+  explored: {
+    icon: <FlagIcon />,
+    text: "Continue",
+    className: "border-sky bg-sky/(--tint-fill)",
+  },
+  deep: {
+    icon: <MagnifierIcon />,
+    text: "Dive",
+    className: "border-aqua bg-aqua/(--tint-fill)",
+  },
+  diverse: {
+    icon: <CompassIcon />,
+    text: "New",
+    className: "border-violet bg-violet/(--tint-fill)",
+  },
 };
 
 // A node is dismissible while it's still something to do — not once it's locked
@@ -100,19 +144,19 @@ export function TopicNode({
   // near-instantly.
   const [leaving, setLeaving] = useState(false);
 
-  // Suggested/explored nodes trade their old full-width status text for a
-  // corner badge (icon + short word); locked/mastered keep the visible label
-  // as before. `null` here means "no badge" (locked/mastered).
-  const badgeKind: BadgeKind | null =
+  // Suggested/explored nodes carry their status word in a full-width header
+  // strip (icon + short word); locked/mastered keep the visible inline label.
+  // `null` here means "no strip" (locked/mastered).
+  const stripKind: StripKind | null =
     state === "explored"
       ? "explored"
       : state === "suggested"
         ? (kind ?? "deep")
         : null;
-  const badge = badgeKind ? BADGE[badgeKind] : null;
+  const strip = stripKind ? STRIP[stripKind] : null;
   const showLabelInline = state === "locked" || state === "mastered";
-  // A suggested diverse node borrows the diverse badge's violet accent for its
-  // border too, so the whole tile — not just the badge — reads as breadth.
+  // A suggested diverse node borrows the diverse strip's violet accent for its
+  // border too, so the whole tile — not just the strip — reads as breadth.
   const nodeClassName =
     state === "suggested" && kind === "diverse"
       ? "border-violet bg-surface-panel"
@@ -134,8 +178,10 @@ export function TopicNode({
         disabled={locked || leaving}
         onClick={onSelect}
         className={cn(
-          "relative flex h-full min-h-[112px] w-full flex-col items-center justify-center gap-1 rounded-lg border-2 p-4 text-center",
-          "text-surface-ink transition-[transform,background-color,border-color,box-shadow] duration-150 disabled:cursor-not-allowed",
+          // `overflow-hidden` clips the header strip's square top corners to the
+          // tile's rounded frame, so the strip reads as part of the tile.
+          "relative flex h-full min-h-[112px] w-full flex-col overflow-hidden rounded-lg border-2 text-surface-ink",
+          "transition-[transform,background-color,border-color,box-shadow] duration-150 disabled:cursor-not-allowed",
           // Desktop affordance: an explorable node lifts toward the pointer and
           // gains a soft glow on hover. Locked nodes stay put (nothing to tap);
           // the reduced-motion floor neutralizes the lift.
@@ -144,30 +190,33 @@ export function TopicNode({
           nodeClassName
         )}
       >
-        {badge && (
+        {strip && (
           // Decorative: the same word is carried by the sr-only status label
-          // below, so screen readers hear it once. Sighted users get the badge.
-          <Badge
+          // below, so screen readers hear it once. Sighted users get the strip.
+          <div
             aria-hidden="true"
-            tone={badge.tone}
-            size="xs"
-            variant="tag"
-            icon={badge.icon}
-            className="absolute left-2 top-2"
+            className={cn(
+              "flex items-center gap-1.5 border-b-2 px-3 py-1.5",
+              "font-display text-[0.65rem] font-semibold uppercase leading-none tracking-wide text-surface-ink",
+              strip.className
+            )}
           >
-            {badge.text}
-          </Badge>
+            <span className="h-3.5 w-3.5">{strip.icon}</span>
+            <span>{strip.text}</span>
+          </div>
         )}
-        <span className="break-words font-display text-lg leading-tight">
-          {title}
-        </span>
-        {showLabelInline ? (
-          <span className="font-body text-xs text-surface-ink-soft">
-            {config.label}
+        <div className="flex flex-1 flex-col items-center justify-center gap-1 p-4 text-center">
+          <span className="break-words font-display text-lg leading-tight">
+            {title}
           </span>
-        ) : (
-          <span className="sr-only">{config.label}</span>
-        )}
+          {showLabelInline ? (
+            <span className="font-body text-xs text-surface-ink-soft">
+              {config.label}
+            </span>
+          ) : (
+            <span className="sr-only">{config.label}</span>
+          )}
+        </div>
       </button>
       {dismissible && (
         <button

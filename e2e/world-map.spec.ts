@@ -57,7 +57,7 @@ test("exploring a map node lights it up as explored and the map keeps offering n
   // happens server-side at quiz time, so this is deterministic after a refresh).
   await page.getByRole("button", { name: /explore something new/i }).click();
   await expect(
-    page.getByRole("button", { name: /dinosaurs exploring/i })
+    page.getByRole("button", { name: /dinosaurs continue/i })
   ).toBeVisible();
 
   // The map itself keeps growing with fresh suggestions once a topic is

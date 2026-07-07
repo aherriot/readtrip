@@ -532,37 +532,6 @@ function BadgeVariants() {
           </Badge>
         </div>
       </Variant>
-      <Variant title="Tag / eyebrow (xs, uppercase) — the map-node markers, which mirror an sr-only label, so aria-hidden">
-        <div className="flex flex-wrap items-center gap-3">
-          <Badge
-            tone="sky"
-            size="xs"
-            variant="tag"
-            icon="🚩"
-            aria-hidden="true"
-          >
-            Exploring
-          </Badge>
-          <Badge
-            tone="aqua"
-            size="xs"
-            variant="tag"
-            icon="🔎"
-            aria-hidden="true"
-          >
-            Dive
-          </Badge>
-          <Badge
-            tone="violet"
-            size="xs"
-            variant="tag"
-            icon="🧭"
-            aria-hidden="true"
-          >
-            New
-          </Badge>
-        </div>
-      </Variant>
       <Variant title="Tones (soft token fill + hued border)">
         <div className="flex flex-wrap items-center gap-3">
           <Badge tone="leaf">Leaf</Badge>
