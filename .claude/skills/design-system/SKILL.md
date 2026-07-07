@@ -44,20 +44,20 @@ into `components/` and replace its row with a reference when you do).
 
 ### Primitives — `components/ui/`
 
-| Component        | Status                                | When to use                                                                          |
-| ---------------- | ------------------------------------- | ------------------------------------------------------------------------------------ |
-| `Badge`          | ✅ [ref](references/badge.md)         | A compact status pill (icon + word + color) — quiz feedback, map-node status/kind.   |
-| `Input`          | ✅ [ref](references/input.md)         | Single-line text/number entry in a form (sign-in, profile name, search).             |
-| `Select`         | ✅ [ref](references/select.md)        | Choosing one of several fixed, described options in an adult form (reading level).   |
-| `Button`         | ✅ [ref](references/button.md)        | Any action/submit. Variants primary/secondary/ghost; `kid` size for child controls.  |
-| `Card` (`Panel`) | ✅ [ref](references/card.md)          | Group related content in a surface-aware container; `elevated` is the Panel look.    |
-| `Heading`        | ✅ [ref](references/heading.md)       | Headings on the type scale with the right semantic level.                            |
-| `Text`           | ✅ [ref](references/text.md)          | All body/label copy — Lexend, reading-legibility defaults. No raw font sizing.       |
-| `Icon`           | ✅ [ref](references/icon.md)          | A sized wrapper that's either labelled (`role="img"`) or decorative.                 |
-| `Modal`          | ✅ [ref](references/modal.md)         | Focus-trapped dialog; `Escape`/backdrop close; returns focus to trigger.             |
-| `ProgressBar`    | ✅ [ref](references/progress-bar.md)  | Generic animated bar (XP, calibration, quiz progress).                               |
-| `Spinner`        | ✅ [ref](references/spinner.md)       | Indeterminate "working on it" loading indicator; pair with text. `Button` embeds it. |
-| `SubmitButton`   | ✅ [ref](references/submit-button.md) | A `<form>` submit that goes busy on its own pending state — server actions, nav.     |
+| Component        | Status                                | When to use                                                                                                                               |
+| ---------------- | ------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------- |
+| `Badge`          | ✅ [ref](references/badge.md)         | A compact status pill (icon + word + color) — quiz feedback + one-word status markers. (Map nodes use their own header strip, not Badge.) |
+| `Input`          | ✅ [ref](references/input.md)         | Single-line text/number entry in a form (sign-in, profile name, search).                                                                  |
+| `Select`         | ✅ [ref](references/select.md)        | Choosing one of several fixed, described options in an adult form (reading level).                                                        |
+| `Button`         | ✅ [ref](references/button.md)        | Any action/submit. Variants primary/secondary/ghost; `kid` size for child controls.                                                       |
+| `Card` (`Panel`) | ✅ [ref](references/card.md)          | Group related content in a surface-aware container; `elevated` is the Panel look.                                                         |
+| `Heading`        | ✅ [ref](references/heading.md)       | Headings on the type scale with the right semantic level.                                                                                 |
+| `Text`           | ✅ [ref](references/text.md)          | All body/label copy — Lexend, reading-legibility defaults. No raw font sizing.                                                            |
+| `Icon`           | ✅ [ref](references/icon.md)          | A sized wrapper that's either labelled (`role="img"`) or decorative.                                                                      |
+| `Modal`          | ✅ [ref](references/modal.md)         | Focus-trapped dialog; `Escape`/backdrop close; returns focus to trigger.                                                                  |
+| `ProgressBar`    | ✅ [ref](references/progress-bar.md)  | Generic animated bar (XP, calibration, quiz progress).                                                                                    |
+| `Spinner`        | ✅ [ref](references/spinner.md)       | Indeterminate "working on it" loading indicator; pair with text. `Button` embeds it.                                                      |
+| `SubmitButton`   | ✅ [ref](references/submit-button.md) | A `<form>` submit that goes busy on its own pending state — server actions, nav.                                                          |
 
 ### Game — `components/game/`
 

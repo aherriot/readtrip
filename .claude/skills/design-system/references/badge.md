@@ -2,30 +2,29 @@
 
 A compact status pill — a token border + soft fill wrapping an optional icon and a short
 word. It's the shared shape behind ReadTrip's **icon + word + color** state markers, so quiz
-feedback and map-node status read as one visual language.
+feedback and similar "one word of state" indicators read as one visual language.
 Source: [`components/ui/Badge.tsx`](../../../../components/ui/Badge.tsx).
 
 ```tsx
 import { Badge } from "@/components/ui/Badge";
 
-// Quiz feedback — the word conveys the result (sentence-case, sm)
+// Quiz feedback — the word conveys the result
 <Badge tone="leaf" icon="✓">Yes!</Badge>
 <Badge tone="coral" icon="↻">Try again</Badge>
-
-// Map-node marker — a tiny uppercase eyebrow that mirrors a label announced
-// elsewhere (the node's sr-only status text), so the caller marks it aria-hidden
-<Badge tone="sky" size="xs" variant="tag" icon="🚩" aria-hidden>Exploring</Badge>
 ```
 
 ## When to use
 
-- A short **status/feedback marker**: quiz correct/retry, a map node's `Exploring` / `Dive` /
-  `New` kind, and similar "one word of state" indicators.
+- A short **status/feedback marker**: quiz correct/retry and similar "one word of state"
+  indicators.
 - Anywhere the a11y floor calls for **icon + word + color** instead of color alone — Badge is
   the reusable pill so those markers stay consistent instead of being re-styled per page.
 
 ## When **not** to use
 
+- **A world-map node's status/kind.** `TopicNode` renders its own full-width header strip
+  (icon + word) so the title always sits below it; see [topic-node.md](topic-node.md). Don't
+  reach for Badge to mark a map tile.
 - **An interactive control** (something tappable) → `Button`. Badge is a non-interactive
   `<span>`; don't put a click handler on it.
 - **A full-width status row or a longer sentence** → `Text` (with an `Icon` if needed). Badge
@@ -36,14 +35,12 @@ import { Badge } from "@/components/ui/Badge";
 
 ## Props
 
-| Prop        | Type                                                      | Default  | Notes                                                                                                                                                                     |
-| ----------- | --------------------------------------------------------- | -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `children`  | `ReactNode`                                               | —        | The status word — the meaning. Keep it a word or two.                                                                                                                     |
-| `tone`      | `leaf \| coral \| orchid \| aqua \| violet \| sky \| sun` | —        | Semantic accent → token border + soft fill. Pick by meaning, not by look. `coral` is wrong-answer/delete only; reach for `orchid` for a secondary/playful accent instead. |
-| `size`      | `"sm" \| "xs"`                                            | `"sm"`   | `sm` in reading flow; `xs` for a compact corner marker.                                                                                                                   |
-| `variant`   | `"text" \| "tag"`                                         | `"text"` | `text` = sentence-case pill; `tag` = uppercase display eyebrow.                                                                                                           |
-| `icon`      | `ReactNode`                                               | —        | Optional leading glyph — **always decorative** (rendered `aria-hidden`).                                                                                                  |
-| `className` | `string`                                                  | —        | Layout / positioning. Also where the caller sets `aria-hidden` on the pill.                                                                                               |
+| Prop        | Type                                                      | Default | Notes                                                                                                                                                                     |
+| ----------- | --------------------------------------------------------- | ------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `children`  | `ReactNode`                                               | —       | The status word — the meaning. Keep it a word or two.                                                                                                                     |
+| `tone`      | `leaf \| coral \| orchid \| aqua \| violet \| sky \| sun` | —       | Semantic accent → token border + soft fill. Pick by meaning, not by look. `coral` is wrong-answer/delete only; reach for `orchid` for a secondary/playful accent instead. |
+| `icon`      | `ReactNode`                                               | —       | Optional leading glyph — **always decorative** (rendered `aria-hidden`).                                                                                                  |
+| `className` | `string`                                                  | —       | Layout / positioning. Also where the caller sets `aria-hidden` on the pill.                                                                                               |
 
 Any other `<span>` attribute (`aria-hidden`, `id`, …) is forwarded.
 
@@ -60,8 +57,7 @@ per-surface styling.
   carries an actual word.
 - **The caller owns the a11y contract.** Leave the badge as-is when its word conveys the
   state (quiz feedback). Pass `aria-hidden` when the badge only _mirrors_ a label already
-  announced elsewhere — e.g. `TopicNode` keeps an `sr-only` status word and hides the visible
-  badge so a screen reader hears it once, not twice.
+  announced elsewhere, so a screen reader hears it once, not twice.
 - **Not a control.** It's a `<span>` — no role, not focusable. Tappable things are `Button`s.
 
 ## Do / Don't
@@ -71,8 +67,8 @@ per-surface styling.
 <Badge tone="leaf" icon="✓">Yes!</Badge>
 
 // ✅ decorative duplicate of a status announced elsewhere
-<span className="sr-only">Exploring</span>
-<Badge tone="sky" size="xs" variant="tag" icon="🚩" aria-hidden>Exploring</Badge>
+<span className="sr-only">Correct</span>
+<Badge tone="leaf" icon="✓" aria-hidden>Yes!</Badge>
 
 // ❌ color / icon only — no word for the screen reader (or the color-blind)
 <Badge tone="coral" icon="↻" aria-label="wrong" />

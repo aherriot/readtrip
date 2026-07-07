@@ -12,9 +12,9 @@ import { reachExplore, revealTopic } from "./helpers";
 // the 2-question canned quiz correctly through to its result screen. Reusable so
 // a test can replay the *same* topic to build up per-topic progress — so the
 // tile is matched in either state: "Tap to explore" on the first visit,
-// "Exploring" once it's been explored (a replay).
+// "Continue" once it's been explored (a replay).
 async function playDinosaursToDone(page: Page) {
-  const dinosaurs = /dinosaurs (tap to explore|exploring)/i;
+  const dinosaurs = /dinosaurs (tap to explore|continue)/i;
   await revealTopic(page, dinosaurs);
   await page.getByRole("button", { name: dinosaurs }).click();
   await expect(

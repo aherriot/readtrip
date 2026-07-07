@@ -215,19 +215,11 @@ test.describe("Badge — contract", () => {
   const onNight = (page: import("@playwright/test").Page) =>
     page.getByTestId("badge-night");
 
-  test("pairs a status word with its color, and hides a badge that mirrors an existing label", async ({
-    page,
-  }) => {
+  test("pairs a status word with its color", async ({ page }) => {
     // The word is the meaning — a screen reader reads it; color isn't the only
     // signal. (axe covers contrast globally; this asserts the word is present.)
     await expect(onNight(page).getByText("Yes!")).toBeVisible();
-
-    // The map-node style badge duplicates a status word announced elsewhere
-    // (a node's sr-only label), so the caller marks it aria-hidden. The word
-    // sits in an inner span, so the aria-hidden is on its Badge container.
-    await expect(
-      onNight(page).getByText("Exploring").locator("xpath=..")
-    ).toHaveAttribute("aria-hidden", "true");
+    await expect(onNight(page).getByText("Try again")).toBeVisible();
   });
 });
 
@@ -464,11 +456,11 @@ test.describe("WorldMap / TopicNode — accessibility contract", () => {
         region(page).getByText(word, { exact: true }).first()
       ).toBeVisible();
     }
-    // suggested/explored trade the body-text word for a visible corner badge
+    // suggested/explored trade the body-text word for a visible header strip
     // (icon + short word) plus an sr-only span carrying the full status word
     // — so the accessible name is unchanged even though "Tap to explore" no
     // longer appears as visible text.
-    for (const word of ["Dive", "New", "Exploring"]) {
+    for (const word of ["Dive", "New", "Continue"]) {
       await expect(
         region(page).getByText(word, { exact: true }).first()
       ).toBeVisible();
