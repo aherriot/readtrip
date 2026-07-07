@@ -1,17 +1,21 @@
 import type { Metadata } from "next";
-import { Fredoka, Lexend } from "next/font/google";
+import { Shantell_Sans, Lexend } from "next/font/google";
 import "./globals.css";
 import { IconDefs } from "@/components/ui/icons/IconDefs";
 
-// Display — Fredoka: rounded, warm, friendly without being babyish.
-const fredoka = Fredoka({
+// The one voice — Shantell Sans: a legibility-engineered handwritten face (real
+// 400–700 weights) that carries the "explorer's field journal" identity across
+// the whole app — headings, UI, AND lesson body. Chosen over a cursive hand
+// precisely because it stays readable for early/struggling readers.
+const shantell = Shantell_Sans({
   subsets: ["latin"],
   display: "swap",
-  variable: "--font-fredoka",
+  variable: "--font-shantell",
+  weight: ["400", "500", "600", "700"],
 });
 
-// Body / reading — Lexend: engineered to improve reading proficiency; the most
-// important type choice in a reading app for kids. See docs/10-design-system.md.
+// Kept only as the ultimate reading fallback if Shantell fails to load — Lexend
+// is still the most legible non-hand face. Not applied directly anywhere now.
 const lexend = Lexend({
   subsets: ["latin"],
   display: "swap",
@@ -30,10 +34,10 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className={`${fredoka.variable} ${lexend.variable}`}>
-      {/* Default surface is the night-sky play canvas; reading views opt into
-          data-surface="paper" on their own container. */}
-      <body data-surface="night">
+    <html lang="en" className={`${shantell.variable} ${lexend.variable}`}>
+      {/* One surface: the field journal (warm lined paper). Tokens come from
+          :root, so no data-surface is needed. */}
+      <body>
         <IconDefs />
         {children}
       </body>

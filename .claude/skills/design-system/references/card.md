@@ -1,7 +1,10 @@
 # Card
 
-Surface-aware container for grouping related content. The `elevated` flag is the **Panel**
-look. Source: [`components/ui/Card.tsx`](../../../../components/ui/Card.tsx).
+Surface-aware container for grouping related content — a transparent **"pen box"** drawn on
+the lined paper: the ruled lines show through and a hand-drawn ink outline (the `#rt-sketch`
+turbulence filter, via `.rt-inkbox`) frames the content. The `elevated` flag is the **Panel**
+look (a heavier, drawn-twice outline). Source:
+[`components/ui/Card.tsx`](../../../../components/ui/Card.tsx).
 
 ```tsx
 import { Card } from "@/components/ui/Card";
@@ -27,19 +30,19 @@ import { Card } from "@/components/ui/Card";
 
 ## Props
 
-| Prop       | Type                   | Default | Notes                                                     |
-| ---------- | ---------------------- | ------- | --------------------------------------------------------- |
-| `as`       | `ElementType`          | `"div"` | Use `section`/`article`/`li` for semantics.               |
-| `padding`  | `"sm" \| "md" \| "lg"` | `"md"`  | Inner padding from the spacing scale.                     |
-| `elevated` | `boolean`              | `false` | The **Panel** look — glow on night, soft shadow on paper. |
-| …rest      | native element props   | —       | `id`, `aria-*`, `className`, …                            |
+| Prop       | Type                   | Default | Notes                                                    |
+| ---------- | ---------------------- | ------- | -------------------------------------------------------- |
+| `as`       | `ElementType`          | `"div"` | Use `section`/`article`/`li` for semantics.              |
+| `padding`  | `"sm" \| "md" \| "lg"` | `"md"`  | Inner padding from the spacing scale.                    |
+| `elevated` | `boolean`              | `false` | The **Panel** look — a heavier, drawn-twice ink outline. |
+| …rest      | native element props   | —       | `id`, `aria-*`, `className`, …                           |
 
-## Surfaces
+## Surface
 
-Reads `--surface-panel`, `--surface-rule`, `--surface-ink`, so the same Card is a warm paper
-card on the reading surface and a night panel on the play surface. `elevated` uses
-`--surface-elevation`, which is a **colored glow on night** and a **soft shadow on paper** —
-the documented "lit-up panel vs. paper card" difference, with no per-surface code.
+The fill is transparent (the paper's ruled lines read through it); the hand-drawn outline is
+`var(--surface-ink)`, so the Card draws a dark ink box on the field-journal paper. It reads
+the surface tokens, so a future theme would re-ink it with no per-component code. `elevated`
+just thickens the outline.
 
 ## Accessibility
 

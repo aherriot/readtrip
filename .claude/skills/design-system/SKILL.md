@@ -1,6 +1,6 @@
 ---
 name: design-system
-description: How and when to use ReadTrip's design-system components, tokens, and surfaces. Invoke BEFORE building or styling any kid-facing UI — picking a component, choosing colors/spacing, adding a form field, or deciding between the night vs. paper surface. Keeps pages consistent by reusing primitives instead of ad-hoc CSS.
+description: How and when to use ReadTrip's design-system components, tokens, and the field-journal surface. Invoke BEFORE building or styling any kid-facing UI — picking a component, choosing colors/spacing, adding a form field, or reaching for the lined-paper / hand-drawn pen-box treatments. Keeps pages consistent by reusing primitives instead of ad-hoc CSS.
 ---
 
 # ReadTrip Design System
@@ -25,19 +25,17 @@ the rules you cannot break.
    `text-2xl`) or `var(--token)`. See [references/tokens.md](references/tokens.md).
 3. **Respect the accessibility floor** (below). It is non-negotiable, not a nice-to-have.
 
-## The two surfaces
+## The surface
 
-ReadTrip switches surfaces by _task_, mirroring the child's cognitive mode. A surface is a
-`data-surface` attribute that re-points every `--surface-*` token underneath it.
+ReadTrip has **one surface: the field journal** — warm lined paper, hand-drawn ink, one
+handwritten voice (Shantell Sans). Deep indigo "night" play canvas and the dark-journal
+variant are **gone**; the whole app is the journal.
 
-| Surface                     | `data-surface`                         | Use for                                   | Feel                                              |
-| --------------------------- | -------------------------------------- | ----------------------------------------- | ------------------------------------------------- |
-| **Night sky** (play)        | `"night"` _(default, set on `<body>`)_ | World map, explore, rewards, celebrations | Deep indigo, glowing accents — discovery & wonder |
-| **Field journal** (reading) | `"paper"`                              | Lessons, quizzes — focus & legibility     | Warm paper, calm, high-legibility                 |
-
-A component reads `--surface-*` tokens, so the _same_ component renders correctly on either
-surface. To switch, wrap a region: `<div data-surface="paper">…</div>`. Don't pick colors
-per-surface by hand — let the tokens do it.
+Components never hardcode palette values — they read the `--surface-*` tokens
+(`bg-surface`, `text-surface-ink`, `border-surface-rule`, `--surface-accent`, …). That
+indirection is deliberately kept even with a single surface, so a future theme (e.g. a real
+dark mode) could be added by re-pointing `--surface-*` under a selector, with **no component
+changes**. Don't pick colors by hand — let the tokens do it.
 
 ## Component index
 
@@ -46,20 +44,23 @@ into `components/` and replace its row with a reference when you do).
 
 ### Primitives — `components/ui/`
 
-| Component        | Status                                | When to use                                                                                                                               |
-| ---------------- | ------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------- |
-| `Badge`          | ✅ [ref](references/badge.md)         | A compact status pill (icon + word + color) — quiz feedback + one-word status markers. (Map nodes use their own header strip, not Badge.) |
-| `Input`          | ✅ [ref](references/input.md)         | Single-line text/number entry in a form (sign-in, profile name, search).                                                                  |
-| `Select`         | ✅ [ref](references/select.md)        | Choosing one of several fixed, described options in an adult form (reading level).                                                        |
-| `Button`         | ✅ [ref](references/button.md)        | Any action/submit. Variants primary/secondary/ghost; `kid` size for child controls.                                                       |
-| `Card` (`Panel`) | ✅ [ref](references/card.md)          | Group related content in a surface-aware container; `elevated` is the Panel look.                                                         |
-| `Heading`        | ✅ [ref](references/heading.md)       | Headings on the type scale with the right semantic level.                                                                                 |
-| `Text`           | ✅ [ref](references/text.md)          | All body/label copy — Lexend, reading-legibility defaults. No raw font sizing.                                                            |
-| `Icon`           | ✅ [ref](references/icon.md)          | The unified icon set: `<Icon name="…" />`, hand-drawn doodle glyphs from `components/ui/icons`. **No emoji / raw `<svg>` in pages.**      |
-| `Modal`          | ✅ [ref](references/modal.md)         | Focus-trapped dialog; `Escape`/backdrop close; returns focus to trigger.                                                                  |
-| `ProgressBar`    | ✅ [ref](references/progress-bar.md)  | Generic animated bar (XP, calibration, quiz progress).                                                                                    |
-| `Spinner`        | ✅ [ref](references/spinner.md)       | Indeterminate "working on it" loading indicator; pair with text. `Button` embeds it.                                                      |
-| `SubmitButton`   | ✅ [ref](references/submit-button.md) | A `<form>` submit that goes busy on its own pending state — server actions, nav.                                                          |
+| Component        | Status                                | When to use                                                                                                                            |
+| ---------------- | ------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------- |
+| `StampMark`      | ✅ [ref](references/stamp-mark.md)    | A rubber-stamp verdict pressed _over_ content (tilted ink frame) — quiz "Yes!" / "Try again". Overlaps rather than reflowing the box.  |
+| `Highlight`      | ✅ [ref](references/highlight.md)     | A highlighter swipe over inline written text — the journal alt to a pill for a quiet status/label (e.g. the XP bar's "Lvl N").         |
+| `Input`          | ✅ [ref](references/input.md)         | Single-line text/number entry in a form (sign-in, profile name, search).                                                               |
+| `Select`         | ✅ [ref](references/select.md)        | Choosing one of several fixed, described options in an adult form (reading level).                                                     |
+| `Button`         | ✅ [ref](references/button.md)        | Any action/submit. Variants primary/secondary/ghost; `kid` size for child controls.                                                    |
+| `Card` (`Panel`) | ✅ [ref](references/card.md)          | Group related content in a transparent "pen box" (hand-drawn ink outline, lines showing through); `elevated` is the Panel look.        |
+| `StickyNote`     | ✅ [ref](references/sticky-note.md)   | A collected/pinned thing — opaque colored paper, tilt, tape, shadow. Map tiles + keepsakes. The _collection_ counterpart to `Card`.    |
+| `Heading`        | ✅ [ref](references/heading.md)       | Headings on the type scale with the right semantic level.                                                                              |
+| `Text`           | ✅ [ref](references/text.md)          | All body/label copy — Shantell Sans, reading-legibility defaults. No raw font sizing.                                                  |
+| `Icon`           | ✅ [ref](references/icon.md)          | The unified icon set: `<Icon name="…" />`, hand-drawn doodle glyphs from `components/ui/icons`. **No emoji / raw `<svg>` in pages.**   |
+| `Modal`          | ✅ [ref](references/modal.md)         | Focus-trapped dialog; `Escape`/backdrop close; returns focus to trigger.                                                               |
+| `ProgressBar`    | ✅ [ref](references/progress-bar.md)  | Generic animated bar (XP, calibration, quiz progress).                                                                                 |
+| `Spinner`        | ✅ [ref](references/spinner.md)       | Indeterminate "working on it" loading indicator; pair with text. `Button` embeds it.                                                   |
+| `SubmitButton`   | ✅ [ref](references/submit-button.md) | A `<form>` submit that goes busy on its own pending state — server actions, nav.                                                       |
+| `Wordmark`       | ✅ [ref](references/wordmark.md)      | The ReadTrip brand mark — a hand-lettered inline-SVG logo. One per page (`/play` header, homepage hero); it's the logo, not a heading. |
 
 ### Game — `components/game/`
 
@@ -92,7 +93,7 @@ Check these on every UI change:
    overlays; tab order follows reading order.
 6. **Screen readers.** Icon-only controls need `aria-label`; live changes (XP, level,
    celebrations) use `aria-live="polite"`.
-7. **Reading legibility.** Lexend, line-height 1.6, ~62ch max line length, rem sizing.
+7. **Reading legibility.** Shantell Sans, line-height 1.6, ~62ch max line length, rem sizing.
 8. **Reduced motion.** Honor `prefers-reduced-motion` — reduce to instant state changes.
 
 ## Testing & manual review
@@ -100,9 +101,9 @@ Check these on every UI change:
 Full details in [references/testing.md](references/testing.md). The short version:
 
 - **Manual check:** run `npm run dev` and open **`/dev/components`** — every component and
-  variant rendered on both surfaces. Tab through to confirm focus rings; run axe DevTools or
-  a screen reader against it; resize to check zoom/legibility. This is your hands-on a11y +
-  visual surface.
+  variant rendered on the field-journal surface. Tab through to confirm focus rings; run axe
+  DevTools or a screen reader against it; resize to check zoom/legibility. This is your
+  hands-on a11y + visual surface.
 - **Automated (in CI):** `e2e/design-system.spec.ts` runs **axe** (WCAG 2 A/AA) over that
   gallery plus per-component contract assertions (label association, `aria-invalid`,
   focus ring, target size). Part of `npm test`.

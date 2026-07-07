@@ -21,11 +21,18 @@ export function ReadingView({
 }: ReadingViewProps) {
   return (
     <section
-      data-surface="paper"
       className={cn(
-        "mx-auto flex w-full max-w-2xl flex-col gap-6 rounded-3xl bg-surface p-6 text-surface-ink shadow-[var(--surface-elevation)] sm:p-8",
+        // Solid light paper, ruled lines the text sits on (.rt-lined + .rt-journal
+        // lock the type to the grid), inside a hand-drawn pen box (.rt-inkbox).
+        "mx-auto w-full max-w-2xl rounded-[3px] bg-surface text-surface-ink rt-lined rt-journal rt-inkbox",
         className
       )}
+      // Top/bottom padding are whole ruled rows so the first line lands on the
+      // grid; the left gutter (for the margin rule) comes from .rt-lined.
+      style={{
+        paddingBlock: "var(--journal-period)",
+        paddingRight: "1.25rem",
+      }}
       {...rest}
     >
       {children}

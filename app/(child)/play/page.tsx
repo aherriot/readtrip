@@ -4,6 +4,7 @@ import { requireParent } from "@/lib/auth/session";
 import { getChild } from "@/lib/children/queries";
 import { getSelectedChildId } from "@/lib/children/selection";
 import { getChildMap } from "@/lib/map/queries";
+import { Wordmark } from "@/components/ui/Wordmark";
 import { ExploreEntry } from "./ExploreEntry";
 
 export const metadata: Metadata = {
@@ -35,9 +36,7 @@ export default async function PlayPage() {
 
   return (
     <main className="mx-auto flex min-h-screen w-full max-w-xl flex-col items-center gap-6 p-6">
-      <span className="font-display text-lg font-semibold text-sun">
-        ReadTrip
-      </span>
+      <Wordmark className="h-9" />
 
       <ExploreEntry
         initialNodes={nodes}

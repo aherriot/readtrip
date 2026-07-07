@@ -7,15 +7,13 @@ import { RewardBurst } from "@/components/game/RewardBurst";
 import { XPBar } from "@/components/game/XPBar";
 import { Button } from "@/components/ui/Button";
 
-// Rewards live on the night/play surface (docs/10) — render the demo there so
-// the sun/gold accents glow as intended. Level-up is an overlay, so it needs a
-// trigger button in the gallery to open it.
+// Rewards render on the field-journal surface (docs/10), the app's one surface.
+// Level-up is an overlay, so it needs a trigger button in the gallery to open it.
 export function RewardsDemo() {
   const [celebrating, setCelebrating] = useState(false);
 
   return (
     <div
-      data-surface="night"
       data-testid="rewards-demo"
       className="flex flex-col gap-8 rounded-lg bg-surface p-6 text-surface-ink"
     >

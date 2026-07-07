@@ -40,10 +40,10 @@ const sizeStyles: Record<SelectSize, { field: string; pad: string }> = {
 };
 
 /**
- * Surface-aware dropdown for choosing one of several fixed options — a native
- * `<select>` under the hood, so it gets the platform's own picker UI (best
- * mobile keyboard/scroll behavior) for free. Reads `--surface-*` tokens, so the
- * same component renders correctly on both the night and paper surfaces.
+ * Dropdown for choosing one of several fixed options — a native `<select>` under
+ * the hood, so it gets the platform's own picker UI (best mobile keyboard/scroll
+ * behavior) for free. Reads `--surface-*` tokens (the single field-journal
+ * surface) and wears a hand-drawn `.rt-inkbox` pen box, matching `Input`.
  *
  * Built on Headless UI's `Field` (matching `Input`), which wires the `Label`
  * and hint/error `Description`s to the `Select` so the association can't
@@ -87,20 +87,19 @@ export const Select = forwardRef<HTMLSelectElement, SelectProps>(
           )}
         </Label>
 
-        <div className="relative">
+        {/* Hand-drawn ink pen box on the wrapper (a <select> can't carry
+            ::before/::after); re-inks to the danger color on error. */}
+        <div className={cn("relative rt-inkbox", error && "rt-inkbox--danger")}>
           <HeadlessSelect
             ref={ref}
             required={required}
             invalid={Boolean(error)}
             aria-invalid={error ? true : undefined}
             className={cn(
-              "w-full appearance-none rounded-md border-2 bg-surface-panel font-body text-surface-ink",
-              "transition-colors duration-150",
-              "focus-visible:border-surface-accent",
+              "w-full appearance-none rounded-[3px] border-0 bg-surface-panel font-body text-surface-ink",
               "disabled:cursor-not-allowed disabled:opacity-60",
               styles.field,
               styles.pad,
-              error ? "border-surface-danger" : "border-surface-rule",
               className
             )}
             {...rest}

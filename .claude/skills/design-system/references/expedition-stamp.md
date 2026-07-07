@@ -43,7 +43,7 @@ import { ExpeditionStamp } from "@/components/game/ExpeditionStamp";
   only, and the keyframe's `both` fill keeps the settled frame — so under reduced motion it's
   a still stamp, not a missing one.
 
-## Surfaces
+## Surface
 
-Built for `night`; reads `--surface-*` + `--sun` tokens. Renders correctly on `paper` too
-(used on the paper reward screen).
+Reads `--surface-*` + `--sun` tokens — driven entirely by the single field-journal surface,
+so it never hardcodes color.

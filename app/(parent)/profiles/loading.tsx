@@ -14,11 +14,11 @@ export default function Loading() {
         <div className="flex flex-col gap-2">
           <div
             aria-hidden="true"
-            className="h-8 w-56 animate-pulse rounded-md bg-surface-panel"
+            className="h-8 w-56 animate-pulse rounded-[3px] bg-surface-panel"
           />
           <div
             aria-hidden="true"
-            className="h-4 w-72 animate-pulse rounded-md bg-surface-panel"
+            className="h-4 w-72 animate-pulse rounded-[3px] bg-surface-panel"
           />
         </div>
       </header>
@@ -36,11 +36,11 @@ export default function Loading() {
               />
               <div
                 aria-hidden="true"
-                className="h-5 w-24 animate-pulse rounded-md bg-surface-rule"
+                className="h-5 w-24 animate-pulse rounded-[3px] bg-surface-rule"
               />
               <div
                 aria-hidden="true"
-                className="h-4 w-32 animate-pulse rounded-md bg-surface-rule"
+                className="h-4 w-32 animate-pulse rounded-[3px] bg-surface-rule"
               />
             </Card>
           </li>

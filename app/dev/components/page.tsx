@@ -1,17 +1,20 @@
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
-import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { Heading } from "@/components/ui/Heading";
+import { Highlight } from "@/components/ui/Highlight";
 import { Icon } from "@/components/ui/Icon";
 import { ICON_NAMES } from "@/components/ui/icons/glyphs";
 import { Input } from "@/components/ui/Input";
 import { ProgressBar } from "@/components/ui/ProgressBar";
 import { Select } from "@/components/ui/Select";
 import { Spinner } from "@/components/ui/Spinner";
+import { StampMark } from "@/components/ui/StampMark";
+import { StickyNote } from "@/components/ui/StickyNote";
 import { SubmitButton } from "@/components/ui/SubmitButton";
 import { Text } from "@/components/ui/Text";
+import { Wordmark } from "@/components/ui/Wordmark";
 import { cn } from "@/lib/ui/cn";
 import { LessonChunk } from "@/components/reading/LessonChunk";
 import { ReadingView } from "@/components/reading/ReadingView";
@@ -24,7 +27,7 @@ import { WorldMapDemo } from "./WorldMapDemo";
  * Component gallery — the manual-check surface for the design system.
  *
  * Open it in dev (`npm run dev` → http://localhost:3000/dev/components) to:
- *   • eyeball every variant on BOTH surfaces side by side,
+ *   • eyeball every variant on the field-journal surface,
  *   • Tab through to confirm focus rings and keyboard operability,
  *   • run axe DevTools / a screen reader against real rendered markup.
  *
@@ -62,13 +65,20 @@ function Variant({ title, children }: { title: string; children: ReactNode }) {
 
 type Swatch = { name: string; token: string; meta: string; note: string };
 
-const ACCENTS: Swatch[] = [
+// Layer 1 — PRIMITIVES: every raw color value in the system (see styles/tokens.css).
+const PRIMITIVES: Swatch[] = [
   { name: "sun", token: "--sun", meta: "#FFC24B", note: "Primary action · XP" },
   {
     name: "coral",
     token: "--coral",
     meta: "#FF6B5C",
-    note: "Wrong answer · delete",
+    note: "Alarm accent · fills",
+  },
+  {
+    name: "coral-strong",
+    token: "--coral-strong",
+    meta: "#B23A2E",
+    note: "Coral as small text (AA)",
   },
   {
     name: "orchid",
@@ -82,7 +92,13 @@ const ACCENTS: Swatch[] = [
     meta: "#36D6C3",
     note: "Discovery · “deep”",
   },
-  { name: "leaf", token: "--leaf", meta: "#7BD66A", note: "Success · correct" },
+  { name: "leaf", token: "--leaf", meta: "#7BD66A", note: "Success · fills" },
+  {
+    name: "leaf-strong",
+    token: "--leaf-strong",
+    meta: "#2E7D32",
+    note: "Leaf as small text (AA)",
+  },
   { name: "violet", token: "--violet", meta: "#B388FF", note: "Magic · “new”" },
   {
     name: "sky",
@@ -90,36 +106,6 @@ const ACCENTS: Swatch[] = [
     meta: "#5AB6FF",
     note: "In-progress · explore",
   },
-];
-
-const NIGHT_SURFACE: Swatch[] = [
-  {
-    name: "bg-night",
-    token: "--bg-night",
-    meta: "#1B1F3B",
-    note: "Page background",
-  },
-  {
-    name: "bg-night-panel",
-    token: "--bg-night-panel",
-    meta: "#2A2F55",
-    note: "Cards · inputs",
-  },
-  {
-    name: "ink-on-night",
-    token: "--ink-on-night",
-    meta: "#F4F2FF",
-    note: "Body text",
-  },
-  {
-    name: "ink-soft-on-night",
-    token: "--ink-soft-on-night",
-    meta: "#C7C4E6",
-    note: "Secondary text",
-  },
-];
-
-const PAPER_SURFACE: Swatch[] = [
   { name: "paper", token: "--paper", meta: "#FFFCF5", note: "Page background" },
   {
     name: "paper-panel",
@@ -140,20 +126,88 @@ const PAPER_SURFACE: Swatch[] = [
     meta: "#E7E0D0",
     note: "Hairlines · dividers",
   },
+  {
+    name: "periwinkle",
+    token: "--periwinkle",
+    meta: "#D7DFF0",
+    note: "Ruled lines",
+  },
+  { name: "blush", token: "--blush", meta: "#F0B3AA", note: "Margin rule" },
 ];
 
+// Layer 2 — SEMANTIC: meaning mapped onto primitives. Components read THESE.
 const SEMANTIC: Swatch[] = [
+  {
+    name: "surface",
+    token: "--surface-bg",
+    meta: "= paper",
+    note: "Page background",
+  },
+  {
+    name: "surface-panel",
+    token: "--surface-panel",
+    meta: "= paper-panel",
+    note: "Cards · inputs",
+  },
+  {
+    name: "surface-ink",
+    token: "--surface-ink",
+    meta: "= ink",
+    note: "Body text",
+  },
+  {
+    name: "surface-ink-soft",
+    token: "--surface-ink-soft",
+    meta: "= ink-soft",
+    note: "Secondary text",
+  },
+  {
+    name: "surface-rule",
+    token: "--surface-rule",
+    meta: "= rule",
+    note: "Dividers",
+  },
+  {
+    name: "surface-accent",
+    token: "--surface-accent",
+    meta: "= orchid",
+    note: "The surface accent",
+  },
   {
     name: "correct",
     token: "--correct",
     meta: "= leaf",
-    note: "Right answer (+ check icon)",
+    note: "Right answer · fills (+ ✓)",
   },
   {
     name: "retry",
     token: "--retry",
     meta: "= coral",
-    note: "Try-again fills (+ ↻)",
+    note: "Try-again · fills (+ ↻)",
+  },
+  {
+    name: "surface-success",
+    token: "--surface-success",
+    meta: "= leaf-strong",
+    note: "Correct — small text",
+  },
+  {
+    name: "surface-danger",
+    token: "--surface-danger",
+    meta: "= coral-strong",
+    note: "Error — small text",
+  },
+  {
+    name: "journal-line",
+    token: "--journal-line",
+    meta: "= periwinkle",
+    note: "Ruled lines",
+  },
+  {
+    name: "journal-margin",
+    token: "--journal-margin",
+    meta: "= blush",
+    note: "Margin rule",
   },
   {
     name: "focus-ring",
@@ -191,16 +245,31 @@ const TYPE_SCALE = [
   { name: "text-3xl", cls: "text-3xl", rem: "3rem" },
 ] as const;
 
-/** A colour chip labelled with its token name, value, and where it's used. */
+/** Stable hand-placed tilt (deg) from a string, so a swatch keeps its angle. */
+function swatchTilt(seed: string): number {
+  let h = 0;
+  for (const ch of seed) h = (h * 31 + ch.charCodeAt(0)) >>> 0;
+  return ((h % 5) - 2) * 1.4; // -2.8° … +2.8°
+}
+
+/**
+ * A colour chip — drawn as if someone swatched the marker on the paper to test
+ * it: the real token colour with uneven, hand-run edges (the #rt-sketch
+ * turbulence filter) and a hand-placed tilt, so it reads as laid down by hand
+ * rather than a printed chip.
+ */
 function ColorSwatch({ name, token, meta, note }: Swatch) {
   return (
     <div className="flex flex-col gap-1.5">
-      <div
-        className="h-14 rounded-md border border-surface-rule"
-        // The token itself is the subject — read it directly, don't proxy it
-        // through a utility class.
-        style={{ background: `var(${token})` }}
-      />
+      <div className="h-14" style={{ rotate: `${swatchTilt(name)}deg` }}>
+        <div
+          aria-hidden="true"
+          className="h-full w-full [filter:url(#rt-sketch)]"
+          // The token itself is the subject — read it directly, don't proxy it
+          // through a utility class.
+          style={{ backgroundColor: `var(${token})`, borderRadius: "3px" }}
+        />
+      </div>
       <span className="font-display text-sm text-surface-ink">{name}</span>
       <code className="font-mono text-xs text-surface-ink-soft">
         {token} · {meta}
@@ -222,21 +291,10 @@ function SwatchGrid({ swatches }: { swatches: Swatch[] }) {
   );
 }
 
-/** A live mini-panel that re-themes itself via `data-surface`. */
-function SurfacePreview({
-  surface,
-  title,
-  blurb,
-}: {
-  surface: "night" | "paper";
-  title: string;
-  blurb: string;
-}) {
+/** A live mini-panel showing the field-journal surface. */
+function SurfacePreview({ title, blurb }: { title: string; blurb: string }) {
   return (
-    <div
-      data-surface={surface}
-      className="flex flex-col gap-3 rounded-lg bg-surface p-5 text-surface-ink"
-    >
+    <div className="flex flex-col gap-3 rounded-lg bg-surface p-5 text-surface-ink">
       <div className="flex items-center gap-2">
         <span className="h-3 w-3 rounded-pill bg-surface-accent" />
         <span className="font-display text-sm text-surface-ink">{title}</span>
@@ -246,9 +304,6 @@ function SurfacePreview({
           {blurb}
         </Text>
       </Card>
-      <code className="font-mono text-xs text-surface-ink-soft">
-        data-surface=&quot;{surface}&quot;
-      </code>
     </div>
   );
 }
@@ -272,48 +327,38 @@ function PrimitiveTokens() {
         </Text>
       </div>
 
-      {/* At a glance: the two surfaces (live) + the two type families. */}
-      <div className="grid gap-4 sm:grid-cols-3">
+      {/* At a glance: the one surface (live) + the type families. */}
+      <div className="grid gap-4 sm:grid-cols-2">
         <SurfacePreview
-          surface="night"
-          title="Night sky — play"
-          blurb="Deep indigo, glowing accents. Map, explore, rewards."
-        />
-        <SurfacePreview
-          surface="paper"
-          title="Field journal — reading"
-          blurb="Warm paper, calm and legible. Lessons and quizzes."
+          title="The field journal"
+          blurb="Warm lined paper, hand-drawn ink, one handwritten voice. The single surface."
         />
         <Card padding="sm" className="flex flex-col justify-center gap-3">
           <div className="flex flex-col gap-0.5">
             <span className="font-display text-xl text-surface-ink">
-              Fredoka
+              Shantell Sans
             </span>
             <code className="font-mono text-xs text-surface-ink-soft">
-              font-display · headings, numbers, buttons
+              font-display + font-body · one handwritten voice
             </code>
           </div>
           <div className="flex flex-col gap-0.5">
-            <span className="font-body text-xl text-surface-ink">Lexend</span>
+            <span className="text-xl text-surface-ink [font-family:var(--font-lexend)]">
+              Lexend
+            </span>
             <code className="font-mono text-xs text-surface-ink-soft">
-              font-body · reading + UI body
+              fallback only · if the hand fails to load
             </code>
           </div>
         </Card>
       </div>
 
-      {/* Colour palette */}
+      {/* Colour palette — the two-layer token system. */}
       <Card className="flex flex-col gap-6">
-        <Variant title="Accent palette (surface-independent)">
-          <SwatchGrid swatches={ACCENTS} />
+        <Variant title="Layer 1 · Primitives — every raw colour (styles/tokens.css)">
+          <SwatchGrid swatches={PRIMITIVES} />
         </Variant>
-        <Variant title="Night-sky surface palette">
-          <SwatchGrid swatches={NIGHT_SURFACE} />
-        </Variant>
-        <Variant title="Field-journal surface palette">
-          <SwatchGrid swatches={PAPER_SURFACE} />
-        </Variant>
-        <Variant title="Semantic (always paired with an icon + text)">
+        <Variant title="Layer 2 · Semantic — meaning mapped onto primitives (components read these)">
           <SwatchGrid swatches={SEMANTIC} />
         </Variant>
       </Card>
@@ -496,39 +541,118 @@ function SubmitButtonVariants() {
   );
 }
 
-function BadgeVariants() {
+function StickyNoteVariants() {
   return (
     <div className="flex flex-col gap-6">
-      <Variant title="Feedback pills (icon + word + color) — the word is the meaning">
-        <div className="flex flex-wrap items-center gap-3">
-          <Badge
+      <Variant title="Tones (accent paper) + tape + a hand-placed tilt">
+        <div className="grid grid-cols-2 gap-5 sm:grid-cols-4">
+          <StickyNote tone="sun" tape tilt={-1.5}>
+            <Heading level={3} size="lg">
+              Volcanoes
+            </Heading>
+            <Text size="sm">Mastered</Text>
+          </StickyNote>
+          <StickyNote tone="aqua" tape tilt={1.2}>
+            <Heading level={3} size="lg">
+              Tides
+            </Heading>
+            <Text size="sm">Dive in</Text>
+          </StickyNote>
+          <StickyNote tone="sky" tape tilt={-0.8}>
+            <Heading level={3} size="lg">
+              The Moon
+            </Heading>
+            <Text size="sm">Continue</Text>
+          </StickyNote>
+          <StickyNote tone="violet" tape tilt={1.6}>
+            <Heading level={3} size="lg">
+              Comets
+            </Heading>
+            <Text size="sm">New</Text>
+          </StickyNote>
+        </div>
+      </Variant>
+      <Variant title="Untaped, flat (tilt 0) — for calmer groupings">
+        <div className="grid grid-cols-2 gap-5 sm:grid-cols-3">
+          <StickyNote tone="leaf">
+            <Text>Collected: 12 leaves</Text>
+          </StickyNote>
+          <StickyNote tone="coral">
+            <Text>3 tricky words</Text>
+          </StickyNote>
+          <StickyNote tone="orchid">
+            <Text>A note to self</Text>
+          </StickyNote>
+        </div>
+      </Variant>
+    </div>
+  );
+}
+
+function StampMarkVariants() {
+  return (
+    <div className="flex flex-col gap-6">
+      <Variant title="Pressed over content (as on a resolved quiz choice)">
+        <div className="flex flex-wrap items-center gap-10 py-4">
+          <StampMark
             tone="leaf"
+            tilt={-7}
             icon={
               <Icon name="check" decorative size="sm" accent="currentColor" />
             }
           >
             Yes!
-          </Badge>
-          <Badge
+          </StampMark>
+          <StampMark
             tone="coral"
+            tilt={5}
             icon={
               <Icon name="retry" decorative size="sm" accent="currentColor" />
             }
           >
             Try again
-          </Badge>
+          </StampMark>
         </div>
       </Variant>
-      <Variant title="Tones (soft token fill + hued border)">
-        <div className="flex flex-wrap items-center gap-3">
-          <Badge tone="leaf">Leaf</Badge>
-          <Badge tone="coral">Coral</Badge>
-          <Badge tone="orchid">Orchid</Badge>
-          <Badge tone="aqua">Aqua</Badge>
-          <Badge tone="violet">Violet</Badge>
-          <Badge tone="sky">Sky</Badge>
-          <Badge tone="sun">Sun</Badge>
+    </div>
+  );
+}
+
+function HighlightVariants() {
+  return (
+    <div className="flex flex-col gap-6">
+      <Variant title="A marker swipe over written text (the journal alt to a pill)">
+        <div className="flex flex-wrap items-center gap-6 text-lg text-surface-ink">
+          <span>
+            <Highlight tone="sun">Lvl 4</Highlight>
+          </span>
+          <span>
+            <Highlight tone="aqua">New</Highlight>
+          </span>
+          <span>
+            <Highlight tone="orchid">Mastered</Highlight>
+          </span>
+          <span>
+            You&apos;ve read <Highlight tone="leaf">12 topics</Highlight> so
+            far.
+          </span>
         </div>
+      </Variant>
+    </div>
+  );
+}
+
+function WordmarkVariants() {
+  return (
+    <div className="flex flex-col gap-6">
+      <Variant title="The mark — ink letters on a gold offset shadow, pen underline">
+        <Wordmark className="h-14" />
+      </Variant>
+      <Variant title="Header size (as used on /play)">
+        <Wordmark className="h-9" />
+      </Variant>
+      <Variant title="Decorative (a heading already names the region)">
+        <Wordmark className="h-9" decorative />
       </Variant>
     </div>
   );
@@ -537,16 +661,16 @@ function BadgeVariants() {
 function CardVariants() {
   return (
     <div className="flex flex-col gap-6">
-      <Variant title="Default container">
+      <Variant title="Default container (a pen box drawn on the paper)">
         <Card>
           <Heading level={3}>Volcanoes</Heading>
-          <Text tone="soft">A glowing topic node, waiting to be explored.</Text>
+          <Text tone="soft">A topic waiting to be explored.</Text>
         </Card>
       </Variant>
-      <Variant title="Elevated (the Panel look — glow on night, shadow on paper)">
+      <Variant title="Elevated (the Panel look — a heavier, drawn-twice outline)">
         <Card elevated>
           <Heading level={3}>Today&apos;s expedition</Heading>
-          <Text tone="soft">Three topics lit up since yesterday.</Text>
+          <Text tone="soft">Three topics explored since yesterday.</Text>
         </Card>
       </Variant>
     </div>
@@ -658,7 +782,7 @@ function ProgressVariants() {
   );
 }
 
-/** Renders a component's variants on both surfaces, side by side. */
+/** Renders a component's variants on the field-journal surface. */
 function Section({ name, children }: { name: string; children: ReactNode }) {
   const slug = name.toLowerCase();
   return (
@@ -669,27 +793,11 @@ function Section({ name, children }: { name: string; children: ReactNode }) {
       className="flex flex-col gap-4"
     >
       <h2 className="font-display text-2xl text-surface-ink">{name}</h2>
-      <div className="grid gap-6 md:grid-cols-2">
-        <div
-          data-surface="night"
-          data-testid={`${name.toLowerCase()}-night`}
-          className="rounded-lg bg-surface p-6 text-surface-ink"
-        >
-          <p className="mb-4 font-display text-sm text-surface-ink-soft">
-            night surface
-          </p>
-          {children}
-        </div>
-        <div
-          data-surface="paper"
-          data-testid={`${name.toLowerCase()}-paper`}
-          className="rounded-lg bg-surface p-6 text-surface-ink"
-        >
-          <p className="mb-4 font-display text-sm text-surface-ink-soft">
-            paper surface
-          </p>
-          {children}
-        </div>
+      <div
+        data-testid={slug}
+        className="rounded-lg bg-surface p-6 text-surface-ink"
+      >
+        {children}
       </div>
     </section>
   );
@@ -777,12 +885,51 @@ function SelectVariants() {
   );
 }
 
+/* Field-journal surface showcase — the signature look: warm lined paper, one
+   handwritten voice (Shantell Sans), and text resting ON the ruled lines. This
+   is a surface/treatment demo (not a single component), so it composes tokens +
+   the `.rt-lined` helper directly. Colors are kept AA: ink text throughout, with
+   accents carried by borders/underlines/fills (which only need 3:1), never as
+   small colored text. */
+function JournalEntry() {
+  return (
+    <div
+      data-testid="journal"
+      className="rt-lined rt-inkbox rounded-lg bg-surface pr-5 pb-4 text-surface-ink"
+      // padding-top is one --journal-period so the first line lands on the grid.
+      style={{ paddingTop: "var(--journal-period)" }}
+    >
+      <p className="text-[1.3rem] font-semibold">
+        Field Notes — How Plants Eat Sunlight{" "}
+        <span className="text-surface-ink-soft">· Day 3</span>
+      </p>
+      <p className="text-[1.15rem]">
+        Today I learned that a leaf is a tiny green factory. It catches
+        sunlight, drinks water up from the roots, and pulls in air through holes
+        too small to see. Inside, it mixes them into sugar — the plant&apos;s
+        own food — and breathes out the oxygen we need.{" "}
+        <span className="font-semibold underline decoration-orchid decoration-2 underline-offset-4">
+          No sunlight, no sugar.
+        </span>
+      </p>
+      <div className="flex flex-wrap items-center gap-3 pt-[var(--journal-period)]">
+        <span className="rounded-[8px_10px_9px_11px] border-2 border-surface-ink px-3 py-0.5 text-[0.95rem] font-semibold">
+          Photosynthesis
+        </span>
+        <span className="rounded-pill bg-sun px-2.5 py-0.5 text-[0.95rem] font-semibold text-[var(--ink)]">
+          +40 XP
+        </span>
+        <span className="-rotate-6 rounded-md border-[2.5px] border-surface-accent px-2.5 py-0.5 text-[0.85rem] font-semibold tracking-wider uppercase">
+          Explored
+        </span>
+      </div>
+    </div>
+  );
+}
+
 export default function ComponentGallery() {
   return (
-    <main
-      data-surface="paper"
-      className="min-h-screen bg-surface px-6 py-10 text-surface-ink"
-    >
+    <main className="min-h-screen bg-surface px-6 py-10 text-surface-ink">
       <div
         data-testid="gallery"
         className="mx-auto flex max-w-5xl flex-col gap-12"
@@ -792,12 +939,31 @@ export default function ComponentGallery() {
             Design System
           </h1>
           <p className="max-w-2xl font-body text-surface-ink-soft">
-            Every design-system component, every variant, on both surfaces.
-            Mobile-first: resize narrow to check the touch layout. Tab through
-            to confirm focus rings; run axe DevTools or a screen reader here to
-            spot a11y issues. Dev-only — not indexed, not for production routes.
+            Every design-system component, every variant, on the field-journal
+            surface. Mobile-first: resize narrow to check the touch layout. Tab
+            through to confirm focus rings; run axe DevTools or a screen reader
+            here to spot a11y issues. Dev-only — not indexed, not for
+            production.
           </p>
         </header>
+
+        {/* The signature surface — the whole app is now this field journal. */}
+        <section
+          data-testid="section-fieldjournal"
+          className="flex flex-col gap-4"
+        >
+          <h2 className="font-display text-2xl text-surface-ink">
+            Field journal — the surface
+          </h2>
+          <p className="max-w-2xl font-body text-surface-ink-soft">
+            The whole app is one explorer&apos;s journal: warm lined paper, a
+            single handwritten voice (Shantell Sans), hand-drawn ink boxes, and
+            text that rests on the ruled lines.
+          </p>
+          <div className="max-w-2xl">
+            <JournalEntry />
+          </div>
+        </section>
 
         <PrimitiveTokens />
 
@@ -805,12 +971,24 @@ export default function ComponentGallery() {
           <ButtonVariants />
         </Section>
 
-        <Section name="Badge">
-          <BadgeVariants />
+        <Section name="StampMark">
+          <StampMarkVariants />
+        </Section>
+
+        <Section name="Highlight">
+          <HighlightVariants />
         </Section>
 
         <Section name="Card">
           <CardVariants />
+        </Section>
+
+        <Section name="StickyNote">
+          <StickyNoteVariants />
+        </Section>
+
+        <Section name="Wordmark">
+          <WordmarkVariants />
         </Section>
 
         {/* Heading + Text share one section — both enforce the type scale. */}
@@ -843,17 +1021,14 @@ export default function ComponentGallery() {
         </Section>
 
         {/* Modal manages its own open state, so it gets a bespoke section with
-            one interactive trigger per surface (not the duplicated <Section>). */}
+            an interactive trigger (not the duplicated <Section>). */}
         <section data-testid="section-modal" className="flex flex-col gap-4">
           <h2 className="font-display text-2xl text-surface-ink">Modal</h2>
-          <div className="grid gap-6 md:grid-cols-2">
-            <ModalDemo surface="night" />
-            <ModalDemo surface="paper" />
-          </div>
+          <ModalDemo />
         </section>
 
-        {/* ReadingView forces its own paper surface (the field journal), so it
-            gets a bespoke section rather than the two-surface <Section>. */}
+        {/* ReadingView renders solid lined paper (a bespoke look), so it gets its
+            own section rather than the shared <Section> wrapper. */}
         <section
           data-testid="section-readingview"
           className="flex flex-col gap-4"
@@ -888,9 +1063,8 @@ export default function ComponentGallery() {
           <QuizDemo />
         </section>
 
-        {/* TopicNode + WorldMap are night/play-surface game components with tap
-            handlers, so — like QuizDemo — they get a bespoke single-surface
-            section driven by a client demo island. */}
+        {/* TopicNode + WorldMap are game components with tap handlers, so — like
+            QuizDemo — they get a bespoke section driven by a client demo island. */}
         <section data-testid="section-worldmap" className="flex flex-col gap-4">
           <h2 className="font-display text-2xl text-surface-ink">
             TopicNode + WorldMap
@@ -899,8 +1073,8 @@ export default function ComponentGallery() {
         </section>
 
         {/* XPBar / RewardBurst / ExpeditionStamp / LevelUpCelebration are the
-            night/play-surface reward components; the level-up is an overlay, so
-            (like Modal) the demo island supplies a trigger to open it. */}
+            reward components; the level-up is an overlay, so (like Modal) the
+            demo island supplies a trigger to open it. */}
         <section data-testid="section-rewards" className="flex flex-col gap-4">
           <h2 className="font-display text-2xl text-surface-ink">
             XPBar + RewardBurst + ExpeditionStamp + LevelUpCelebration

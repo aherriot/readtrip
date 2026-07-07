@@ -7,27 +7,22 @@ import { Text } from "@/components/ui/Text";
 
 /**
  * Interactive Modal demo for the gallery. Lives in its own client component so
- * the gallery page itself can stay a server component. One instance per surface
- * so the dialog can be reviewed (and e2e-tested) on both night and paper.
+ * the gallery page itself can stay a server component, and so the dialog can be
+ * reviewed (and e2e-tested) on the field-journal surface.
  */
-export function ModalDemo({ surface }: { surface: "night" | "paper" }) {
+export function ModalDemo() {
   const [open, setOpen] = useState(false);
 
   return (
     <div
-      data-surface={surface}
-      data-testid={`modal-${surface}`}
+      data-testid="modal"
       className="flex flex-col gap-2 rounded-lg bg-surface p-6 text-surface-ink"
     >
-      <p className="mb-2 font-display text-sm text-surface-ink-soft">
-        {surface} surface
-      </p>
       <Button onClick={() => setOpen(true)}>Open dialog</Button>
       <Modal
         open={open}
         onClose={() => setOpen(false)}
         title="Ready to explore?"
-        surface={surface}
       >
         <Text>
           You&apos;ve charted a new corner of the map. Want to keep going or

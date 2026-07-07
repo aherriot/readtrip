@@ -20,80 +20,109 @@ everywhere), the **motion** language, and a hard **accessibility floor**.
    and e2e tests** (see [Testing](#testing-every-component-is-well-tested)). This is the
    structural guarantee that the system stays consistent and accessible over time.
 
-## Direction: "The ReadTripsity Expedition"
+## Direction: "A young explorer's field journal"
 
 ReadTrip's world is _exploration_ — a child charting an unknown world of knowledge. So the
-identity isn't generic primary-color "kids app" clip-art; it's an **explorer's star-chart
-/ field-journal**. The child is an explorer; topics are glowing nodes on a map that light
-up as they're discovered; mastery earns **expedition stamps**.
+identity isn't generic primary-color "kids app" clip-art; it's a **hand-written science
+explorer's field journal** on warm lined paper. The child is the explorer keeping the journal;
+topics are **sticky notes** stuck onto the page; mastery earns **expedition stamps**; the whole
+app is inked in one handwritten voice.
 
-The one deliberate, justifiable risk is a **dual-surface system** that mirrors the
-child's actual cognitive mode:
+There is **one surface: the field journal.** (An earlier version split the app into a deep-indigo
+"night sky" play surface and a paper reading surface; that dual-surface system is **gone** — the
+whole app is now the journal.) The look leans all the way into paper:
 
-- **Play / map surface — "Night sky."** Deep indigo canvas with vivid, glowing accents.
-  Used for the world map, explore, rewards, celebrations. Feels like discovery and wonder.
-- **Reading surface — "Field journal."** Calm, warm, high-legibility paper. Used for
-  lessons and quizzes, where focus and readability matter most.
+- **Warm lined paper.** A single warm-paper background with faint ruled lines. Reading text
+  sits **on** the rules like real handwriting (`.rt-lined` + `.rt-journal`).
+- **Hand-drawn ink.** Containers and controls are squared-off "pen boxes" drawn with a
+  turbulence filter (`.rt-inkbox`), not rounded rects; the icon set is one hand-drawn doodle
+  family; status is a **stamp** pressed over content or a **highlighter** swipe over text.
+- **One voice.** Everything is Shantell Sans, a legibility-tuned handwriting face.
 
-Switching surfaces by _task_ (explore vs. focus) is grounded in the product, not
-decoration — and it keeps the reading experience calm without making the app feel flat.
+The `--surface-*` token indirection is kept even with a single surface, so a future theme (e.g.
+a real dark mode) could be added by re-pointing the tokens under a selector — with no component
+changes.
 
 ## Color tokens
 
-Defined as CSS variables in `styles/tokens.css`; surfaces toggle via a `data-surface`
-attribute. All pairings below meet **WCAG AA** (≥4.5:1 for body text, ≥3:1 for large
-text / UI).
+Colors are defined in **two layers** in `styles/tokens.css`, and both are shown in
+`/dev/components`:
 
-### Night-sky (play) surface
+1. **Primitives** — every raw color value, named by hue/shade, with no meaning attached.
+2. **Semantic** — meaning mapped onto primitives (`--surface-*`, `--correct`, …).
 
-| Token              | Hex       | Use                                                                    |
-| ------------------ | --------- | ---------------------------------------------------------------------- |
-| `--bg-night`       | `#1B1F3B` | Map / play canvas                                                      |
-| `--bg-night-panel` | `#2A2F55` | Cards/panels on night                                                  |
-| `--ink-on-night`   | `#F4F2FF` | Text on night (≈15:1 ✓)                                                |
-| `--sun`            | `#FFC24B` | Primary action, XP (marigold)                                          |
-| `--orchid`         | `#D65DB1` | Secondary / playful accent                                             |
-| `--coral`          | `#FF6B5C` | Wrong answer / delete only — reads as a warning, not a plain secondary |
-| `--aqua`           | `#36D6C3` | "Explored" / discovery                                                 |
-| `--leaf`           | `#7BD66A` | Success / correct                                                      |
-| `--violet`         | `#B388FF` | Tertiary accent / magic                                                |
+**Components read the semantic tokens, never a primitive hex or var** — so the whole palette
+retunes in one place and a future theme is a one-selector re-point. All pairings meet **WCAG
+AA** (≥4.5:1 for body text, ≥3:1 for large text / UI).
 
-> Bright accents are for **fills and large elements** on the dark canvas, not small text.
-> Buttons use a bright fill with **dark ink on top** (e.g. ink `#22263F` on `--sun` ≈9:1 ✓).
+### Layer 1 — Primitives
 
-### Field-journal (reading) surface
+| Token            | Hex       | Notes                                                     |
+| ---------------- | --------- | --------------------------------------------------------- |
+| `--sun`          | `#FFC24B` | Primary action, XP (marigold)                             |
+| `--coral`        | `#FF6B5C` | Alarm accent (wrong answer / delete) — fills only         |
+| `--coral-strong` | `#B23A2E` | Darker coral — ≈5.8:1 on paper ✓; coral as **small text** |
+| `--orchid`       | `#D65DB1` | Secondary / playful accent                                |
+| `--aqua`         | `#36D6C3` | Discovery / "deep" suggestions                            |
+| `--leaf`         | `#7BD66A` | Success / correct — fills only                            |
+| `--leaf-strong`  | `#2E7D32` | Darker leaf — ≈5.1:1 on paper ✓; leaf as **small text**   |
+| `--violet`       | `#B388FF` | "New" breadth / magic                                     |
+| `--sky`          | `#5AB6FF` | In-progress / "exploring" tiles                           |
+| `--paper`        | `#FFFCF5` | Warm lined paper                                          |
+| `--paper-panel`  | `#FFFFFF` | Cards, inputs, sticky-note base                           |
+| `--ink`          | `#22263F` | Body text / ink                                           |
+| `--ink-soft`     | `#4A4F6B` | Secondary text                                            |
+| `--rule`         | `#E7E0D0` | Hairlines / dividers                                      |
+| `--periwinkle`   | `#D7DFF0` | Faint blue ruled lines                                    |
+| `--blush`        | `#F0B3AA` | Soft coral margin rule                                    |
 
-| Token        | Hex                                  | Use                                                          |
-| ------------ | ------------------------------------ | ------------------------------------------------------------ |
-| `--paper`    | `#FFFCF5`                            | Reading background (warm, but lighter than the cream cliché) |
-| `--ink`      | `#22263F`                            | Body text (≈14:1 on paper ✓)                                 |
-| `--ink-soft` | `#4A4F6B`                            | Secondary text (≈7:1 ✓)                                      |
-| `--rule`     | `#E7E0D0`                            | Hairlines / dividers                                         |
-| accents      | reuse `--orchid`, `--aqua`, `--leaf` | Highlights; always with a non-color cue too                  |
+> A hue that's used both as a bright **fill** (avatars, tints) and as **small colored text**
+> (the quiz stamp, error copy) carries two steps — the bright one fails AA at text sizes, so
+> the `-strong` step is dark enough to read on paper. Bright accents stay for fills; buttons
+> use a bright fill with **dark ink on top** (e.g. ink `#22263F` on `--sun` ≈9:1 ✓).
 
-### Semantic (works on both surfaces)
+### Layer 2 — Semantic
 
-| Token          | Maps to                            | Meaning                                                 |
-| -------------- | ---------------------------------- | ------------------------------------------------------- |
-| `--correct`    | `--leaf`                           | Right answer (always paired with ✓ icon + label)        |
-| `--retry`      | `--coral`                          | Try-again (never "wrong"/red-scary; paired with ↻ icon) |
-| `--focus-ring` | `--sun` outer + `--bg-night` inner | High-contrast focus indicator                           |
+| Token                | Maps to          | Meaning                                                        |
+| -------------------- | ---------------- | -------------------------------------------------------------- |
+| `--surface-bg`       | `--paper`        | Page background (`bg-surface`)                                 |
+| `--surface-panel`    | `--paper-panel`  | Cards, inputs (`bg-surface-panel`)                             |
+| `--surface-ink`      | `--ink`          | Body text (`text-surface-ink`, ≈14:1 ✓)                        |
+| `--surface-ink-soft` | `--ink-soft`     | Secondary text (`text-surface-ink-soft`, ≈7:1 ✓)               |
+| `--surface-rule`     | `--rule`         | Hairlines / dividers (`border-surface-rule`)                   |
+| `--surface-accent`   | `--orchid`       | The surface accent                                             |
+| `--correct`          | `--leaf`         | Right answer — **fills / large** (paired with ✓ + label)       |
+| `--retry`            | `--coral`        | Try-again — **fills / large** (paired with ↻; never red-scary) |
+| `--surface-success`  | `--leaf-strong`  | Correct as **small text / icons** (AA-safe)                    |
+| `--surface-danger`   | `--coral-strong` | Try-again / error as **small text / icons** (AA-safe)          |
+| `--journal-line`     | `--periwinkle`   | Ruled paper lines                                              |
+| `--journal-margin`   | `--blush`        | Left margin rule                                               |
+| `--focus-ring`       | `--sun`          | High-contrast focus indicator (set globally in globals.css)    |
+
+**Tint scale.** Translucent fills use named steps, never bare opacities: `--tint-wash` (10%,
+hover), `--tint-soft` (15%, secondary-emphasis fills), `--tint-fill` (20%, chip/marker fills).
+`npm run check:tint-scale` enforces it.
 
 ## Typography
 
-Two families, chosen for this brief — not defaults:
-
-- **Display — Fredoka.** Rounded, geometric, warm; friendly without being babyish. Used
-  for headings, topic titles, big numbers, buttons.
-- **Body / reading — Lexend.** Chosen deliberately: Lexend is engineered to improve
-  **reading proficiency** and is highly legible for early and struggling readers. Used for
-  all lesson text and UI body. This is the single most important type choice in a reading
-  app for kids.
+**One voice — Shantell Sans.** A legibility-tuned handwriting face (the "Lexend of
+handwriting") drives **both** `font-display` and `font-body`, so the whole journal reads as one
+hand. It has real 400/600/700 weights and is engineered to stay legible for early and
+struggling readers — the single most important type choice in a reading app for kids, which is
+what lets us use handwriting everywhere including lesson body. **Lexend** is kept only as the
+fallback.
 
 ```css
---font-display: "Fredoka", system-ui, sans-serif;
---font-body: "Lexend", system-ui, sans-serif;
+/* app/globals.css @theme inline — both roles map to the one face */
+--font-display: var(--font-shantell);
+--font-body: var(
+  --font-shantell
+); /* Lexend is the next fallback in the stack */
 ```
+
+**Lined-paper rule.** Reading text must **sit on the ruled line** (baseline rests on the rule,
+descenders cross below), not float mid-row — via `.rt-lined` (ruled background) + `.rt-journal`
+(margin-based rhythm that locks every vertical measure to a whole multiple of the rule period).
 
 **Type scale** (rem; respects user zoom). Reading base is larger for younger readers:
 
@@ -108,15 +137,18 @@ Two families, chosen for this brief — not defaults:
 | `--text-3xl`  | 3rem     | hero / big numbers                             |
 
 **Reading rules:** line-height `1.6`, max line length `~62ch`, generous paragraph spacing.
-These are legibility settings, not stylistic — keep them on the reading surface always.
+These are legibility settings, not stylistic — keep them on always.
 
 ## Spacing, radius, elevation
 
 - **Spacing scale** (4-based): `4, 8, 12, 16, 24, 32, 48, 64`.
-- **Radius:** soft and friendly — `--radius-sm: 12px`, `--radius-md: 20px`,
-  `--radius-lg: 28px`, `--radius-pill: 999px` (buttons are pills).
-- **Elevation:** soft, low-contrast shadows on the reading surface; on night, use **glow**
-  (colored, blurred) instead of drop shadows to sell the "lit-up star" feel.
+- **Radius:** controls are **squared off** (`rounded-[3px]`, framed by the hand-drawn
+  `.rt-inkbox` pen box) — **not pills**. The soft radii `--radius-sm: 12px`, `--radius-md:
+20px`, `--radius-lg: 28px` remain for larger paper panels; `--radius-pill: 999px` survives
+  only for genuinely round bits (avatars, dots, progress tracks).
+- **Elevation:** most containers use the hand-drawn `.rt-inkbox` pen box (an inked outline)
+  rather than a shadow. Sticky notes get a soft paper drop shadow so they lift off the page;
+  `--surface-elevation` is the low-contrast paper shadow for the few places that need one.
 
 ## Component library
 
@@ -126,24 +158,36 @@ re-styling ad hoc.** Live in `components/ui` (primitives), `components/game`, an
 
 ### Primitives — `components/ui/`
 
-- **`Button`** — variants: `primary` (sun fill), `secondary` (orchid outline), `ghost`;
-  sizes `md` and `kid` (min 56–64px tall). Always renders a visible focus ring; never
-  removes the outline. Icon-only buttons require an `aria-label`.
-- **`Card` / `Panel`** — surface-aware container (paper card vs. glowing night panel).
-- **`Heading` / `Text`** — enforce the type scale and family; no raw font sizing in pages.
-- **`Icon`** — single sized/labelled wrapper around the icon set.
-- **`Modal` / `Overlay`** — focus-trapped, `Escape` to close, returns focus to trigger.
+- **`Button`** — squared (`rounded-[3px]`), never pills. Variants: `primary` (sun fill + a
+  hand-drawn pen box), `secondary` (pen box only), `ghost` (borderless); sizes `md` and `kid`
+  (min 56–64px tall). Always a visible focus ring; icon-only buttons require an `aria-label`.
+- **`Card` / `Panel`** — a transparent hand-drawn "pen box" on the paper (the ruled lines show
+  through); `elevated` is a heavier, drawn-twice outline.
+- **`StickyNote`** — the **collection** counterpart to `Card`: opaque colored paper, a soft
+  drop shadow, a slight hand-placed tilt, optional tape. Used for map tiles and keepsakes.
+- **`Wordmark`** — the ReadTrip brand mark: a hand-lettered inline-SVG logo (ink letters on a
+  gold offset shadow + a coral pen underline). One per page (the header / homepage hero).
+- **`Heading` / `Text`** — enforce the type scale and the one Shantell voice; no raw font
+  sizing in pages.
+- **`Icon`** — single sized/labelled wrapper around the one hand-drawn doodle set. No emoji or
+  raw `<svg>` in pages.
+- **`Modal`** — focus-trapped, `Escape` to close, returns focus to trigger.
 - **`ProgressBar`** — generic animated bar (used by XP and the calibration game).
+- **Status markers** — **`StampMark`** (a rubber-stamp verdict pressed _over_ content — quiz
+  "Yes!" / "Try again") and **`Highlight`** (a highlighter swipe over inline written text — the
+  journal alternative to a pill, e.g. the XP "Lvl N" label).
 
 ### Game — `components/game/`
 
-- **`TopicNode`** — the map node, the product's **signature element**. States:
-  `locked` (dim, dotted outline), `suggested` (gentle pulse, aqua ring), `explored`
-  (lit / aqua), `mastered` (gold glow + stamp). Each state has a shape/icon difference,
-  not just color (accessibility).
-- **`WorldMap`** — the constellation/star-chart layout connecting nodes; pannable.
-- **`XPBar`** — animated XP/level bar with a count-up; announces changes politely to SRs.
-- **`ExpeditionStamp`** (Badge) — a "stamped into the journal" badge with a press animation.
+- **`TopicNode`** — the map node, the product's **signature element**: a real `<button>`
+  wrapping a `StickyNote`, tinted by state. States: `locked` (a dashed empty slot, no note),
+  `suggested` (aqua/violet note + a header strip), `explored` (sky note + strip), `mastered`
+  (sun note). Each state carries a **word + icon**, not just color (accessibility).
+- **`WorldMap`** — the list of topic sticky-notes; a pen-boxed "Show N more" toggle expands
+  the grid and mastered topics tuck into a pen-boxed `<details>` disclosure.
+- **`XPBar`** — animated XP/level bar with a count-up; the "Lvl N" label is a `Highlight`
+  marker swipe, not a pill. Announces changes politely to SRs.
+- **`ExpeditionStamp`** — a mastery badge "stamped into the journal" with a press animation.
 - **`Avatar`** — the explorer token ("you are here" on the map; cosmetic unlocks).
 - **`RewardBurst` / `LevelUpCelebration`** — overlay for XP gains, level-ups, badges.
 - **`Pip`** _(optional guide mascot)_ — a small companion that gives the app a voice
@@ -152,27 +196,29 @@ re-styling ad hoc.** Live in `components/ui` (primitives), `components/game`, an
 
 ### Reading — `components/reading/`
 
-- **`ReadingView`** — the field-journal lesson surface (sets surface, max width, type).
+- **`ReadingView`** — the lined-paper lesson container (`.rt-lined` + `.rt-journal` so text
+  rests on the rules, framed by a pen box, capped reading width).
 - **`LessonChunk`** — one short, visual block of explanation.
-- **`QuizChoice`** — big tappable answer. States: `default`, `selected`, `correct`
-  (leaf + ✓ + "Yes!"), `retry` (coral + ↻ + "Try again") — **icon + text + color**, never
-  color alone. Fully keyboard-operable.
+- **`QuizChoice`** — big tappable answer (a squared `.rt-inkbox` pen box). States: `default`,
+  `selected`, `correct` (leaf fill + a `StampMark` "✓ Yes!"), `retry` (coral fill + a
+  `StampMark` "↻ Try again") — **icon + text + color**, never color alone. The stamp overlays
+  the corner, so feedback never resizes the box. Fully keyboard-operable.
 - **`QuizCard`** — wraps the question + choices + feedback.
 
 ### Shell
 
-- **`AppShell` / `TopBar`** — consistent header on every child page: avatar, level, XP bar,
-  current surface. This is the main driver of cross-page consistency.
+- **`AppShell` / `TopBar`** — consistent header on every child page: `Wordmark`, avatar, level,
+  XP bar. This is the main driver of cross-page consistency.
 
 ## Motion
 
-Motion sells "discovery," but restraint keeps it from feeling AI-generated or
-overstimulating:
+Motion should feel like the journal is **being written**, but restraint keeps it from feeling
+AI-generated or overstimulating:
 
-- **Map load:** a brief star-twinkle settle.
-- **Discovery:** a node "pops + glows" when first explored.
-- **Reward:** XP count-up; a contained `RewardBurst`; a badge "stamp" press.
-- **Idle:** very subtle float on suggested nodes to invite a tap.
+- **Map load:** sticky-note tiles cascade/settle into place (`animate-cascade-in`, staggered).
+- **Reward:** XP count-up; a contained `RewardBurst`; an expedition-stamp "press."
+- **Ink beats:** one-time ink-draw on hero marks/underlines; a gentle rise-in — never on every
+  element.
 
 **Every animation must respect `prefers-reduced-motion`** — reduce to instant
 state changes (no movement/parallax), keeping only essential feedback.
@@ -193,8 +239,8 @@ state changes (no movement/parallax), keeping only essential feedback.
 6. **Screen readers:** icon buttons have labels; XP/level/celebration changes use
    `aria-live="polite"`; the world map offers an equivalent **list view** so it's not
    purely spatial.
-7. **Reading legibility:** Lexend, generous line-height, capped line length, rem-based
-   sizing that honors browser zoom and text scaling.
+7. **Reading legibility:** Shantell Sans (legibility-tuned handwriting), generous line-height,
+   capped line length, rem-based sizing that honors browser zoom and text scaling.
 8. **Reduced motion:** honored everywhere (see Motion).
 
 ## Testing (every component is well tested)
@@ -209,8 +255,8 @@ ARIA, focus, or layout is a Playwright test against a real browser:
 
 - **Unit** (Vitest, node): **pure logic only** — value clamping (ProgressBar), variant/scale
   resolution, validation, parsing. Fast, no DOM, no browser. Co-located `*.test.ts`.
-- **Visual** (Playwright snapshots): the component gallery (`/dev/components`) on **both
-  surfaces** (night + paper), capturing each component's states. Regenerate the baseline when
+- **Visual** (Playwright snapshots): the component gallery (`/dev/components`) on the
+  **field-journal surface**, capturing each component's states. Regenerate the baseline when
   the gallery legitimately changes; it's a strict gate otherwise.
 - **e2e / contract** (Playwright, real browser): the DOM + a11y contract driven by **touch
   and keyboard with no mouse** — `axe` over the gallery, ARIA roles/labels, keyboard
@@ -218,25 +264,26 @@ ARIA, focus, or layout is a Playwright test against a real browser:
   trap/restore for overlays, tap targets, and tab order following reading order.
 
 **Coverage expectations:** every interactive component has a keyboard-operable path under
-test and meets the target-size floor; reduced-motion and both surfaces are exercised; and the
-gallery stays the single rendered surface all three layers point at. A component without its
-unit (where it has pure logic), gallery, and e2e coverage fails the parity check and is not
-mergeable.
+test and meets the target-size floor; reduced-motion is exercised; and the gallery stays the
+single rendered surface all three layers point at. A component without its unit (where it has
+pure logic), gallery, and e2e coverage fails the parity check and is not mergeable.
 
 ## Implementation notes
 
 - **Tokens → Tailwind:** put the tokens in `styles/tokens.css` as CSS variables and map
   them into the Tailwind theme so utilities stay token-driven. **The repo is on Tailwind
   v4** (CSS-first; there is no `tailwind.config.ts`) — the mapping lives in an
-  `@theme inline { … }` block in `app/globals.css`, not a JS config. Surface switching is a
-  `data-surface="night|paper"` attribute that re-points the `--surface-*` variables.
+  `@theme inline { … }` block in `app/globals.css`, not a JS config. There's **one surface**;
+  the `--surface-*` indirection stays so a future theme can re-point the tokens under a
+  selector with no component changes.
 - **Behavior from Headless UI.** Interactive primitives wrap **Headless UI** (`@headlessui/react`)
   rather than re-implementing accessibility behavior: `Modal` is a `Dialog` (focus trap, scroll
   lock, portal, Escape/backdrop dismissal), `Input` is a `Field`/`Label`/`Input`/`Description`
   (label + hint/error association), and `Button` is its `Button`. ReadTrip owns the **styling and
   surface theming**; Headless UI owns the **behavior and ARIA wiring**, so there's less custom
-  a11y code to maintain. Purely presentational primitives (`Card`, `Heading`, `Text`, `Icon`,
-  `ProgressBar`) have no Headless UI equivalent and stay plain token-styled elements.
+  a11y code to maintain. Purely presentational primitives (`Card`, `StickyNote`, `Heading`,
+  `Text`, `Icon`, `ProgressBar`, `StampMark`, `Highlight`, `Wordmark`) have no Headless UI
+  equivalent and stay plain token-styled elements.
 - **No ad-hoc styling in pages.** Pages compose components; components own the styling.
   This is what guarantees consistency. The **`design-system` skill**
   (`.claude/skills/design-system`) is the operational "how & when to use" guide, and it's
@@ -245,4 +292,5 @@ mergeable.
 - **Storybook (recommended, optional):** a Storybook of the component library serves as a
   living style guide and showcases the design system as a deliberate, reusable system rather
   than one-off pages — useful for team collaboration and future development.
-- **Fonts:** load Fredoka + Lexend via `next/font` (self-hosted, no layout shift).
+- **Fonts:** load Shantell Sans (+ Lexend as fallback) via `next/font` (self-hosted, no
+  layout shift).

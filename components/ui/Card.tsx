@@ -13,9 +13,9 @@ export interface CardProps extends HTMLAttributes<HTMLElement> {
   /** Inner padding from the spacing scale. */
   padding?: CardPadding;
   /**
-   * Lift the card off the surface. On paper this is a soft shadow; on night it's
-   * a colored glow ("lit-up panel"). Both come from `--surface-elevation`, so a
-   * card looks right on whichever surface contains it. This is the **Panel** look.
+   * Emphasize the card as a **Panel**. In the field-journal language that's a
+   * heavier, "drawn-twice" ink outline rather than a drop shadow/glow — it reads
+   * on either surface (the ink follows `--surface-ink`).
    */
   elevated?: boolean;
   children?: ReactNode;
@@ -28,9 +28,10 @@ const paddingStyles: Record<CardPadding, string> = {
 };
 
 /**
- * Surface-aware container. Reads `--surface-*` tokens, so the same Card renders
- * as a warm paper card on the reading surface and a glowing night panel on the
- * play surface. `elevated` is the "Panel" treatment.
+ * Surface-aware container — a transparent "pen box" drawn on the lined paper: the
+ * ruled lines show through and a hand-drawn ink outline (the #rt-sketch filter)
+ * frames the content. Reads `--surface-*` tokens, so the ink is dark on the light
+ * journal and cream on the dark one. `elevated` is the heavier "Panel" outline.
  *
  * Usage guidance: .claude/skills/design-system/references/card.md
  */
@@ -45,10 +46,13 @@ export function Card({
   return (
     <Tag
       className={cn(
-        "rounded-lg border border-surface-rule bg-surface-panel text-surface-ink",
+        // A transparent "pen box" drawn on the lined paper — the ruled lines show
+        // through, and the ink outline is hand-drawn by the #rt-sketch filter
+        // (see .rt-inkbox in globals.css). No opaque panel fill.
+        "rounded-[3px] text-surface-ink rt-inkbox",
         paddingStyles[padding],
-        // --surface-elevation is a soft shadow on paper, a colored glow on night.
-        elevated && "shadow-[var(--surface-elevation)]",
+        // Panel emphasis is a heavier, drawn-twice outline (not a drop shadow).
+        elevated && "rt-inkbox--lift",
         className
       )}
       {...rest}

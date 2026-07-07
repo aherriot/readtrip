@@ -1,3 +1,4 @@
+import { Wordmark } from "@/components/ui/Wordmark";
 import { PlayShellSkeleton } from "./PlaySkeleton";
 
 // Instant skeleton for /play. The route's render is a couple of fast DB reads
@@ -8,9 +9,7 @@ import { PlayShellSkeleton } from "./PlaySkeleton";
 export default function Loading() {
   return (
     <main className="mx-auto flex min-h-screen w-full max-w-xl flex-col items-center gap-6 p-6">
-      <span className="font-display text-lg font-semibold text-sun">
-        ReadTrip
-      </span>
+      <Wordmark className="h-9" />
       <PlayShellSkeleton />
     </main>
   );

@@ -50,6 +50,6 @@ useEffect(() => {
   reduced motion it's a still overlay with the same words. The Modal's own rise/fade is
   already neutralized by the global reduced-motion floor.
 
-## Surfaces
+## Surface
 
-Opens on `night` (celebrations live on the play surface, docs/10) — the Modal default.
+Built on `Modal`, so it inherits the field-journal panel — the one surface (docs/10).

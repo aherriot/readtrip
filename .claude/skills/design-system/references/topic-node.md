@@ -1,6 +1,7 @@
 # TopicNode
 
-The world-map node — ReadTrip's signature element — on the night/play surface.
+The world-map node — ReadTrip's signature element. A real `<button>` wrapping a
+[`StickyNote`](sticky-note.md) (a locked node is a dashed empty slot instead), tinted by state.
 Source: [`components/game/TopicNode.tsx`](../../../../components/game/TopicNode.tsx).
 
 ```tsx
@@ -56,8 +57,9 @@ import { TopicNode } from "@/components/game/TopicNode";
   a shrink-out (`animate-tile-out`) and only calls `onDismiss` on `animationend`, so removal
   is animated; reduced-motion users hit the zeroed floor and remove near-instantly.
 
-## Surfaces
+## Surface
 
-Built for `night` (the play surface); reads `--surface-*` + `--aqua`/`--sky`/`--violet`/`--sun`
-tokens, so it never hardcodes color. Tiles cascade into place via
-`motion-safe:animate-cascade-in` (staggered by [`WorldMap`](world-map.md)).
+Reads `--surface-*` + `--aqua`/`--sky`/`--violet`/`--sun` tokens (the single field-journal
+surface), so it never hardcodes color — the sticky-note paper is a `color-mix` of the state
+tone with the panel. Tiles cascade into place via `motion-safe:animate-cascade-in` (staggered
+by [`WorldMap`](world-map.md)).

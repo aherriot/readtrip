@@ -1,7 +1,9 @@
 # Button
 
 The one way to render an action. A real `<button>`, or a real `<a>` when `href` is set.
-Source: [`components/ui/Button.tsx`](../../../../components/ui/Button.tsx).
+Squared-off in the field-journal language (no pills): `primary` = a sun fill inside a
+hand-drawn ink pen box, `secondary` = the pen box alone (no fill), `ghost` = borderless with
+a soft hover wash. Source: [`components/ui/Button.tsx`](../../../../components/ui/Button.tsx).
 
 ```tsx
 import { Button } from "@/components/ui/Button";
@@ -46,10 +48,11 @@ import { Button } from "@/components/ui/Button";
 `type="submit"` explicitly on the submit action, or reach for
 [`SubmitButton`](submit-button.md), which sets it and wires up the form's pending state.
 
-## Surfaces
+## Surface
 
-`primary` is a bright `--sun` fill with dark ink (≈9:1) on both surfaces; `secondary`/`ghost`
-read `--surface-*` tokens, so they adapt to night vs. paper automatically.
+`primary` is a bright `--sun` fill with dark ink (≈9:1) framed by a hand-drawn `.rt-inkbox`
+pen box; `secondary` is the pen box alone; `ghost` is borderless. All squared (`rounded-[3px]`,
+never pills) and driven by `--surface-*` tokens — the single field-journal surface.
 
 ## Accessibility
 

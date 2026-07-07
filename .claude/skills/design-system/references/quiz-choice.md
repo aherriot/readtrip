@@ -1,6 +1,7 @@
 # QuizChoice
 
-One big, tappable quiz answer on the field-journal (paper) surface.
+One big, tappable quiz answer — a squared, hand-drawn `.rt-inkbox` pen box on the field
+journal. Resolved feedback is a [`StampMark`](stamp-mark.md) pressed into the corner.
 Source: [`components/reading/QuizChoice.tsx`](../../../../components/reading/QuizChoice.tsx).
 
 ```tsx
@@ -34,11 +35,12 @@ import { QuizChoice } from "@/components/reading/QuizChoice";
 
 - A real `<button>`, so `Enter`/`Space`, focus, and SR semantics are native; the global
   `:focus-visible` ring applies (never removed).
-- **Never color-only** — `correct`/`retry` pair the accent (as a _fill/border_, not small
-  text) with a status **icon + word** ("✓ Yes!" / "↻ Try again").
+- **Never color-only** — `correct`/`retry` pair the accent (as a soft _fill_ + re-inked pen
+  box) with a `StampMark` carrying a status **icon + word** ("✓ Yes!" / "↻ Try again"). The
+  stamp overlays the corner (absolute), so feedback never changes the box's height.
 - Min height hits the 56–64px kid target floor.
 
-## Surfaces
+## Surface
 
-Built for `paper` (the reading surface); reads `--surface-*` + `--leaf`/`--coral` tokens, so
-it never hardcodes color.
+The single field-journal surface; reads `--surface-*` + `--leaf`/`--coral` tokens, so it never
+hardcodes color.

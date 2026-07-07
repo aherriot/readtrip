@@ -10,11 +10,13 @@ the index in [`SKILL.md`](../SKILL.md).
 
 ## Primitives — `components/ui/`
 
-- **`Button`** — every action/submit. Variants: `primary` (sun fill, dark ink), `secondary`
-  (coral outline), `ghost`. Sizes `md` and `kid` (56–64px). Always a visible focus ring;
-  icon-only buttons require `aria-label`. Reach for this _instead of_ a styled `<a>`/`<div>`.
-- **`Card` / `Panel`** — a surface-aware container grouping related content (paper card vs.
-  glowing night panel). Use for lesson blocks, profile tiles, settings groups.
+- **`Button`** — every action/submit. Squared (`rounded-[3px]`), never pills. Variants:
+  `primary` (sun fill + hand-drawn pen box), `secondary` (pen box only), `ghost` (borderless).
+  Sizes `md` and `kid` (56–64px). Always a visible focus ring; icon-only buttons require
+  `aria-label`. Reach for this _instead of_ a styled `<a>`/`<div>`.
+- **`Card` / `Panel`** — a container grouping related content: a transparent hand-drawn "pen
+  box" on the paper (`elevated` = a heavier, drawn-twice outline). Use for lesson blocks,
+  profile tiles, settings groups.
 - **`Heading` / `Text`** — all page copy. Enforces the type scale + families so pages never
   hand-size fonts. Use `Heading` for titles, `Text` for body/secondary.
 - **`Icon`** — a single sized, labelled wrapper around the icon set. Use everywhere an icon
@@ -28,8 +30,8 @@ the index in [`SKILL.md`](../SKILL.md).
 
 - **`TopicNode`** — the map node and the product's **signature element**. States `locked` /
   `suggested` / `explored` / `mastered`, each with a shape/icon difference (not color alone).
-- **`WorldMap`** — the constellation/star-chart layout connecting nodes; pannable; ships
-  with a list-view fallback for screen readers.
+- **`WorldMap`** — the list of topic sticky-notes; a pen-boxed "Show N more" toggle expands
+  the grid, mastered topics tuck into a pen-boxed `<details>`; a real list for screen readers.
 - **`XPBar`** — animated XP/level bar with count-up; `aria-live="polite"`.
 - **`ExpeditionStamp`** — a "stamped into the journal" badge with a press animation.
 - **`Avatar`** — the explorer token ("you are here"; cosmetic unlocks).
@@ -40,8 +42,9 @@ the index in [`SKILL.md`](../SKILL.md).
 
 ## Reading — `components/reading/`
 
-- **`ReadingView`** — the field-journal lesson surface (sets `data-surface="paper"`, max
-  width, reading type). Wrap lessons/quizzes in this.
+- **`ReadingView`** — the lined-paper lesson container (`.rt-lined` + `.rt-journal` so text
+  rests on the ruled lines, framed by a pen box, max width, reading type). Wrap
+  lessons/quizzes in this.
 - **`LessonChunk`** — one short, visual block of explanation.
 - **`QuizChoice`** ✅ [ref](quiz-choice.md) — big tappable answer. States `default` /
   `selected` / `correct` (leaf + ✓ + "Yes!") / `retry` (coral + ↻ + "Try again") — **icon +

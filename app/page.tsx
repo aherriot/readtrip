@@ -5,6 +5,7 @@ import { Card } from "@/components/ui/Card";
 import { Heading } from "@/components/ui/Heading";
 import { Icon } from "@/components/ui/Icon";
 import { Text } from "@/components/ui/Text";
+import { Wordmark } from "@/components/ui/Wordmark";
 import type { IconName } from "@/components/ui/icons/glyphs";
 
 export const metadata: Metadata = {
@@ -41,7 +42,7 @@ export default async function Home() {
       {/* Hero */}
       <section className="flex max-w-2xl flex-col items-center gap-6">
         <Heading level={1} size="3xl">
-          <span className="text-sun">ReadTrip</span>
+          <Wordmark className="h-16 sm:h-20" />
         </Heading>
         <Text size="lg" className="max-w-xl">
           A curiosity engine for kids. Turn “why is the sky blue?” into a guided

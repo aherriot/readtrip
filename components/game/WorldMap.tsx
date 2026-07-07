@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/Button";
 import { Heading } from "@/components/ui/Heading";
 import { Icon } from "@/components/ui/Icon";
 import { Text } from "@/components/ui/Text";
+import { cn } from "@/lib/ui/cn";
 import { orderNodes, toNodeState, type MapNodeView } from "@/lib/map/nodeState";
 import { TopicNode } from "./TopicNode";
 
@@ -35,7 +36,7 @@ const MASTERED_PAGE_SIZE = 10;
  * "map" is rendered as a real list of buttons — randomized (see `orderNodes`) so
  * explored ground doesn't perpetually crowd out new/dive tiles — which doubles
  * as the screen-reader-friendly list view; it's never purely spatial (a11y
- * floor, docs/10). Lives on the night/play surface.
+ * floor, docs/10). Tiles are sticky notes laid out on the field journal.
  */
 export function WorldMap({ nodes, onSelect, onDismiss }: WorldMapProps) {
   const [expanded, setExpanded] = useState(false);
@@ -104,11 +105,26 @@ export function WorldMap({ nodes, onSelect, onDismiss }: WorldMapProps) {
         </ul>
       )}
       {hasMore && (
+        // A pen-boxed (secondary) toggle with a chevron that flips open/closed —
+        // the drawn border + rotating caret make it read unmistakably as a
+        // control you can tap, not a line of caption text.
         <Button
           type="button"
-          variant="ghost"
+          variant="secondary"
           size="md"
           className="self-center"
+          aria-expanded={expanded}
+          trailingIcon={
+            <Icon
+              name="chevron-down"
+              decorative
+              size="sm"
+              className={cn(
+                "transition-transform motion-reduce:transition-none",
+                expanded && "rotate-180"
+              )}
+            />
+          }
           onClick={() => setExpanded((e) => !e)}
         >
           {expanded
@@ -120,16 +136,26 @@ export function WorldMap({ nodes, onSelect, onDismiss }: WorldMapProps) {
         <details
           open={masteredOpen}
           onToggle={(event) => setMasteredOpen(event.currentTarget.open)}
-          className="mt-1 rounded-lg border border-surface-rule px-4 py-3"
+          className="rt-inkbox mt-1 rounded-[3px] px-4 py-3"
         >
-          <summary className="cursor-pointer font-body text-sm text-surface-ink-soft marker:text-surface-ink-soft">
-            <Icon
-              name="medal"
-              decorative
-              size="sm"
-              className="mr-1 inline-flex translate-y-0.5"
-            />
-            {mastered.length} topic{mastered.length === 1 ? "" : "s"} mastered
+          {/* Hide the native disclosure triangle; we draw our own chevron so the
+              affordance matches the journal language and flips on open. */}
+          <summary className="flex cursor-pointer list-none items-center gap-2 font-display font-medium text-surface-ink [&::-webkit-details-marker]:hidden">
+            <Icon name="medal" decorative size="sm" />
+            <span className="flex-1">
+              {mastered.length} topic{mastered.length === 1 ? "" : "s"} mastered
+            </span>
+            <span className="text-surface-ink-soft">
+              <Icon
+                name="chevron-down"
+                decorative
+                size="sm"
+                className={cn(
+                  "transition-transform motion-reduce:transition-none",
+                  masteredOpen && "rotate-180"
+                )}
+              />
+            </span>
           </summary>
           {/* Keyed on open state so the rows remount — and re-run their cascade
               — each time the child expands the disclosure, not just on mount
@@ -163,9 +189,9 @@ export function WorldMap({ nodes, onSelect, onDismiss }: WorldMapProps) {
           {masteredRemaining > 0 && (
             <Button
               type="button"
-              variant="ghost"
+              variant="secondary"
               size="md"
-              className="mt-2 w-full"
+              className="mt-3 w-full"
               onClick={() => setMasteredShown((n) => n + MASTERED_PAGE_SIZE)}
             >
               Show {Math.min(MASTERED_PAGE_SIZE, masteredRemaining)} more

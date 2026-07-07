@@ -32,8 +32,11 @@ test.describe("design system — visual", () => {
   // One snapshot per component, keyed off the gallery's `section-<name>` blocks.
   const COMPONENTS = [
     "button",
-    "badge",
+    "stampmark",
+    "highlight",
     "card",
+    "stickynote",
+    "wordmark",
     "heading",
     "icon",
     "progressbar",
@@ -55,7 +58,7 @@ test.describe("design system — visual", () => {
   });
 
   for (const name of COMPONENTS) {
-    test(`${name} — both surfaces`, async ({ page }) => {
+    test(`${name} — field journal`, async ({ page }) => {
       await expect(page.getByTestId(`section-${name}`)).toHaveScreenshot(
         `${name}.png`,
         SNAPSHOT
@@ -70,7 +73,7 @@ test.describe("design system — visual", () => {
   // image, making the baseline depend on scroll position / gallery layout.
   test("modal — open dialog", async ({ page }) => {
     await page
-      .getByTestId("modal-night")
+      .getByTestId("modal")
       .getByRole("button", { name: "Open dialog" })
       .click();
     await expect(

@@ -20,11 +20,7 @@ const SAMPLE_QUESTION = {
  */
 export function QuizDemo() {
   return (
-    <div
-      data-surface="paper"
-      data-testid="quiz-paper"
-      className="flex flex-col gap-8"
-    >
+    <div data-testid="quiz" className="flex flex-col gap-8">
       <div className="flex flex-col gap-3">
         <Text size="sm" tone="soft">
           QuizChoice — states (icon + text + color, never color alone)

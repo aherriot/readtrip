@@ -1,7 +1,7 @@
 # XPBar
 
-The XP / level bar (docs/10) on the night/play surface. A "Lvl N" chip beside a
-`sun`-toned progress bar that fills toward the next level.
+The XP / level bar (docs/10). A "Lvl N" label — a `Highlight` marker swipe over the written
+level, not a pill — beside a `sun`-toned progress bar that fills toward the next level.
 Source: [`components/game/XPBar.tsx`](../../../../components/game/XPBar.tsx).
 
 ```tsx
@@ -33,7 +33,7 @@ import { XPBar } from "@/components/game/XPBar";
 
 - Wraps [`ProgressBar`](progress-bar.md), so it exposes a real `progressbar` role with a
   human name ("Level 2: 30 of 60 XP to the next level") and `aria-valuenow`.
-- The "Lvl N" chip is `aria-hidden` (the level is already in the bar's name), so a screen
+- The "Lvl N" label is `aria-hidden` (the level is already in the bar's name), so a screen
   reader hears the standing once, not twice.
 
 ## Motion
@@ -42,7 +42,7 @@ import { XPBar } from "@/components/game/XPBar";
   global reduced-motion floor zeroes that duration, so it snaps to the final value — no JS
   opt-out needed.
 
-## Surfaces
+## Surface
 
-Built for `night`; reads `--surface-*` + `--sun` tokens. Works on `paper` too (used on the
-paper reward screen), since `--sun` is surface-independent.
+Reads `--surface-*` + `--sun` tokens — the single field-journal surface. The level label is a
+[`Highlight`](highlight.md) swipe over the written "Lvl N" (a journal marker, not a chip).

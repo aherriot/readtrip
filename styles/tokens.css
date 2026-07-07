@@ -3,69 +3,107 @@
  * and elevation. See docs/10-design-system.md for the rationale and the
  * design-system skill (.claude/skills/design-system) for how to use them.
  *
- * Surfaces ("night" play canvas vs. "paper" reading canvas) switch at runtime
- * via a `data-surface` attribute that re-points the `--surface-*` variables.
- * Utilities (bg-surface, text-surface-ink, font-display, rounded-pill, …) are
- * generated from these tokens by the `@theme inline` block in app/globals.css.
+ * Colors are defined in TWO layers:
+ *   1. PRIMITIVES — every raw color value, named by hue/shade, no meaning.
+ *   2. SEMANTIC   — meaning mapped onto primitives (`--surface-*`, `--correct`,
+ *                   …). COMPONENTS READ THE SEMANTIC TOKENS, never a primitive
+ *                   hex or a raw primitive var — so the whole palette retunes in
+ *                   one place, and a future theme (e.g. dark mode) is just a
+ *                   re-point of the semantic layer under a selector.
+ * Every primitive is shown in /dev/components (the "Primitive tokens" section).
  *
- * Rule: pages never hardcode hex. Use the tokens — directly as `var(--token)`
- * or, preferably, through the generated Tailwind utilities.
+ * ONE surface today: the field journal (warm lined paper). Utilities
+ * (bg-surface, text-surface-ink, font-display, …) are generated from these by
+ * the `@theme inline` block in app/globals.css.
+ *
+ * Rule: pages never hardcode hex. Use the tokens — through the generated
+ * Tailwind utilities, or as `var(--token)`.
  */
 
 :root {
-  /* --- Brand accent palette (surface-independent) --- */
+  /* ============================================================
+   * LAYER 1 — PRIMITIVES  (raw palette; no meaning attached)
+   * ============================================================ */
+
+  /* Accent hues. Two hues carry a darker `-strong` step: the bright shade is for
+     fills / avatars / large elements; the strong shade is dark enough to use as
+     SMALL colored text or icons on paper (the bright shades fail AA at text
+     sizes). Everything else needs only its one bright value. */
   --sun: #ffc24b; /* primary action, XP (marigold) */
-  /* Wrong-answer / retry / delete accent ONLY — reads as an alarm color, so
-     never use it for a plain secondary choice. See --orchid for that. */
-  --coral: #ff6b5c;
-  --orchid: #d65db1; /* secondary / playful accent (magenta — far enough from --coral's red-orange to never read as danger) */
+  --coral: #ff6b5c; /* wrong-answer / retry / delete alarm accent */
+  --coral-strong: #b23a2e; /* darker coral — ≈5.8:1 on paper ✓ (small text) */
+  --orchid: #d65db1; /* secondary / playful accent (magenta) */
   --aqua: #36d6c3; /* discovery / "deep" suggestions */
   --leaf: #7bd66a; /* success / correct */
+  --leaf-strong: #2e7d32; /* darker leaf — ≈5.1:1 on paper ✓ (small text) */
   --violet: #b388ff; /* tertiary accent / magic, "new" breadth */
   --sky: #5ab6ff; /* in-progress / "exploring" (distinct from aqua + violet) */
 
-  /*
-   * Contrast-tuned tints of --coral for SMALL text/icons (coral itself fails
-   * AA at small sizes — see --surface-danger below). Named + grouped with the
-   * primitive they derive from, instead of appearing as bare hex elsewhere.
-   */
-  --coral-a11y-night: #ffa89e; /* ≈6.9:1 on the night panel ✓ */
-  --coral-a11y-paper: #b23a2e; /* ≈5.8:1 on paper ✓ */
+  /* Paper & ink neutrals */
+  --paper: #fffcf5; /* warm lined paper */
+  --paper-panel: #ffffff; /* cards, inputs, sticky-note base */
+  --ink: #22263f; /* body text / ink */
+  --ink-soft: #4a4f6b; /* secondary text */
+  --rule: #e7e0d0; /* hairlines / dividers */
+
+  /* Ruled-paper line hues */
+  --periwinkle: #d7dff0; /* faint blue ruled lines */
+  --blush: #f0b3aa; /* soft coral margin rule */
+
+  /* ============================================================
+   * LAYER 2 — SEMANTIC  (meaning on top of primitives)
+   * Components read THESE. One field-journal surface today; re-point
+   * them under a selector to add a theme (e.g. dark) with no component
+   * changes.
+   * ============================================================ */
+
+  /* The surface */
+  --surface-bg: var(--paper);
+  --surface-panel: var(--paper-panel);
+  --surface-ink: var(--ink);
+  --surface-ink-soft: var(--ink-soft);
+  --surface-rule: var(--rule);
+  --surface-accent: var(--orchid);
+  --surface-elevation: 0 2px 10px color-mix(in srgb, var(--ink) 8%, transparent);
+
+  /* Status — always paired with an icon + text, never color alone. The bright
+     hue is the fill / large-element color; the `-strong` hue is the SAME meaning
+     rendered as small text or icons (AA-safe on paper). */
+  --correct: var(--leaf); /* right answer — fills / large elements */
+  --retry: var(--coral); /* try-again — fills / large elements */
+  --surface-success: var(--leaf-strong); /* correct as SMALL text / icons */
+  --surface-danger: var(
+    --coral-strong
+  ); /* try-again / error as SMALL text / icons */
+
+  /* Ruled-paper treatment */
+  --journal-line: var(--periwinkle);
+  --journal-margin: var(--blush);
+
+  /* Focus ring — high-contrast; reuses --sun (tuned for paper). Set globally in
+     app/globals.css. */
+  --focus-ring: var(--sun);
+
+  /* ============================================================
+   * NON-COLOR TOKENS
+   * ============================================================ */
 
   /*
-   * Standard tint scale for translucent fills over a surface (badge/chip
-   * backgrounds, hover washes, soft borders). Referenced by name via
-   * Tailwind's CSS-variable opacity-modifier shorthand — `bg-sun/(--tint-fill)`
-   * — never a bare numeric fraction, so every tinted fill in the app is
-   * pulled from this one named scale. See tokens.md for which step to reach
-   * for; enforced by `npm run check:tint-scale`.
+   * Tint scale for translucent fills over the surface (chip/marker fills, hover
+   * washes, soft borders). Referenced by name via Tailwind's CSS-variable
+   * opacity-modifier shorthand — `bg-sun/(--tint-fill)` — never a bare numeric
+   * fraction, so every tinted fill is pulled from this one named scale. Enforced
+   * by `npm run check:tint-scale`.
    */
   --tint-wash: 10%; /* hover backgrounds, faint overlays */
   --tint-soft: 15%; /* secondary-emphasis fills (retry/correct choice) */
-  --tint-fill: 20%; /* badge/chip/pill fills */
+  --tint-fill: 20%; /* chip / marker / small-fill accents */
 
-  /* --- Night-sky (play) palette --- */
-  --bg-night: #1b1f3b;
-  --bg-night-panel: #2a2f55;
-  --ink-on-night: #f4f2ff;
-  --ink-soft-on-night: #c7c4e6; /* dimmed text on night (AA on --bg-night) */
-
-  /* --- Field-journal (reading) palette --- */
-  --paper: #fffcf5;
-  --paper-panel: #ffffff;
-  --ink: #22263f;
-  --ink-soft: #4a4f6b;
-  --rule: #e7e0d0;
-
-  /* --- Semantic (work on both surfaces; always paired with an icon + text) --- */
-  --correct: var(--leaf);
-  --retry: var(--coral);
-
-  /* Focus ring — high-contrast double ring (outer glow + inner contrast line).
-     Outer reuses --sun (already tuned for max visibility on both surfaces);
-     inner reuses --bg-night as a dark contrast line regardless of surface. */
-  --focus-ring: var(--sun);
-  --focus-ring-inner: var(--bg-night);
+  /* Lined-paper geometry — one ruled row is --journal-period tall;
+     --journal-baseline positions the rule at the text baseline so writing rests
+     ON the line. */
+  --journal-period: 2rem;
+  --journal-baseline: 1.42rem;
 
   /* --- Type scale (rem; respects user zoom) --- */
   --text-xs: 0.875rem; /* captions, meta */
@@ -76,55 +114,11 @@
   --text-2xl: 2.25rem; /* page titles */
   --text-3xl: 3rem; /* hero / big numbers */
 
-  /* --- Radius (soft + friendly; buttons are pills) --- */
+  /* --- Radius --- Controls are squared off in the journal language (~3px, set
+     per-component); these softer radii remain for larger paper panels, and
+     --radius-pill for genuinely round bits (avatars, dots, progress tracks). */
   --radius-sm: 12px;
   --radius-md: 20px;
   --radius-lg: 28px;
   --radius-pill: 999px;
-
-  /*
-   * --- Default surface = night ---
-   * `--surface-*` are the runtime-switchable tokens. Defined here as night,
-   * overridden by [data-surface="paper"] below. Components read these so a
-   * single component renders correctly on whichever surface contains it.
-   */
-  --surface-bg: var(--bg-night);
-  --surface-panel: var(--bg-night-panel);
-  --surface-ink: var(--ink-on-night);
-  --surface-ink-soft: var(--ink-soft-on-night);
-  --surface-rule: color-mix(in srgb, var(--ink-on-night) 16%, transparent);
-  --surface-accent: var(--aqua);
-  /*
-   * Danger/retry as SMALL text + icons. `--retry` (coral) is a bright accent —
-   * great for large fills (QuizChoice) but fails AA at small sizes, so error
-   * messages use this contrast-safe, surface-tuned variant instead. See
-   * docs/10 ("accents are for fills/large elements, not small text").
-   */
-  --surface-danger: var(--coral-a11y-night);
-  /* On night, elevation is a colored glow, not a drop shadow. */
-  --surface-elevation: 0 0 24px color-mix(in srgb, var(--aqua) 18%, transparent);
-}
-
-/* Re-assert night (so a nested night region inside paper resets correctly). */
-[data-surface="night"] {
-  --surface-bg: var(--bg-night);
-  --surface-panel: var(--bg-night-panel);
-  --surface-ink: var(--ink-on-night);
-  --surface-ink-soft: var(--ink-soft-on-night);
-  --surface-rule: color-mix(in srgb, var(--ink-on-night) 16%, transparent);
-  --surface-accent: var(--aqua);
-  --surface-danger: var(--coral-a11y-night);
-  --surface-elevation: 0 0 24px color-mix(in srgb, var(--aqua) 18%, transparent);
-}
-
-/* Field-journal: calm, warm paper with soft low-contrast shadows. */
-[data-surface="paper"] {
-  --surface-bg: var(--paper);
-  --surface-panel: var(--paper-panel);
-  --surface-ink: var(--ink);
-  --surface-ink-soft: var(--ink-soft);
-  --surface-rule: var(--rule);
-  --surface-accent: var(--orchid);
-  --surface-danger: var(--coral-a11y-paper);
-  --surface-elevation: 0 2px 10px color-mix(in srgb, var(--ink) 8%, transparent);
 }

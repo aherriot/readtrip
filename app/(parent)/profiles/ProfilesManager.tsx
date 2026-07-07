@@ -135,7 +135,12 @@ function ProfileCard({
           <ReadingSuggestion child={child} />
         )}
       <div className="flex justify-center">
-        <Button variant="ghost" size="md" onClick={onEdit}>
+        <Button
+          variant="ghost"
+          size="md"
+          onClick={onEdit}
+          className="underline decoration-surface-accent decoration-wavy decoration-2 underline-offset-4"
+        >
           Edit
         </Button>
       </div>
@@ -152,7 +157,7 @@ function ReadingSuggestion({ child }: { child: ChildProfile }) {
   const goingUp = suggested > child.readingLevel;
 
   return (
-    <div className="flex flex-col gap-2 rounded-md border-2 border-surface-rule bg-surface-panel p-3 text-center">
+    <div className="flex flex-col gap-2 rounded-[3px] border-2 border-surface-rule bg-surface-panel p-3 text-center">
       <Text size="sm">
         {goingUp
           ? `${child.displayName} is acing Reading ${child.readingLevel}. Ready for Reading ${suggested}?`

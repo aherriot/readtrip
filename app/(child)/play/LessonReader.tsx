@@ -193,7 +193,10 @@ export function LessonReader({
             <Text tone="soft">Charting your lesson…</Text>
           </div>
         ) : (
-          <div aria-live="polite" className="flex flex-col gap-6">
+          // No flex `gap` here — the ruled rhythm comes from .rt-journal's
+          // per-paragraph margins (a whole ruled row), so text stays on the
+          // lines. A stray gap would push every paragraph off the grid.
+          <div aria-live="polite">
             {chunks.map((chunk, i) => (
               <LessonChunk key={i}>{chunk}</LessonChunk>
             ))}

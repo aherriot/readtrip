@@ -1,7 +1,9 @@
 # WorldMap
 
-The child's personalized map of knowledge on the night/play surface — a set of
-[`TopicNode`](topic-node.md)s (explored topics + suggested neighbours).
+The child's personalized map of knowledge — a set of [`TopicNode`](topic-node.md)s (explored
+topics + suggested neighbours) laid out as sticky notes on the journal. A pen-boxed
+(`secondary`) "Show N more" toggle with a chevron expands the grid; mastered topics tuck into a
+pen-boxed `<details>` disclosure below.
 Source: [`components/game/WorldMap.tsx`](../../../../components/game/WorldMap.tsx).
 
 ```tsx
@@ -46,6 +48,6 @@ import { WorldMap } from "@/components/game/WorldMap";
 - All node a11y (roles, focus, target size, icon+word states) comes from
   [`TopicNode`](topic-node.md).
 
-## Surfaces
+## Surface
 
-Built for `night` (the play surface); all color comes from `--surface-*` + accent tokens.
+The single field-journal surface; all color comes from `--surface-*` + accent tokens.

@@ -1,6 +1,7 @@
 # Select
 
-Surface-aware dropdown for choosing one of several fixed options.
+A dropdown for choosing one of several fixed options — a native `<select>` squared off and
+framed by a hand-drawn ink **pen box** (matching `Input`).
 Source: [`components/ui/Select.tsx`](../../../../components/ui/Select.tsx).
 
 ```tsx
@@ -39,11 +40,12 @@ import { Select } from "@/components/ui/Select";
 | `children`  | `ReactNode`              | —       | `<option>`/`<optgroup>` elements.                           |
 | …rest       | native `select` props    | —       | `name`, `value`, `defaultValue`, `onChange`, …              |
 
-## Surfaces
+## Field & look
 
-Renders correctly on both surfaces with no props: it reads `bg-surface-panel`,
-`text-surface-ink`, `border-surface-rule`, and `--surface-accent` (focus). Place it inside a
-`data-surface="paper"` region on reading pages; it inherits `night` by default elsewhere.
+A squared (`rounded-[3px]`) `bg-surface-panel` field with `appearance-none` and a chevron
+`Icon`; its own border is removed in favor of a hand-drawn ink pen box (`.rt-inkbox`) on the
+wrapper (matching `Input`). Reads the `--surface-*` tokens. On `error` the wrapper adds
+`.rt-inkbox--danger`, re-inking the box in `--surface-danger`.
 
 ## Accessibility
 
