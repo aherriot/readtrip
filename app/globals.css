@@ -262,6 +262,95 @@
   margin-bottom: 0;
 }
 
+/*
+ * "Open field journal on a desk" — the framed surface for full-bleed pages
+ * (/play, /profiles). A light greige desk fills the viewport; the ruled page
+ * (.rt-sheet) rests on it, lifted by a soft shadow with page-stack edges, so the
+ * wide desktop margins read as a book sitting on a table rather than empty paper.
+ * Composed by <JournalSheet> (components/layout). Surface-aware — desk, paper,
+ * rule and shadow all track the --surface-* tokens.
+ */
+.rt-desk {
+  min-height: 100svh;
+  /* Clip the cover lip / page-stack edges when the sheet spans the full viewport
+     (mobile), so they never push a horizontal scrollbar. */
+  overflow-x: hidden;
+  background-color: var(--surface-desk);
+  /* A gentle vignette so the desk recedes at the corners, plus a soft warm light
+     pooling near the top so the wide margins aren't a flat field — both kept
+     faint so the desk stays light, never dark or brown. */
+  background-image:
+    radial-gradient(
+      ellipse 90% 55% at 50% 8%,
+      color-mix(in srgb, var(--paper) 55%, transparent) 0%,
+      transparent 60%
+    ),
+    radial-gradient(
+      ellipse 120% 85% at 50% 34%,
+      transparent 42%,
+      color-mix(in srgb, var(--ink) 9%, transparent) 100%
+    );
+}
+
+/* The page itself: warm paper + ruled lines, wider than the content column so it
+   carries generous book margins. The ruled lines live here (not the body) on
+   this surface, so they read as the page's rules rather than the desk's.
+   --rt-page sets the book width; callers can widen it (e.g. a landing page). */
+.rt-sheet {
+  --rt-page: 56rem;
+  position: relative;
+  margin-inline: auto;
+  max-width: var(--rt-page);
+  min-height: 100svh;
+  background-color: var(--surface-bg);
+  background-image: repeating-linear-gradient(
+    to bottom,
+    transparent 0,
+    transparent calc(var(--journal-period) - 1px),
+    var(--journal-line) calc(var(--journal-period) - 1px),
+    var(--journal-line) var(--journal-period)
+  );
+  /* The bound book, from the page outward:
+     1. a hairline crease where the page meets the cover,
+     2. a warm taupe COVER LIP framing the page (the board it's bound into),
+     3. a thin darker board edge,
+     4. the whole book lifted off the desk with a soft cast shadow,
+     5. a gutter dip at each inner edge — the page curving toward the spine. */
+  box-shadow:
+    inset 0 0 0 1px color-mix(in srgb, var(--ink) 7%, transparent),
+    0 0 0 10px var(--surface-cover),
+    0 0 0 12px color-mix(in srgb, var(--ink) 16%, transparent),
+    0 30px 58px -26px color-mix(in srgb, var(--ink) 42%, transparent),
+    0 10px 22px -14px color-mix(in srgb, var(--ink) 30%, transparent),
+    inset 20px 0 26px -22px color-mix(in srgb, var(--ink) 20%, transparent),
+    inset -20px 0 26px -22px color-mix(in srgb, var(--ink) 20%, transparent);
+}
+
+/* Page-stack edges — two faint page slivers peeking past the cover on each fore-
+   edge, so the block reads as a stack of pages bound in the cover, not a single
+   sheet. They sit just past the cover lip and are clipped by .rt-desk on mobile. */
+.rt-sheet::before,
+.rt-sheet::after {
+  content: "";
+  position: absolute;
+  top: 5px;
+  bottom: 5px;
+  width: 4px;
+  background: repeating-linear-gradient(
+    to right,
+    color-mix(in srgb, var(--surface-bg) 88%, var(--ink)) 0 1px,
+    var(--surface-bg) 1px 2px
+  );
+}
+.rt-sheet::before {
+  left: -14px;
+  border-radius: 2px 0 0 2px;
+}
+.rt-sheet::after {
+  right: -14px;
+  border-radius: 0 2px 2px 0;
+}
+
 /* Hand-drawn "pen box": a transparent container whose ink border is waved into a
    hand-drawn rectangle by the #rt-sketch turbulence filter. The border lives on a
    filtered ::before so only the STROKE is displaced — the content stays crisp.

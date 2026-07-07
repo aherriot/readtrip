@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Card } from "@/components/ui/Card";
 import { Heading } from "@/components/ui/Heading";
 import { Text } from "@/components/ui/Text";
+import { JournalSheet } from "@/components/layout/JournalSheet";
 import { devAuthEnabled } from "@/lib/auth/dev-mode";
 import { SignInForm } from "./SignInForm";
 
@@ -13,7 +14,7 @@ export default function SignInPage() {
   const devEnabled = devAuthEnabled;
 
   return (
-    <main className="flex min-h-screen flex-col items-center justify-center p-6">
+    <JournalSheet contentClassName="items-center justify-center">
       <Card elevated padding="lg" className="w-full max-w-md">
         <div className="mb-6 flex flex-col gap-2 text-center">
           <Heading level={1} size="2xl">
@@ -25,6 +26,6 @@ export default function SignInPage() {
         </div>
         <SignInForm devEnabled={devEnabled} />
       </Card>
-    </main>
+    </JournalSheet>
   );
 }

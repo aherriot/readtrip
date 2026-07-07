@@ -1,4 +1,5 @@
 import { Card } from "@/components/ui/Card";
+import { JournalSheet } from "@/components/layout/JournalSheet";
 
 // Instant skeleton for /profiles. Without a loading boundary the router keeps
 // the *previous* page painted until this route's server render (auth session +
@@ -6,10 +7,7 @@ import { Card } from "@/components/ui/Card";
 // and is swapped for the real page the moment it's ready.
 export default function Loading() {
   return (
-    <main
-      className="mx-auto flex min-h-screen w-full max-w-2xl flex-col gap-8 p-6"
-      aria-busy="true"
-    >
+    <JournalSheet busy contentClassName="max-w-2xl gap-8">
       <header className="flex flex-wrap items-end justify-between gap-4">
         <div className="flex flex-col gap-2">
           <div
@@ -50,6 +48,6 @@ export default function Loading() {
       <span className="sr-only" role="status">
         Loading explorers…
       </span>
-    </main>
+    </JournalSheet>
   );
 }

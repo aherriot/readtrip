@@ -8,6 +8,7 @@ import { Icon } from "@/components/ui/Icon";
 import { ProgressBar } from "@/components/ui/ProgressBar";
 import { Text } from "@/components/ui/Text";
 import { QuizChoice } from "@/components/reading/QuizChoice";
+import { JournalSheet } from "@/components/layout/JournalSheet";
 import type { CalibrationStep, SubmittedAnswer } from "@/lib/calibration/flow";
 import type { CalibrationPassageView } from "@/lib/calibration/passages";
 
@@ -173,8 +174,8 @@ export function CalibrationGame({
 
 function Shell({ children }: { children: React.ReactNode }) {
   return (
-    <main className="mx-auto flex min-h-screen w-full max-w-xl flex-col items-center justify-center gap-8 p-6">
+    <JournalSheet contentClassName="max-w-xl items-center justify-center gap-8">
       {children}
-    </main>
+    </JournalSheet>
   );
 }

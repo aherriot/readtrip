@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/Button";
 import { Heading } from "@/components/ui/Heading";
 import { Icon } from "@/components/ui/Icon";
 import { Text } from "@/components/ui/Text";
+import { JournalSheet } from "@/components/layout/JournalSheet";
 import { requireParent } from "@/lib/auth/session";
 import { listChildren } from "@/lib/children/queries";
 import { signOutAction } from "./actions";
@@ -22,7 +23,7 @@ export default async function ProfilesPage() {
   const profiles = await listChildren(parent.id);
 
   return (
-    <main className="mx-auto flex min-h-screen w-full max-w-2xl flex-col gap-8 p-6">
+    <JournalSheet contentClassName="max-w-2xl gap-8">
       <header className="flex flex-col gap-1">
         <Heading level={1}>Who&apos;s exploring?</Heading>
         <Text tone="soft">
@@ -60,6 +61,6 @@ export default async function ProfilesPage() {
           </Button>
         </form>
       </footer>
-    </main>
+    </JournalSheet>
   );
 }
