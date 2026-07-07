@@ -43,9 +43,9 @@ const sizeStyles: Record<
 };
 
 /**
- * Surface-aware text input. Reads `--surface-*` tokens, so the same component
- * renders correctly on both the night and paper surfaces. Never color-only:
- * errors carry an icon + text alongside the retry color.
+ * Text input for the field journal. Reads `--surface-*` tokens (the single
+ * surface) and wears a hand-drawn `.rt-inkbox` pen box instead of a plain border.
+ * Never color-only: errors carry an icon + text alongside the retry color.
  *
  * Built on Headless UI's `Field`, which wires the `Label`, hint/error
  * `Description`s, and the `Input` together (matching `id`/`htmlFor`,
@@ -88,7 +88,9 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(function Input(
         )}
       </Label>
 
-      <div className="relative">
+      {/* The hand-drawn ink pen box lives on the wrapper (an <input> can't carry
+          ::before/::after); it re-inks to the danger color on error. */}
+      <div className={cn("relative rt-inkbox", error && "rt-inkbox--danger")}>
         {leadingIcon && (
           <span
             aria-hidden="true"
@@ -108,16 +110,12 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(function Input(
           // surfaces in the DOM.
           aria-invalid={error ? true : undefined}
           className={cn(
-            "w-full rounded-md border-2 bg-surface-panel font-body text-surface-ink",
+            "w-full rounded-[3px] border-0 bg-surface-panel font-body text-surface-ink",
             "placeholder:text-surface-ink-soft",
-            "transition-colors duration-150",
-            // Focus affordance beyond the global focus-visible ring.
-            "focus-visible:border-surface-accent",
             "disabled:cursor-not-allowed disabled:opacity-60",
             styles.field,
             styles.pad,
             leadingIcon && styles.icon,
-            error ? "border-surface-danger" : "border-surface-rule",
             className
           )}
           {...rest}

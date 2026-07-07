@@ -20,7 +20,7 @@ test.beforeEach(async ({ page }) => {
   // retry-until-it-works idiom as the Explore island hydration wait in
   // e2e/helpers.ts), then reset it, so every test starts fully hydrated.
   const trigger = page
-    .getByTestId("modal-night")
+    .getByTestId("modal")
     .getByRole("button", { name: "Open dialog" });
   const dialog = page.getByRole("dialog", { name: "Ready to explore?" });
   await expect(async () => {
@@ -32,7 +32,7 @@ test.beforeEach(async ({ page }) => {
 });
 
 test.describe("design system — accessibility", () => {
-  test("gallery has no axe violations (both surfaces rendered)", async ({
+  test("gallery has no axe violations (field-journal surface)", async ({
     page,
   }) => {
     const results = await new AxeBuilder({ page })
@@ -48,7 +48,7 @@ test.describe("Input — accessibility contract", () => {
   // Scope to one surface so accessible names are unambiguous (each variant is
   // rendered once per surface).
   const onNight = (page: import("@playwright/test").Page) =>
-    page.getByTestId("input-night");
+    page.getByTestId("input");
 
   test("label is associated, sized for kid targets, and error state is announced", async ({
     page,
@@ -90,7 +90,7 @@ test.describe("Input — accessibility contract", () => {
 
 test.describe("Select — accessibility contract", () => {
   const onNight = (page: import("@playwright/test").Page) =>
-    page.getByTestId("select-night");
+    page.getByTestId("select");
 
   test("label is associated, sized for kid targets, and error state is announced", async ({
     page,
@@ -128,7 +128,7 @@ test.describe("Select — accessibility contract", () => {
 
 test.describe("Button — accessibility contract", () => {
   const onNight = (page: import("@playwright/test").Page) =>
-    page.getByTestId("button-night");
+    page.getByTestId("button");
 
   test("renders a real, sized <button> across its variants (link, icon-only, disabled, loading)", async ({
     page,
@@ -174,7 +174,7 @@ test.describe("Button — accessibility contract", () => {
 
 test.describe("Spinner — accessibility contract", () => {
   const onNight = (page: import("@playwright/test").Page) =>
-    page.getByTestId("spinner-night");
+    page.getByTestId("spinner");
 
   test("a standing-alone spinner is a live status naming the wait; decorative ones expose no status role", async ({
     page,
@@ -190,7 +190,7 @@ test.describe("Spinner — accessibility contract", () => {
 
 test.describe("SubmitButton — accessibility contract", () => {
   const onNight = (page: import("@playwright/test").Page) =>
-    page.getByTestId("submitbutton-night");
+    page.getByTestId("submitbutton");
 
   test("renders a real submit button; a pending one is inert and announced busy", async ({
     page,
@@ -211,24 +211,12 @@ test.describe("SubmitButton — accessibility contract", () => {
   });
 });
 
-test.describe("Badge — contract", () => {
-  const onNight = (page: import("@playwright/test").Page) =>
-    page.getByTestId("badge-night");
-
-  test("pairs a status word with its color", async ({ page }) => {
-    // The word is the meaning — a screen reader reads it; color isn't the only
-    // signal. (axe covers contrast globally; this asserts the word is present.)
-    await expect(onNight(page).getByText("Yes!")).toBeVisible();
-    await expect(onNight(page).getByText("Try again")).toBeVisible();
-  });
-});
-
 test.describe("Desktop affordances — cursors", () => {
   // Touch-first, but mouse users still expect the right cursor on each control.
   // Tailwind v4 drops the default button pointer, so this guards the restore in
   // globals.css (+ Button's not-disabled gating) against silent regression.
   const onNight = (page: import("@playwright/test").Page) =>
-    page.getByTestId("button-night");
+    page.getByTestId("button");
   const cursorOf = (locator: import("@playwright/test").Locator) =>
     locator.evaluate((el) => getComputedStyle(el).cursor);
 
@@ -249,7 +237,7 @@ test.describe("Desktop affordances — cursors", () => {
 
   test("the Modal close button shows the pointer cursor", async ({ page }) => {
     await page
-      .getByTestId("modal-night")
+      .getByTestId("modal")
       .getByRole("button", { name: "Open dialog" })
       .click();
     const close = page.getByRole("button", { name: "Close" });
@@ -262,19 +250,103 @@ test.describe("Card — contract", () => {
   test("renders a surface-aware container with its content", async ({
     page,
   }) => {
-    const card = page.getByTestId("card-night");
+    const card = page.getByTestId("card");
     await expect(card.getByText("Volcanoes")).toBeVisible();
-    // Reads the panel token, not a hardcoded color.
-    const bg = await card
-      .getByText("Volcanoes")
-      .evaluate((el) => getComputedStyle(el.closest("div")!).backgroundColor);
+    // The Card is a transparent "pen box": no opaque fill, framed by a hand-drawn
+    // ink border on its ::before. The border color comes from the surface ink
+    // token (so it's surface-aware) — assert it equals the resolved text color,
+    // which is also --surface-ink, rather than a hardcoded value.
+    const box = card.locator(".rt-inkbox").first();
+    const { bg, borderWidth, borderColor, color } = await box.evaluate((el) => {
+      const cs = getComputedStyle(el);
+      const before = getComputedStyle(el, "::before");
+      return {
+        bg: cs.backgroundColor,
+        borderWidth: before.borderTopWidth,
+        borderColor: before.borderTopColor,
+        color: cs.color,
+      };
+    });
+    expect(bg).toBe("rgba(0, 0, 0, 0)"); // transparent — the ruled lines show through
+    expect(parseFloat(borderWidth)).toBeGreaterThan(0); // a drawn outline exists
+    expect(borderColor).toBe(color); // ink border from the surface token
+  });
+});
+
+test.describe("StickyNote — contract", () => {
+  test("is opaque colored paper set at a hand-placed tilt", async ({
+    page,
+  }) => {
+    const region = page.getByTestId("stickynote");
+    // The note wrapping the first title (tone="sun", tilt=-1.5).
+    const note = region
+      .getByText("Volcanoes", { exact: true })
+      .locator("xpath=ancestor::*[contains(@style,'--note')][1]");
+    const { bg, rotate } = await note.evaluate((el) => {
+      const cs = getComputedStyle(el);
+      return { bg: cs.backgroundColor, rotate: cs.rotate };
+    });
+    // Opaque paper (covers the ruled lines) — unlike the transparent Card box.
     expect(bg).not.toBe("rgba(0, 0, 0, 0)");
+    // A hand-placed tilt via the individual `rotate` property (so it composes
+    // with a hover translate/scale rather than being overwritten).
+    expect(rotate).not.toBe("none");
+  });
+});
+
+test.describe("StampMark — contract", () => {
+  test("presses a tilted status stamp carrying an icon + word (not color alone)", async ({
+    page,
+  }) => {
+    const region = page.getByTestId("stampmark");
+    // The word carries the meaning — visible for sighted + SR users.
+    await expect(region.getByText("Yes!", { exact: true })).toBeVisible();
+    await expect(region.getByText("Try again", { exact: true })).toBeVisible();
+    // Stamped on at a hand-pressed angle (the individual `rotate` property).
+    const rotate = await region
+      .getByText("Yes!", { exact: true })
+      .locator("xpath=ancestor-or-self::*[contains(@class,'rt-stamp')][1]")
+      .evaluate((el) => getComputedStyle(el).rotate);
+    expect(rotate).not.toBe("none");
+  });
+});
+
+test.describe("Highlight — contract", () => {
+  test("runs a marker swipe behind text that stays the ink color", async ({
+    page,
+  }) => {
+    const region = page.getByTestId("highlight");
+    const mark = region.locator(".rt-marker", { hasText: "Lvl 4" }).first();
+    await expect(mark).toBeVisible();
+    // The marker color is set per use; the text itself keeps the ink color so
+    // contrast is unaffected (the swipe is a translucent ::before behind it).
+    const marker = await mark.evaluate((el) =>
+      getComputedStyle(el).getPropertyValue("--marker").trim()
+    );
+    expect(marker).not.toBe("");
+  });
+});
+
+test.describe("Wordmark — contract", () => {
+  test("exposes an accessible name; the decorative variant is hidden", async ({
+    page,
+  }) => {
+    const region = page.getByTestId("wordmark");
+    // The non-decorative marks carry the brand name as an image.
+    await expect(
+      region.getByRole("img", { name: "ReadTrip" }).first()
+    ).toBeVisible();
+    // The decorative variant repeats the name for a region already titled, so
+    // it must not surface a second accessible "ReadTrip" to assistive tech.
+    const named = await region.getByRole("img", { name: "ReadTrip" }).count();
+    const svgs = await region.locator("svg").count();
+    expect(svgs).toBeGreaterThan(named);
   });
 });
 
 test.describe("Heading / Text — contract", () => {
   const onNight = (page: import("@playwright/test").Page) =>
-    page.getByTestId("heading-night");
+    page.getByTestId("heading");
 
   test("Heading renders the semantic level it's given, and Text renders body copy", async ({
     page,
@@ -291,7 +363,7 @@ test.describe("Heading / Text — contract", () => {
 
 test.describe("Icon — accessibility contract", () => {
   const onNight = (page: import("@playwright/test").Page) =>
-    page.getByTestId("icon-night");
+    page.getByTestId("icon");
 
   test("labelled icons are exposed as named images; decorative icons are hidden", async ({
     page,
@@ -314,7 +386,7 @@ test.describe("Icon — accessibility contract", () => {
 
 test.describe("ProgressBar — accessibility contract", () => {
   const onNight = (page: import("@playwright/test").Page) =>
-    page.getByTestId("progressbar-night");
+    page.getByTestId("progressbar");
 
   test("exposes the progressbar role with aria values, clamping an out-of-100 value to a percentage", async ({
     page,
@@ -336,7 +408,7 @@ test.describe("ProgressBar — accessibility contract", () => {
 
 test.describe("Quiz — accessibility contract", () => {
   const region = (page: import("@playwright/test").Page) =>
-    page.getByTestId("quiz-paper");
+    page.getByTestId("quiz");
 
   test("choices are real, kid-sized buttons whose feedback pairs color with an icon + word", async ({
     page,
@@ -386,7 +458,7 @@ test.describe("Quiz — accessibility contract", () => {
 test.describe("Modal — accessibility contract", () => {
   // Drive it on the night surface; touch + keyboard only, no mouse assumed.
   const region = (page: import("@playwright/test").Page) =>
-    page.getByTestId("modal-night");
+    page.getByTestId("modal");
 
   test("opens as a focus-trapped dialog and moves focus inside", async ({
     page,

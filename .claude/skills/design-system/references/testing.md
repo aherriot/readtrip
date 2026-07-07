@@ -14,7 +14,7 @@ npm run dev
 # → http://localhost:3000/dev/components
 ```
 
-Every component renders in all its variants on **both surfaces** (night + paper). Use it to:
+Every component renders in all its variants on the **field-journal surface**. Use it to:
 
 - **Keyboard:** Tab through everything — every control shows a visible focus ring; tab order
   follows reading order; `Enter`/`Space` activate; `Escape` closes overlays.
@@ -96,7 +96,7 @@ a few high-signal places instead of reading every line:
 1. **Read the token diff first.** `git diff -- styles/tokens.css` shows every color / type /
    radius / surface change in one place. A change here ripples to every component, so this is
    the highest-leverage thing to review. Ask: does it still meet the contrast ratios noted in
-   the token comments? Is it on both surfaces?
+   the token comments?
 2. **Diff the component + its docs together.** The parity check guarantees a component change
    ships with its reference doc, gallery entry, and test — so the docs in the diff tell you
    the _intended_ behavior to review the code against.

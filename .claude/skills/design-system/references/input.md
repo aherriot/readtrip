@@ -1,7 +1,7 @@
 # Input
 
-Surface-aware, accessible single-line text field.
-Source: [`components/ui/Input.tsx`](../../../../components/ui/Input.tsx).
+An accessible single-line text field, squared off and framed by a hand-drawn ink **pen box**
+(the field-journal look). Source: [`components/ui/Input.tsx`](../../../../components/ui/Input.tsx).
 
 ```tsx
 import { Input } from "@/components/ui/Input";
@@ -43,17 +43,19 @@ import { Input } from "@/components/ui/Input";
 `size` shadows the native HTML `size` attribute by design — pass width via styling, not
 the native attribute.
 
-## Surfaces
+## Field & look
 
-Renders correctly on both surfaces with no props: it reads `bg-surface-panel`,
-`text-surface-ink`, `border-surface-rule`, and `--surface-accent` (focus). Place it inside a
-`data-surface="paper"` region on reading pages; it inherits `night` by default elsewhere.
+The field is a squared (`rounded-[3px]`) `bg-surface-panel` box with **no border of its
+own** — the visible frame is a hand-drawn ink pen box (`.rt-inkbox`) on the wrapper, since an
+`<input>` can't carry `::before`/`::after`. It reads the `--surface-*` tokens, so it renders
+correctly on the field-journal surface with no props. On `error` the wrapper adds
+`.rt-inkbox--danger`, re-inking the pen box in `--surface-danger`.
 
 ## Accessibility
 
 - Label is always rendered and associated (use `hideLabel`, never _omit_ `label`).
 - `hint`/`error` are wired through `aria-describedby`; `error` also sets `aria-invalid`.
-- Errors are **never color-only** — they pair the `--surface-danger` color (a
+- Errors are **never color-only** — they pair the `--surface-danger` pen box (a
   contrast-safe, surface-tuned danger tone — coral itself is too light for small text on
   paper) with an alert icon **and** text. Keep `error` messages specific and kind ("We need
   an email to send the magic link").

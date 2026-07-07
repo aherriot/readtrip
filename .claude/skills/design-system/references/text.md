@@ -24,18 +24,19 @@ import { Text } from "@/components/ui/Text";
 
 ## Props
 
-| Prop      | Type                             | Default     | Notes                                                  |
-| --------- | -------------------------------- | ----------- | ------------------------------------------------------ |
-| `as`      | `ElementType`                    | `"p"`       | `span` for inline runs; `p` for paragraphs.            |
-| `size`    | `"xs" \| "sm" \| "base" \| "lg"` | `"base"`    | `base` is the legible reading default.                 |
-| `tone`    | `"default" \| "soft"`            | `"default"` | `soft` for secondary text (still AA on both surfaces). |
-| `measure` | `boolean`                        | `false`     | Caps line length (~62ch) for reading copy.             |
-| …rest     | native element props             | —           | `id`, `className`, …                                   |
+| Prop      | Type                             | Default     | Notes                                              |
+| --------- | -------------------------------- | ----------- | -------------------------------------------------- |
+| `as`      | `ElementType`                    | `"p"`       | `span` for inline runs; `p` for paragraphs.        |
+| `size`    | `"xs" \| "sm" \| "base" \| "lg"` | `"base"`    | `base` is the legible reading default.             |
+| `tone`    | `"default" \| "soft"`            | `"default"` | `soft` for secondary text (still AA on the paper). |
+| `measure` | `boolean`                        | `false`     | Caps line length (~62ch) for reading copy.         |
+| …rest     | native element props             | —           | `id`, `className`, …                               |
 
-## Surfaces
+## Surface
 
-`default` → `--surface-ink`, `soft` → `--surface-ink-soft`. Both meet AA on night and paper.
-Line-height `1.6` and Lexend are kept on always — they're legibility settings, not style.
+`default` → `--surface-ink`, `soft` → `--surface-ink-soft` — both meet AA on the field-journal
+paper. Line-height `1.6` is always on: it's a legibility setting, not style. The face is
+Shantell Sans (the one handwritten voice), with Lexend only as the fallback.
 
 ## Accessibility
 

@@ -9,7 +9,7 @@ export interface TextProps extends HTMLAttributes<HTMLElement> {
   as?: ElementType;
   /** Type-scale size. `base` is the legible reading default. */
   size?: TextSize;
-  /** `soft` = secondary/supporting text (still AA on both surfaces). */
+  /** `soft` = secondary/supporting text (still AA on the paper). */
   tone?: TextTone;
   /**
    * Apply reading-measure constraints (≈62ch max line length). Turn on for body

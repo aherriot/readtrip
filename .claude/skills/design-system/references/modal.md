@@ -31,14 +31,13 @@ const [open, setOpen] = useState(false);
 
 ## Props
 
-| Prop              | Type                 | Default   | Notes                                                    |
-| ----------------- | -------------------- | --------- | -------------------------------------------------------- |
-| `open`            | `boolean`            | —         | Controlled visibility.                                   |
-| `onClose`         | `() => void`         | —         | Called on Escape, backdrop tap, or the close button.     |
-| `title`           | `string`             | —         | Rendered as the heading and wired to `aria-labelledby`.  |
-| `surface`         | `"night" \| "paper"` | `"night"` | It portals to `<body>`; set `paper` for reading dialogs. |
-| `hideCloseButton` | `boolean`            | `false`   | Hide the ✕ when the body supplies its own actions.       |
-| `children`        | `ReactNode`          | —         | Dialog body + action buttons.                            |
+| Prop              | Type         | Default | Notes                                                   |
+| ----------------- | ------------ | ------- | ------------------------------------------------------- |
+| `open`            | `boolean`    | —       | Controlled visibility.                                  |
+| `onClose`         | `() => void` | —       | Called on Escape, backdrop tap, or the close button.    |
+| `title`           | `string`     | —       | Rendered as the heading and wired to `aria-labelledby`. |
+| `hideCloseButton` | `boolean`    | `false` | Hide the ✕ when the body supplies its own actions.      |
+| `children`        | `ReactNode`  | —       | Dialog body + action buttons.                           |
 
 ## Accessibility
 

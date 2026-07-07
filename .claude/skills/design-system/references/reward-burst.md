@@ -1,7 +1,7 @@
 # RewardBurst
 
-A contained reward "pop" for an XP gain (docs/10 "Reward"). Sits inline on the result
-screen and bursts in on mount.
+A contained reward "pop" for an XP gain (docs/10 "Reward"). Sits inline on the result screen
+and bursts in on mount; the "+N XP" is a [`Highlight`](highlight.md) marker swipe (not a pill).
 Source: [`components/game/RewardBurst.tsx`](../../../../components/game/RewardBurst.tsx).
 
 ```tsx
@@ -37,8 +37,8 @@ import { RewardBurst } from "@/components/game/RewardBurst";
 ## Motion
 
 - A "burst" pop on mount (`motion-safe:animate-burst`), `motion-safe:` only; the `both` fill
-  keeps the final frame, so under reduced motion it's a still badge with the same text.
+  keeps the final frame, so under reduced motion it's still highlighted text with the same words.
 
-## Surfaces
+## Surface
 
-Built for `night`; reads `--surface-*` + `--sun` tokens. Works on `paper` too.
+Reads `--surface-*` + `--sun` tokens — the single field-journal surface.

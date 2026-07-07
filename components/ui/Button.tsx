@@ -45,11 +45,12 @@ type AnchorProps = CommonProps &
 export type { ButtonProps, AnchorProps, ButtonVariant, ButtonSize };
 
 const base = cn(
-  "inline-flex items-center justify-center gap-2 rounded-pill font-display font-medium",
+  // Squared-off, like a control drawn into the journal (no pills).
+  "inline-flex items-center justify-center gap-2 rounded-[3px] font-display font-medium",
   "select-none whitespace-nowrap no-underline",
   // Press feedback; the global reduced-motion floor neutralizes the transition.
   // Gated on :not(:disabled) so a disabled control never reacts to press/hover.
-  "transition-[transform,background-color,border-color,box-shadow] duration-150",
+  "transition-[transform,background-color,box-shadow] duration-150",
   "not-disabled:active:scale-[0.97]",
   // Native disabled stays inert via the `disabled` attribute (blocks click +
   // focus) — no pointer-events-none, so the desktop `not-allowed` cursor from
@@ -60,15 +61,17 @@ const base = cn(
 );
 
 const variantStyles: Record<ButtonVariant, string> = {
-  // Bright fill + dark ink (≈9:1) — the documented accessible pairing.
+  // Bright fill + dark ink (≈9:1), framed by a hand-drawn ink pen box — a colored
+  // button drawn into the journal. (`.rt-inkbox` adds the ink outline.)
   primary:
-    "border-2 border-transparent bg-sun text-[var(--ink)] not-disabled:hover:brightness-95",
-  // Outline that reads on either surface; fills softly on hover (never hover-only meaning).
+    "rt-inkbox bg-sun text-[var(--ink)] not-disabled:hover:brightness-95",
+  // Just the hand-drawn pen box (no fill); a soft wash on hover (never hover-only
+  // meaning). The quieter sibling of the filled primary.
   secondary:
-    "border-2 border-orchid text-surface-ink bg-transparent not-disabled:hover:bg-orchid/(--tint-soft)",
-  // Quiet, for tertiary actions; still a real focusable button.
+    "rt-inkbox text-surface-ink not-disabled:hover:bg-surface-ink/(--tint-wash)",
+  // Quiet, for tertiary actions; no box, still a real focusable button.
   ghost:
-    "border-2 border-transparent bg-transparent text-surface-ink not-disabled:hover:bg-surface-ink/(--tint-wash)",
+    "bg-transparent text-surface-ink not-disabled:hover:bg-surface-ink/(--tint-wash)",
 };
 
 const sizeStyles: Record<ButtonSize, string> = {

@@ -17,10 +17,9 @@ export interface LevelUpCelebrationProps {
 /**
  * The level-up celebration overlay (docs/10 "Reward"). The bigger reward beat: a
  * focus-trapped, dismissable overlay announcing the new level. Built on `Modal`
- * so it inherits the focus trap, `Escape`/backdrop dismissal, and focus restore;
- * it opens on the night/play surface where celebrations live (docs/10). The
- * badge glyph "bursts" in `motion-safe:` only, so under reduced motion it's a
- * still overlay with the same words.
+ * so it inherits the focus trap, `Escape`/backdrop dismissal, focus restore, and
+ * the field-journal panel (docs/10). The badge glyph "bursts" in `motion-safe:`
+ * only, so under reduced motion it's a still overlay with the same words.
  *
  * For a plain XP gain use `RewardBurst`; for a mastered topic use
  * `ExpeditionStamp`.

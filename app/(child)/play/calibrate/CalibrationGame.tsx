@@ -119,8 +119,8 @@ export function CalibrationGame({
           max={totalRounds}
         />
 
-        {/* Reading is a field-journal (paper) task — legibility first. */}
-        <div data-surface="paper">
+        {/* Reading is a legibility-first task on the field journal. */}
+        <div>
           <Card elevated padding="lg" className="flex flex-col gap-3">
             <div className="flex items-center gap-3">
               <Icon

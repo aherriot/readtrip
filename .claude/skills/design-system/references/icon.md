@@ -25,7 +25,7 @@ geometry; the shared filter adds the waver) and they're instantly available by `
 Current names: `check`, `retry`, `close`, `search`, `chevron-down`, `alert`, `arrow-right`,
 `flag`, `compass`, `rocket`, `book`, `books`, `star`, `medal`, `sparkles`, `party`, `puzzle`,
 `rainbow`, `sun`, `mountain`, `volcano`, `cat`, `bee`, `octopus`, `cave`, `hero`. See them all
-on both surfaces in the gallery's Icon section.
+in the gallery's Icon section.
 
 The shared `#rt-doodle` filter lives in `IconDefs`, mounted once in `app/layout.tsx` — every
 named icon references it, so the whole set shares one inked character.

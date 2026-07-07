@@ -38,11 +38,10 @@ import { Spinner } from "@/components/ui/Spinner";
 | `label`     | `string`               | —       | Sets `role="status"` + sr-only text. Omit when decorative.            |
 | `className` | `string`               | —       | Layout, or override the inherited color (e.g. `text-surface-accent`). |
 
-## Surfaces
+## Surface
 
-Colored with `currentColor`, so it inherits the surrounding text color — right on night and
-paper automatically. Override with a token utility (`text-surface-accent`, `text-sun`) when
-you want it to pop.
+Colored with `currentColor`, so it inherits the surrounding text color automatically. Override
+with a token utility (`text-surface-accent`, `text-sun`) when you want it to pop.
 
 ## Accessibility
 

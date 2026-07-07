@@ -39,11 +39,11 @@ from day one. Build this **before** feature UI. Every component is **mobile-firs
 designed for **touch / no-mouse** use, and ships with **unit, visual, and e2e tests** — no
 primitive is "done" until all three are green.
 
-- [x] `styles/tokens.css` — color/type/spacing/radius tokens; `data-surface` switching
-      ([`10`](10-design-system.md)).
+- [x] `styles/tokens.css` — color/type/spacing/radius tokens; one field-journal surface via
+      the `--surface-*` indirection ([`10`](10-design-system.md)).
 - [x] Map tokens into the Tailwind v4 `@theme inline { … }` block in `app/globals.css`
       (CSS-first — there is no `tailwind.config.ts`).
-- [x] Load **Fredoka** + **Lexend** via `next/font`.
+- [x] Load **Shantell Sans** (the one handwritten voice; **Lexend** fallback) via `next/font`.
 - [x] Build primitives in `components/ui/`: `Button`, `Card`/`Panel`, `Heading`/`Text`,
       `Icon`, `Modal`, `ProgressBar`.
 - [x] **Mobile-first, no-mouse by default:** design at the small viewport first and scale up;
@@ -56,16 +56,16 @@ primitive is "done" until all three are green.
       AGENTS.md):
   - **Unit** (Vitest, node): pure logic only — value clamping, variant/scale resolution,
     validation. No jsdom component rendering (it can't compute layout/styles).
-  - **Visual** (Playwright snapshots): the gallery on **both surfaces**, capturing each
-    component's states; baselines are regenerated when the gallery changes.
+  - **Visual** (Playwright snapshots): the gallery on the **field-journal surface**, capturing
+    each component's states; baselines are regenerated when the gallery changes.
   - **e2e / contract** (Playwright, real browser): the DOM + a11y contract — ARIA roles and
     labels, keyboard activation (`Enter`/`Space`/`Escape`), focus rings, focus trap/restore,
     touch tap, tab order, and the 56–64px target floor.
 - [ ] (Recommended) Stand up **Storybook**; add stories for each primitive (doubles as the
       source for visual snapshots).
 
-**DoD:** primitives render on both surfaces and at mobile + desktop viewports; are fully
-operable by **touch and keyboard with no mouse**; pass **unit, visual, and e2e** tests plus
+**DoD:** primitives render on the field-journal surface and at mobile + desktop viewports; are
+fully operable by **touch and keyboard with no mouse**; pass **unit, visual, and e2e** tests plus
 keyboard + contrast checks in CI; and are the only way pages get styled (no ad-hoc CSS).
 ✅ Met — all 8 primitives ship with unit + visual + e2e coverage; `npm run check` and the
 Playwright e2e/visual suites are green. (Storybook remains optional and is not set up.)

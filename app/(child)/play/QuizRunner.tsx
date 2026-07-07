@@ -230,10 +230,7 @@ export function QuizRunner({
   }
 
   return (
-    <div
-      data-surface="paper"
-      className="mx-auto flex w-full max-w-2xl flex-col gap-6"
-    >
+    <div className="mx-auto flex w-full max-w-2xl flex-col gap-6">
       <ProgressBar
         label="Quiz progress"
         value={index}
@@ -383,7 +380,7 @@ function SteerResult({
 // The non-question states (loading / error / result) share a centered paper card.
 function ResultShell({ children }: { children: React.ReactNode }) {
   return (
-    <div data-surface="paper" className="mx-auto w-full max-w-2xl">
+    <div className="mx-auto w-full max-w-2xl">
       <Card
         elevated
         padding="lg"

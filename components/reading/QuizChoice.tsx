@@ -1,7 +1,7 @@
 "use client";
 
-import { Badge, type BadgeTone } from "@/components/ui/Badge";
 import { Icon } from "@/components/ui/Icon";
+import { StampMark, type StampTone } from "@/components/ui/StampMark";
 import type { IconName } from "@/components/ui/icons/glyphs";
 import { cn } from "@/lib/ui/cn";
 
@@ -18,23 +18,28 @@ export interface QuizChoiceProps {
   disabled?: boolean;
 }
 
-// Feedback is never color-only (a11y floor): each resolved state carries a border
-// + soft fill (the accent as a *fill*, not small text), a status icon, and a
-// status word. The answer text itself always stays `surface-ink` for guaranteed
-// contrast on either surface.
+// Feedback is never color-only (a11y floor): each resolved state carries a soft
+// fill (the accent as a *fill*, not small text), a re-inked hand-drawn pen box, a
+// status icon, and a status word. The answer text itself always stays
+// `surface-ink` for guaranteed contrast. The ink pen box comes from `.rt-inkbox`
+// on the base; these add the per-state fill and (for feedback) the box color.
 const stateStyles: Record<QuizChoiceState, string> = {
-  default:
-    "border-surface-rule bg-surface-panel not-disabled:hover:border-surface-accent",
-  selected: "border-surface-accent bg-surface-accent/(--tint-wash)",
-  correct: "border-leaf bg-leaf/(--tint-fill)",
-  retry: "border-coral bg-coral/(--tint-soft)",
+  default: "bg-surface-panel not-disabled:hover:bg-surface-ink/(--tint-wash)",
+  selected: "bg-surface-accent/(--tint-wash)",
+  correct: "rt-inkbox--correct bg-leaf/(--tint-fill)",
+  retry: "rt-inkbox--retry bg-coral/(--tint-soft)",
 };
 
-type Feedback = { icon: IconName; label: string; tone: BadgeTone };
+type Feedback = {
+  icon: IconName;
+  label: string;
+  tone: StampTone;
+  tilt: number;
+};
 
-const statusBadge: Partial<Record<QuizChoiceState, Feedback>> = {
-  correct: { icon: "check", label: "Yes!", tone: "leaf" },
-  retry: { icon: "retry", label: "Try again", tone: "coral" },
+const statusStamp: Partial<Record<QuizChoiceState, Feedback>> = {
+  correct: { icon: "check", label: "Yes!", tone: "leaf", tilt: -7 },
+  retry: { icon: "retry", label: "Try again", tone: "coral", tilt: 5 },
 };
 
 /**
@@ -52,37 +57,43 @@ export function QuizChoice({
   onSelect,
   disabled = false,
 }: QuizChoiceProps) {
-  const badge = statusBadge[state];
+  const stamp = statusStamp[state];
   return (
     <button
       type="button"
       disabled={disabled}
       onClick={onSelect}
       className={cn(
-        "flex min-h-[60px] w-full flex-col justify-center gap-1 rounded-lg border-2 px-6 py-3 text-left",
+        // Squared + a hand-drawn ink pen box (matching the other controls).
+        "rt-inkbox relative flex min-h-[60px] w-full flex-col justify-center gap-1 rounded-[3px] px-6 py-3 text-left",
         "font-body text-lg text-surface-ink transition-colors duration-150",
         "disabled:cursor-default disabled:opacity-100",
         stateStyles[state]
       )}
     >
-      <span className="w-full">{children}</span>
-      {/* Sits on its own line below the text instead of overlapping the choice,
-          so the badge never covers the answer or the pill's border. */}
-      {badge && (
-        <span className="flex justify-end">
-          <Badge
-            tone={badge.tone}
+      {/* Reserve room on the right so a long answer doesn't run under the stamp
+          pressed into the corner. */}
+      <span className={cn("w-full", stamp && "pr-24")}>{children}</span>
+      {/* The feedback is a rubber stamp pressed over the choice's corner. It's
+          absolutely positioned in its own wrapper (out of flow), so it overlays
+          the box without changing its height or spanning its width — it only
+          ever covers the small corner it's pressed into. */}
+      {stamp && (
+        <span className="pointer-events-none absolute bottom-1.5 right-3">
+          <StampMark
+            tone={stamp.tone}
+            tilt={stamp.tilt}
             icon={
               <Icon
-                name={badge.icon}
+                name={stamp.icon}
                 decorative
                 size="sm"
                 accent="currentColor"
               />
             }
           >
-            {badge.label}
-          </Badge>
+            {stamp.label}
+          </StampMark>
         </span>
       )}
     </button>

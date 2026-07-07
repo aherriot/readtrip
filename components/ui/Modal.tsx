@@ -18,11 +18,6 @@ export interface ModalProps {
   /** Accessible title; rendered as the heading and wired to `aria-labelledby`. */
   title: string;
   children: ReactNode;
-  /**
-   * Set the dialog's surface. Defaults to `night` (it portals to `<body>`, which
-   * is the night surface). Pass `paper` for reading-context dialogs.
-   */
-  surface?: "night" | "paper";
   /** Hide the default close button when the body provides its own actions. */
   hideCloseButton?: boolean;
 }
@@ -35,7 +30,8 @@ export interface ModalProps {
  *
  * Built on Headless UI's `Dialog`, which owns the focus trap, scroll lock,
  * portal, Escape/backdrop dismissal, and ARIA wiring; this component supplies
- * ReadTrip's surface-aware styling and the bottom-sheet → centered layout.
+ * ReadTrip's field-journal styling (a paper panel in a hand-drawn pen box) and
+ * the bottom-sheet → centered layout.
  *
  * Usage guidance: .claude/skills/design-system/references/modal.md
  */
@@ -44,14 +40,12 @@ export function Modal({
   onClose,
   title,
   children,
-  surface = "night",
   hideCloseButton = false,
 }: ModalProps) {
   return (
     <Dialog
       open={open}
       onClose={onClose}
-      data-surface={surface}
       // Bottom sheet on phones, centered on larger screens.
       className="fixed inset-0 z-50 flex items-end justify-center sm:items-center"
     >
@@ -74,9 +68,10 @@ export function Modal({
           // width (e.g. a nowrap button label) and pushes it past the
           // viewport on narrow phones instead of letting it shrink/wrap.
           "relative z-10 w-full min-w-0 max-w-lg bg-surface text-surface-ink",
-          // Full-width sheet (rounded top) on phones; floating card above.
-          "max-h-[90vh] overflow-y-auto rounded-t-lg p-6 sm:rounded-lg sm:p-8",
-          "shadow-[var(--surface-elevation)]",
+          // Squared field-journal panel in a hand-drawn pen box; full-width sheet
+          // on phones, floating card above.
+          "max-h-[90vh] overflow-y-auto rounded-[3px] p-6 sm:p-8",
+          "rt-inkbox shadow-[var(--surface-elevation)]",
           // Rise + fade in; neutralized under prefers-reduced-motion.
           "transition duration-200 ease-out data-[closed]:translate-y-2 data-[closed]:opacity-0"
         )}
@@ -90,7 +85,7 @@ export function Modal({
               type="button"
               onClick={onClose}
               aria-label="Close"
-              className="-mr-1 -mt-1 flex h-11 w-11 shrink-0 items-center justify-center rounded-pill text-surface-ink-soft hover:bg-surface-ink/(--tint-wash)"
+              className="-mr-1 -mt-1 flex h-11 w-11 shrink-0 items-center justify-center rounded-[3px] text-surface-ink-soft hover:bg-surface-ink/(--tint-wash)"
             >
               <Icon name="close" decorative />
             </button>

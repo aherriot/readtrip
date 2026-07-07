@@ -29,10 +29,10 @@ import { Heading } from "@/components/ui/Heading";
 | `size`  | `"lg" \| "xl" \| "2xl" \| "3xl"` | derived from level | Decouple visual size from semantic level. |
 | …rest   | native heading props             | —                  | `id`, `className`, …                      |
 
-## Surfaces
+## Surface
 
-Uses `font-display` (Fredoka) + `text-surface-ink`, so it's legible on both surfaces with no
-props.
+Uses `font-display` (Shantell Sans) + `text-surface-ink`, so it's legible on the field-journal
+surface with no props.
 
 ## Accessibility
 

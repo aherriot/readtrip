@@ -20,23 +20,39 @@ Tailwind utilities by the `@theme inline` block in
 <p style={{ color: "#22263F", fontSize: 22 }}>…</p>
 ```
 
-## Surface-aware color utilities (prefer these)
+## Two layers: primitives → semantic
 
-These re-resolve automatically under `data-surface="night|paper"`.
+Colors live in two layers in [`styles/tokens.css`](../../../../styles/tokens.css) (both shown
+in `/dev/components`):
 
-| Utility                 | Token                | Use                                                   |
-| ----------------------- | -------------------- | ----------------------------------------------------- |
-| `bg-surface`            | `--surface-bg`       | Page / region background                              |
-| `bg-surface-panel`      | `--surface-panel`    | Cards, inputs, panels                                 |
-| `text-surface-ink`      | `--surface-ink`      | Body text                                             |
-| `text-surface-ink-soft` | `--surface-ink-soft` | Secondary text, hints, placeholders                   |
-| `border-surface-rule`   | `--surface-rule`     | Hairlines, dividers, input borders                    |
-| `*-surface-accent`      | `--surface-accent`   | The surface's accent (aqua on night, orchid on paper) |
+1. **Primitives** — every raw color value, named by hue/shade (`--sun`, `--coral`,
+   `--coral-strong`, `--paper`, `--ink`, `--periwinkle`, …). No meaning attached.
+2. **Semantic** — meaning mapped onto primitives (`--surface-*`, `--correct`, `--retry`,
+   `--surface-success`, `--surface-danger`, `--journal-*`, `--focus-ring`).
 
-`--surface-elevation` is a CSS var (glow on night, soft shadow on paper) — use as
-`boxShadow: "var(--surface-elevation)"` or an arbitrary utility.
+**Reach for the semantic tokens.** Use a raw accent primitive (`bg-sun`, `text-orchid`) only
+for a genuinely decorative accent that carries no state; never invent a hex.
 
-## Accent palette (surface-independent)
+## Surface color utilities (prefer these)
+
+There's **one surface** (the field journal). Reach for these tokens, never raw palette
+values — the indirection means a future theme could re-point `--surface-*` with no component
+changes.
+
+| Utility                 | Token                | Use                                   |
+| ----------------------- | -------------------- | ------------------------------------- |
+| `bg-surface`            | `--surface-bg`       | Page / region background (warm paper) |
+| `bg-surface-panel`      | `--surface-panel`    | Cards, inputs, panels                 |
+| `text-surface-ink`      | `--surface-ink`      | Body text (ink)                       |
+| `text-surface-ink-soft` | `--surface-ink-soft` | Secondary text, hints, placeholders   |
+| `border-surface-rule`   | `--surface-rule`     | Hairlines, dividers                   |
+| `*-surface-accent`      | `--surface-accent`   | The surface accent (orchid)           |
+
+`--surface-elevation` is a soft paper shadow — use as `boxShadow:
+"var(--surface-elevation)"` or an arbitrary utility. (Note: most containers now use the
+hand-drawn `.rt-inkbox` pen box instead of a shadow.)
+
+## Accent primitives
 
 `sun` (primary/XP), `orchid` (secondary / playful), `coral` (wrong answer, delete — **not** a
 plain secondary color; it reads as an alarm/negative), `aqua` (discovery / "deep"
@@ -48,8 +64,11 @@ suggestions), `leaf` (success), `violet` (magic / "new" breadth), `sky` (in-prog
 > isn't warning of anything), reach for `orchid` instead — it's the same visual weight without
 > the negative connotation.
 
-> Bright accents are for **fills and large elements**, not small text. Buttons use a bright
-> fill with **dark ink on top** (e.g. ink on `sun`).
+> **Bright accents are for fills and large elements, not small text.** Buttons use a bright
+> fill with **dark ink on top** (e.g. ink on `sun`). Two hues carry a darker `-strong` step —
+> `coral-strong`, `leaf-strong` — because the bright shade fails AA at text sizes; reach for
+> them (via the semantic `--surface-danger` / `--surface-success`) whenever the hue is **small
+> colored text or an icon**, not a fill.
 
 ## Tint scale (translucent fills)
 
@@ -62,7 +81,7 @@ Never hand-write a one-off opacity fraction on a color utility (`bg-sun/[37%]`, 
 | ------------- | ----- | ---------------------------------------------------------------------- |
 | `--tint-wash` | 10%   | Hover backgrounds, faint overlays (ghost button hover, list-row hover) |
 | `--tint-soft` | 15%   | Secondary-emphasis fills (secondary button hover, quiz choice fill)    |
-| `--tint-fill` | 20%   | Badge/chip/pill fills                                                  |
+| `--tint-fill` | 20%   | Chip / marker / small-fill accents                                     |
 
 ```tsx
 // ✅ named step — self-documenting, one place to retune the whole family
@@ -78,17 +97,19 @@ color utility.
 
 ## Semantic
 
-| Utility                       | Token              | Meaning                                                                                         |
-| ----------------------------- | ------------------ | ----------------------------------------------------------------------------------------------- |
-| `text-correct` / `bg-correct` | `--correct` (leaf) | Right answer — always with ✓ icon + label                                                       |
-| `text-retry` / `bg-retry`     | `--retry` (coral)  | Try-again **fills / large elements** (e.g. QuizChoice); never "wrong"/red-scary; with ↻ icon    |
-| `text-surface-danger`         | `--surface-danger` | Try-again / error as **small text or icons** — contrast-safe per surface (coral fails AA small) |
-| `*-focus-ring`                | `--focus-ring`     | High-contrast focus indicator (global ring already set)                                         |
+| Utility                       | Token → primitive                   | Meaning                                                                               |
+| ----------------------------- | ----------------------------------- | ------------------------------------------------------------------------------------- |
+| `text-correct` / `bg-correct` | `--correct` → `leaf`                | Right answer — **fills / large**, always with ✓ icon + label                          |
+| `text-retry` / `bg-retry`     | `--retry` → `coral`                 | Try-again — **fills / large** (e.g. QuizChoice); never "wrong"/red-scary; with ↻ icon |
+| `text-surface-success`        | `--surface-success` → `leaf-strong` | Correct as **small text or icons** — AA-safe (bright leaf fails AA small)             |
+| `text-surface-danger`         | `--surface-danger` → `coral-strong` | Try-again / error as **small text or icons** — AA-safe (bright coral fails AA small)  |
+| `*-focus-ring`                | `--focus-ring` → `sun`              | High-contrast focus indicator (global ring already set)                               |
 
 ## Type
 
-- Families: `font-display` (Fredoka — headings, topic titles, big numbers, buttons),
-  `font-body` (Lexend — all reading + UI body). Loaded via `next/font` in `app/layout.tsx`.
+- Families: **one voice — Shantell Sans** (a legibility-tuned handwritten face) drives BOTH
+  `font-display` and `font-body`. Lexend is only the fallback. Loaded via `next/font` in
+  `app/layout.tsx`.
 - Scale: `text-xs` `text-sm` `text-base` `text-lg` `text-xl` `text-2xl` `text-3xl`
   (0.875 → 3rem). Reading base bumps to 1.25rem at reading levels L1–L2.
 - Reading rules (always on the paper surface): line-height 1.6, max ~62ch, generous
@@ -96,6 +117,8 @@ color utility.
 
 ## Radius
 
-`rounded-sm` (12px) · `rounded-md` (20px) · `rounded-lg` (28px) · `rounded-pill` (999px,
-buttons). Spacing uses Tailwind's default 4-based scale (`p-1`=4px … `p-16`=64px), which
-already matches the design system.
+Controls are **squared off** in the journal language (`rounded-[3px]`, framed by the
+hand-drawn `.rt-inkbox` pen box). The soft radii — `rounded-sm` (12px) · `rounded-md` (20px)
+· `rounded-lg` (28px) — remain for larger paper panels; `rounded-pill` (999px) survives only
+for genuinely round bits (avatars, dots, progress tracks). Spacing uses Tailwind's default
+4-based scale (`p-1`=4px … `p-16`=64px).

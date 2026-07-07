@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { cn } from "@/lib/ui/cn";
 import { Icon } from "@/components/ui/Icon";
+import { StickyNote, type StickyTone } from "@/components/ui/StickyNote";
 import type { IconName } from "@/components/ui/icons/glyphs";
 import type { SuggestionKind, TopicNodeState } from "@/lib/map/nodeState";
 
@@ -26,38 +27,30 @@ export interface TopicNodeProps {
   onDismiss?: () => void;
 }
 
-// Every state pairs a distinct status word with its color, so the node never
+// Every state pairs a distinct status word with a color, so the node never
 // communicates by color alone (a11y floor). The word is always real text tied
 // to the button — either visible (locked/mastered) or, for suggested/explored,
 // carried by the sr-only span below and mirrored by the visible header strip
-// (STRIP) so sighted and screen-reader users get equivalent information.
-const STATE: Record<TopicNodeState, { label: string; className: string }> = {
-  locked: {
-    label: "Locked",
-    className:
-      "border-dashed border-surface-rule text-surface-ink-soft opacity-70",
-  },
-  suggested: {
-    label: "Tap to explore",
-    className: "border-aqua bg-surface-panel",
-  },
-  explored: {
-    // "Continue" — the child has started this topic but not yet mastered it, so
-    // it reads as a call to pick it back up. Sky-blue keeps it distinct from the
-    // aqua "deep" and violet "new" suggestions.
-    label: "Continue",
-    // Faint sky glow places it on a light ladder: suggested (flat) → exploring
-    // (soft glow) → mastered (bright gold glow), so progress reads by light too.
-    className:
-      "border-sky bg-sky/(--tint-soft) shadow-[0_0_14px_-7px_var(--sky)]",
-  },
-  mastered: {
-    label: "Mastered",
-    // Gold glow sells the "expedition stamp" — a fill + shadow, never small text.
-    className:
-      "border-sun bg-sun/(--tint-soft) shadow-[0_0_22px_-6px_var(--sun)]",
-  },
+// (STRIP). `tone` is the sticky-note paper color; `locked` has no note (it's an
+// empty, not-yet-discovered slot — a dashed outline instead of a stuck note).
+const STATE: Record<
+  TopicNodeState,
+  { label: string; tone: StickyTone | null }
+> = {
+  locked: { label: "Locked", tone: null },
+  suggested: { label: "Tap to explore", tone: "aqua" },
+  // "Continue" — started but not yet mastered; sky paper keeps it distinct from
+  // the aqua "deep" and violet "new" suggestions and the gold "mastered".
+  explored: { label: "Continue", tone: "sky" },
+  mastered: { label: "Mastered", tone: "sun" },
 };
+
+/** Small, STABLE tilt from the title so a note keeps its hand-placed angle. */
+function tiltFor(title: string): number {
+  let h = 0;
+  for (const ch of title) h = (h * 31 + ch.charCodeAt(0)) >>> 0;
+  return ((h % 5) - 2) * 0.9; // -1.8° … +1.8°
+}
 
 type StripKind = "explored" | SuggestionKind;
 
@@ -93,10 +86,11 @@ const DISMISSIBLE_STATES: readonly TopicNodeState[] = ["suggested", "explored"];
 
 /**
  * The world-map node — ReadTrip's signature element (docs/10). A real `<button>`
- * so keyboard + screen-reader behaviour is native and the global focus ring
- * applies; comfortably clears the kid touch-target floor. States are
- * `locked | suggested | explored | mastered`, each with its own status word +
- * color. Lives on the night/play surface via `--surface-*` tokens.
+ * (native keyboard + screen-reader behaviour, global focus ring, clears the kid
+ * touch-target floor) wrapping a `StickyNote`: each explored/suggested/mastered
+ * topic is a colored note stuck onto the journal; `locked` is an empty dashed
+ * slot (nothing discovered yet). States are `locked | suggested | explored |
+ * mastered`, each with its own status word + color.
  */
 export function TopicNode({
   title,
@@ -107,6 +101,10 @@ export function TopicNode({
 }: TopicNodeProps) {
   const config = STATE[state];
   const locked = state === "locked";
+  // A suggested diverse node is a violet "new/breadth" note; otherwise the
+  // state's own paper color. `null` tone (locked) → the empty dashed slot.
+  const tone: StickyTone | null =
+    state === "suggested" && kind === "diverse" ? "violet" : config.tone;
   const dismissible = onDismiss && DISMISSIBLE_STATES.includes(state);
   // While a dismissed tile plays its shrink-out, freeze interaction and defer
   // the actual removal (onDismiss) until the animation ends — see the wrapper's
@@ -125,12 +123,41 @@ export function TopicNode({
         : null;
   const strip = stripKind ? STRIP[stripKind] : null;
   const showLabelInline = state === "locked" || state === "mastered";
-  // A suggested diverse node borrows the diverse strip's violet accent for its
-  // border too, so the whole tile — not just the strip — reads as breadth.
-  const nodeClassName =
-    state === "suggested" && kind === "diverse"
-      ? "border-violet bg-surface-panel"
-      : config.className;
+  // The note's inner content: the status strip (suggested/explored) + the title
+  // + the state word (visible body text for locked/mastered, sr-only otherwise).
+  const inner = (
+    <>
+      {strip && (
+        // Decorative: the same word is carried by the sr-only status label below,
+        // so screen readers hear it once. Sighted users get the strip.
+        <div
+          aria-hidden="true"
+          className={cn(
+            // Square top corners to match the note (a real sticky note is cut
+            // square) — no rounded-t here.
+            "flex items-center gap-1.5 border-b-2 px-3 py-1.5",
+            "font-display text-[0.65rem] font-semibold uppercase leading-none tracking-wide text-surface-ink",
+            strip.className
+          )}
+        >
+          <Icon name={strip.icon} decorative accent="currentColor" size="sm" />
+          <span>{strip.text}</span>
+        </div>
+      )}
+      <div className="flex flex-1 flex-col items-center justify-center gap-1 p-4 text-center">
+        <span className="break-words font-display text-lg leading-tight">
+          {title}
+        </span>
+        {showLabelInline ? (
+          <span className="font-body text-xs text-surface-ink-soft">
+            {config.label}
+          </span>
+        ) : (
+          <span className="sr-only">{config.label}</span>
+        )}
+      </div>
+    </>
+  );
 
   return (
     <div
@@ -148,50 +175,31 @@ export function TopicNode({
         disabled={locked || leaving}
         onClick={onSelect}
         className={cn(
-          // `overflow-hidden` clips the header strip's square top corners to the
-          // tile's rounded frame, so the strip reads as part of the tile.
-          "relative flex h-full min-h-[112px] w-full flex-col overflow-hidden rounded-lg border-2 text-surface-ink",
-          "transition-[transform,background-color,border-color,box-shadow] duration-150 disabled:cursor-not-allowed",
-          // Desktop affordance: an explorable node lifts toward the pointer and
-          // gains a soft glow on hover. Locked nodes stay put (nothing to tap);
-          // the reduced-motion floor neutralizes the lift.
-          "not-disabled:hover:shadow-[var(--surface-elevation)] not-disabled:motion-safe:hover:-translate-y-0.5",
-          "not-disabled:active:scale-[0.98]",
-          nodeClassName
+          // A plain, sized, focusable box — the visible tile is the note inside.
+          // Squared so the focus ring matches the square note. Hover lifts it
+          // toward the pointer (motion-safe); active presses it. Transform
+          // (translate/scale) composes with the note's own `rotate`.
+          "block w-full rounded-[1px] text-surface-ink disabled:cursor-not-allowed",
+          "transition-transform duration-150",
+          "not-disabled:motion-safe:hover:-translate-y-0.5 not-disabled:active:scale-[0.98]"
         )}
       >
-        {strip && (
-          // Decorative: the same word is carried by the sr-only status label
-          // below, so screen readers hear it once. Sighted users get the strip.
-          <div
-            aria-hidden="true"
-            className={cn(
-              "flex items-center gap-1.5 border-b-2 px-3 py-1.5",
-              "font-display text-[0.65rem] font-semibold uppercase leading-none tracking-wide text-surface-ink",
-              strip.className
-            )}
+        {tone ? (
+          <StickyNote
+            tone={tone}
+            tilt={tiltFor(title)}
+            tape
+            padding="none"
+            className="flex h-full min-h-[112px] w-full flex-col"
           >
-            <Icon
-              name={strip.icon}
-              decorative
-              accent="currentColor"
-              size="sm"
-            />
-            <span>{strip.text}</span>
+            {inner}
+          </StickyNote>
+        ) : (
+          // Locked = an empty, not-yet-discovered slot: a dashed outline, no note.
+          <div className="flex h-full min-h-[112px] w-full flex-col rounded-[1px] border-2 border-dashed border-surface-rule text-surface-ink-soft opacity-60">
+            {inner}
           </div>
         )}
-        <div className="flex flex-1 flex-col items-center justify-center gap-1 p-4 text-center">
-          <span className="break-words font-display text-lg leading-tight">
-            {title}
-          </span>
-          {showLabelInline ? (
-            <span className="font-body text-xs text-surface-ink-soft">
-              {config.label}
-            </span>
-          ) : (
-            <span className="sr-only">{config.label}</span>
-          )}
-        </div>
       </button>
       {dismissible && (
         <button

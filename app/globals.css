@@ -3,9 +3,10 @@
 
 /*
  * Map design tokens → Tailwind utilities. `inline` so the generated utilities
- * reference the runtime `--surface-*` variables directly — switching a
- * `data-surface` attribute re-themes everything underneath it with no JS.
- * Tokens live in styles/tokens.css; this block only exposes them as utilities.
+ * reference the `--surface-*` variables directly — one field-journal surface
+ * today, but the indirection means a future theme could re-point them with no
+ * component changes. Tokens live in styles/tokens.css; this block only exposes
+ * them as utilities.
  */
 @theme inline {
   /* Accent palette */
@@ -17,10 +18,7 @@
   --color-violet: var(--violet);
   --color-sky: var(--sky);
 
-  /* Fixed per-surface colors (use only when a color must ignore the surface) */
-  --color-night: var(--bg-night);
-  --color-night-panel: var(--bg-night-panel);
-  --color-ink-on-night: var(--ink-on-night);
+  /* Fixed palette colors (use only when a color must ignore the surface token) */
   --color-paper: var(--paper);
   --color-ink: var(--ink);
   --color-ink-soft: var(--ink-soft);
@@ -39,10 +37,14 @@
   --color-surface-rule: var(--surface-rule);
   --color-surface-accent: var(--surface-accent);
   --color-surface-danger: var(--surface-danger);
+  --color-surface-success: var(--surface-success);
 
-  /* Type families (the --font-fredoka/--font-lexend vars come from next/font) */
-  --font-display: var(--font-fredoka), system-ui, sans-serif;
-  --font-body: var(--font-lexend), system-ui, sans-serif;
+  /* Type families (the --font-shantell/--font-lexend vars come from next/font).
+     All-in on Shantell Sans — one handwritten voice for display AND body; Lexend
+     is only the fallback if the hand fails to load. */
+  --font-display:
+    var(--font-shantell), var(--font-lexend), system-ui, sans-serif;
+  --font-body: var(--font-shantell), var(--font-lexend), system-ui, sans-serif;
 
   /* Type scale */
   --text-xs: var(--text-xs);
@@ -150,6 +152,17 @@
 @layer base {
   body {
     background-color: var(--surface-bg);
+    /* Ambient ruled-paper texture on the whole page — faint horizontal lines
+       every --journal-period. Opaque cards/sheets sit on top and cover them, so
+       the rules read in the gutters ("components laid out on a notebook").
+       Surface-aware: the line color switches with the surface. */
+    background-image: repeating-linear-gradient(
+      to bottom,
+      transparent 0,
+      transparent calc(var(--journal-period) - 1px),
+      var(--journal-line) calc(var(--journal-period) - 1px),
+      var(--journal-line) var(--journal-period)
+    );
     color: var(--surface-ink);
     font-family: var(--font-body);
     font-size: var(--text-base);
@@ -191,4 +204,154 @@
       scroll-behavior: auto !important;
     }
   }
+}
+
+/*
+ * Journal helpers — deliberately UNLAYERED so they outrank Tailwind's utility
+ * layer. They own layout-critical properties (padding-left, line-height, gap)
+ * that a utility class would otherwise win by layer order regardless of
+ * specificity. Keep them here, not in @layer base.
+ */
+
+/* Lined-paper reading sheet — text rows land on the ruled lines (baseline rests
+   on the rule). Includes the left margin rule. Pair with .rt-journal so the type
+   is locked to the same grid. */
+.rt-lined {
+  --rt-gutter: 2.75rem;
+  padding-left: var(--rt-gutter);
+  line-height: var(--journal-period);
+  background-image:
+    linear-gradient(
+      to right,
+      transparent calc(var(--rt-gutter) - 14px),
+      var(--journal-margin) calc(var(--rt-gutter) - 14px),
+      var(--journal-margin) calc(var(--rt-gutter) - 12px),
+      transparent calc(var(--rt-gutter) - 12px)
+    ),
+    repeating-linear-gradient(
+      to bottom,
+      transparent 0,
+      transparent var(--journal-baseline),
+      var(--journal-line) var(--journal-baseline),
+      var(--journal-line) calc(var(--journal-baseline) + 1.4px),
+      transparent calc(var(--journal-baseline) + 1.4px),
+      transparent var(--journal-period)
+    );
+  background-origin: border-box;
+  background-position: 0 0;
+}
+
+/* Reading-sheet typography locked to the ruled grid: body lines advance one
+   --journal-period and rest on the rule; headings take a whole multiple so the
+   grid never drifts. Children space with a period-sized gap (also a whole row). */
+/* Rhythm is MARGIN-based (not flex `gap`) so it survives nested wrappers: every
+   block advances a whole number of ruled rows no matter how the page groups it.
+   Body lines are one period and rest on the rule; headings take two. */
+.rt-journal :is(p, h1, h2, h3) {
+  margin: 0 0 var(--journal-period);
+}
+.rt-journal :is(p) {
+  line-height: var(--journal-period);
+}
+.rt-journal :is(h1, h2, h3) {
+  line-height: calc(var(--journal-period) * 2);
+}
+/* No trailing row after the final block (it would push past the last rule). */
+.rt-journal > :last-child,
+.rt-journal :is(p, h1, h2, h3):last-child {
+  margin-bottom: 0;
+}
+
+/* Hand-drawn "pen box": a transparent container whose ink border is waved into a
+   hand-drawn rectangle by the #rt-sketch turbulence filter. The border lives on a
+   filtered ::before so only the STROKE is displaced — the content stays crisp.
+   Surface-aware: the ink switches with the surface. */
+.rt-inkbox {
+  position: relative;
+}
+/* Two nearly-square ink strokes with DIFFERENT turbulence seeds sit on top of
+   each other → a hand-drawn, drawn-twice pen box (not a rounded rect with
+   jitter). Near-square corners (3px) so the displacement reads as pen corners.
+   Both live on filtered pseudo-elements, so the content stays crisp. */
+.rt-inkbox::before,
+.rt-inkbox::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border: 1.8px solid var(--surface-ink);
+  border-radius: 3px;
+  pointer-events: none;
+}
+.rt-inkbox::before {
+  filter: url(#rt-sketch);
+}
+.rt-inkbox::after {
+  filter: url(#rt-sketch-b);
+  opacity: 0.5; /* a fainter second pass, like re-tracing a line */
+}
+/* Elevated = a heavier pen box (the Panel emphasis in this language). */
+.rt-inkbox.rt-inkbox--lift::before,
+.rt-inkbox.rt-inkbox--lift::after {
+  border-width: 2.6px;
+}
+/* Error state: the pen box is re-inked in the danger color (for form fields). */
+.rt-inkbox.rt-inkbox--danger::before,
+.rt-inkbox.rt-inkbox--danger::after {
+  border-color: var(--surface-danger);
+}
+/* Quiz feedback: the pen box takes the semantic accent (paired with an icon +
+   word, never color alone — see QuizChoice). */
+.rt-inkbox.rt-inkbox--correct::before,
+.rt-inkbox.rt-inkbox--correct::after {
+  border-color: var(--leaf);
+}
+.rt-inkbox.rt-inkbox--retry::before,
+.rt-inkbox.rt-inkbox--retry::after {
+  border-color: var(--coral);
+}
+
+/* Rubber stamp: a tilted, double-ruled ink frame pressed over content (the
+   caller rotates + positions it). Two #rt-sketch-waved borders — an outer frame
+   plus an inset inner line — read as a hand-pressed stamp, not a typed box. The
+   ink color is set per use via --stamp-ink; the label stays crisp because the
+   frame lives on the pseudo-elements. See StampMark. (The stamp element carries
+   its own `relative` utility for the pseudo's containing block — don't set
+   position here, or it would beat an `absolute` placement utility.) */
+.rt-stamp::before,
+.rt-stamp::after {
+  content: "";
+  position: absolute;
+  border: 2px solid var(--stamp-ink, var(--surface-ink));
+  border-radius: 3px;
+  filter: url(#rt-sketch);
+  pointer-events: none;
+}
+.rt-stamp::before {
+  inset: 0;
+}
+.rt-stamp::after {
+  inset: 3px;
+  border-width: 1.4px;
+  opacity: 0.85; /* the inner rule, a touch lighter */
+}
+
+/* Highlighter marker: a translucent swipe of color run over inline text, the way
+   you'd highlight a word in a journal. The swipe lives on a filtered ::before
+   (uneven, hand-run edges) behind the crisp text; it overshoots sideways like a
+   real marker stroke and sits slightly askew. The color is set per use via
+   --marker (an accent token), kept translucent so the ink reads through. */
+.rt-marker {
+  position: relative;
+  isolation: isolate;
+}
+.rt-marker::before {
+  content: "";
+  position: absolute;
+  inset: 0.08em -0.28em 0.04em;
+  z-index: -1;
+  background: color-mix(in srgb, var(--marker, var(--sun)) 48%, transparent);
+  border-radius: 2px;
+  transform: rotate(-1.4deg);
+  filter: url(#rt-sketch);
+  pointer-events: none;
 }

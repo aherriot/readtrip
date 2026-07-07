@@ -4,9 +4,9 @@ import { TopicNode } from "@/components/game/TopicNode";
 import { WorldMap } from "@/components/game/WorldMap";
 import type { MapNodeView, TopicNodeState } from "@/lib/map/nodeState";
 
-// The map lives on the night/play surface; render the demo there so the glow +
-// aqua/gold accents read as intended. Handlers are no-ops — this is a gallery.
-// `suggested` gets two entries (deep/diverse) since the kind changes its badge.
+// Renders the map on the field-journal surface (the whole app's one surface).
+// Handlers are no-ops — this is a gallery. `suggested` gets two entries
+// (deep/diverse) since the kind changes the node's header strip.
 const NODE_VARIANTS: { state: TopicNodeState; kind?: "deep" | "diverse" }[] = [
   { state: "locked" },
   { state: "suggested", kind: "deep" },
@@ -77,7 +77,6 @@ const SAMPLE_NODES: MapNodeView[] = [
 export function WorldMapDemo() {
   return (
     <div
-      data-surface="night"
       data-testid="worldmap-demo"
       className="flex flex-col gap-8 rounded-lg bg-surface p-6 text-surface-ink"
     >
