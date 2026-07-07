@@ -202,36 +202,33 @@ export function TopicNode({
         )}
       </button>
       {dismissible && (
-        // Position on a wrapper, not the button: `rt-inkbox` forces
-        // `position: relative` (its pen-box strokes need a containing block), so
-        // the corner offset has to live one level up.
-        <div className="absolute -right-3 -top-3">
-          <button
-            type="button"
-            disabled={leaving}
-            onClick={(event) => {
-              event.stopPropagation();
-              setLeaving(true);
-            }}
-            aria-label={`Dismiss ${title}`}
-            className={cn(
-              // A hand-inked "cross it out" button: the journal's double-traced
-              // pen box (rt-inkbox) drawn round (--pill) and re-inked in the
-              // danger color (--danger → --surface-danger) so removing a topic
-              // reads as a struck-through, destructive mark rather than system
-              // chrome. Opaque paper fill keeps the X + ink legible over any
-              // tile; a danger wash deepens on hover. 48px clears the kid
-              // touch-target floor.
-              "rt-inkbox rt-inkbox--pill rt-inkbox--danger",
-              "flex h-12 w-12 items-center justify-center rounded-pill",
-              "bg-surface text-surface-danger shadow-[var(--surface-elevation)]",
-              "transition-colors not-disabled:hover:bg-surface-danger/(--tint-wash)",
-              "disabled:cursor-not-allowed"
-            )}
-          >
-            <Icon name="close" decorative size="md" />
-          </button>
-        </div>
+        <button
+          type="button"
+          disabled={leaving}
+          onClick={(event) => {
+            event.stopPropagation();
+            setLeaving(true);
+          }}
+          aria-label={`Dismiss ${title}`}
+          className={cn(
+            // A hand-drawn "cross it out" mark, not a badge: just the inked X
+            // (the shared doodle filter gives the glyph its wavy, pen-drawn
+            // edges) with no circle, fill, or shadow — a whole map of tiles
+            // must not read as a grid of red buttons. It rests as a quiet muted
+            // mark and inks up to the danger color (--surface-danger) on
+            // hover/focus, where the destructive removal is about to happen.
+            // The 44px button is an invisible kid-sized hit area around the
+            // small glyph, hung off the corner so it doesn't cover the
+            // tap-to-explore target.
+            "absolute -right-1.5 -top-1.5 flex h-11 w-11 items-center justify-center rounded-pill",
+            "text-surface-ink-soft transition",
+            "not-disabled:hover:text-surface-danger not-disabled:focus-visible:text-surface-danger",
+            "not-disabled:motion-safe:hover:scale-110",
+            "disabled:cursor-not-allowed"
+          )}
+        >
+          <Icon name="close" decorative size="md" />
+        </button>
       )}
     </div>
   );
