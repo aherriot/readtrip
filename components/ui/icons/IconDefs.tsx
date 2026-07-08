@@ -22,7 +22,7 @@ export function IconDefs() {
       height="0"
       aria-hidden="true"
       focusable="false"
-      style={{ position: "absolute" }}
+      className="absolute"
     >
       <defs>
         <filter

@@ -1,4 +1,5 @@
-import type { CSSProperties, ReactNode } from "react";
+import type { ReactNode } from "react";
+import { cn } from "@/lib/ui/cn";
 
 /**
  * The "open field journal on a desk" page frame — three stacked layers:
@@ -34,10 +35,7 @@ export function JournalSheet({
 }) {
   return (
     <div className="rt-desk">
-      <div
-        style={wide ? ({ "--rt-page": "72rem" } as CSSProperties) : undefined}
-        className="rt-cover"
-      >
+      <div className={cn("rt-cover", wide && "[--rt-page:72rem]")}>
         <main
           aria-busy={busy || undefined}
           className="rt-sheet flex flex-col py-8 pr-6 pl-9 sm:pr-12 sm:pl-16"

@@ -299,10 +299,10 @@ function ColorSwatch({ name, token, meta, note }: Swatch) {
       <div className="h-14" style={{ rotate: `${swatchTilt(name)}deg` }}>
         <div
           aria-hidden="true"
-          className="h-full w-full [filter:url(#rt-sketch)]"
+          className="h-full w-full rounded-[3px] [filter:url(#rt-sketch)]"
           // The token itself is the subject — read it directly, don't proxy it
           // through a utility class.
-          style={{ backgroundColor: `var(${token})`, borderRadius: "3px" }}
+          style={{ backgroundColor: `var(${token})` }}
         />
       </div>
       <span className="font-display text-sm text-surface-ink">{name}</span>
@@ -936,9 +936,8 @@ function JournalEntry() {
   return (
     <div
       data-testid="journal"
-      className="rt-lined rt-inkbox rounded-lg bg-surface pr-5 pb-4 text-surface-ink"
       // padding-top is one --journal-period so the first line lands on the grid.
-      style={{ paddingTop: "var(--journal-period)" }}
+      className="rt-lined rt-inkbox rounded-lg bg-surface pt-[var(--journal-period)] pr-5 pb-4 text-surface-ink"
     >
       <p className="text-[1.3rem] font-semibold">
         Field Notes — How Plants Eat Sunlight{" "}

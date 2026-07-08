@@ -39,11 +39,10 @@ export function Wordmark({ className, decorative = false }: WordmarkProps) {
   return (
     <svg
       viewBox="0 0 268 84"
-      className={cn("inline-block h-8 w-auto", className)}
+      className={cn("inline-block h-8 w-auto overflow-visible", className)}
       role={decorative ? "presentation" : "img"}
       aria-label={decorative ? undefined : "ReadTrip"}
       aria-hidden={decorative || undefined}
-      style={{ overflow: "visible" }}
     >
       <g style={{ filter: `url(#${DOODLE_FILTER_ID})` } as CSSProperties}>
         {/* A gold "under-copy" offset down-right, so the ink letters sit on a warm
@@ -57,12 +56,7 @@ export function Wordmark({ className, decorative = false }: WordmarkProps) {
           lengthAdjust="spacingAndGlyphs"
           rotate={LETTER_TILT}
           aria-hidden="true"
-          style={{
-            fontFamily: "var(--font-shantell), cursive",
-            fontWeight: 700,
-            fontSize: "56px",
-            fill: "var(--sun)",
-          }}
+          className="[font-family:var(--font-shantell),cursive] text-[56px] font-bold fill-sun"
         >
           ReadTrip
         </text>
@@ -75,12 +69,7 @@ export function Wordmark({ className, decorative = false }: WordmarkProps) {
           textLength="248"
           lengthAdjust="spacingAndGlyphs"
           rotate={LETTER_TILT}
-          style={{
-            fontFamily: "var(--font-shantell), cursive",
-            fontWeight: 700,
-            fontSize: "56px",
-            fill: "var(--surface-ink)",
-          }}
+          className="[font-family:var(--font-shantell),cursive] text-[56px] font-bold fill-surface-ink"
         >
           ReadTrip
         </text>

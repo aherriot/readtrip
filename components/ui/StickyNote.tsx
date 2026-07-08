@@ -74,20 +74,17 @@ export function StickyNote({
   return (
     <Tag
       className={cn(
-        // Opaque colored paper (fill + edge from --note, set inline), a soft drop
-        // shadow so it lifts off the page, and true square corners — a real
-        // sticky note is cut square, not rounded (a hairline 1px keeps the
-        // render from aliasing to a hard pixel edge).
-        "relative rounded-[1px] border text-surface-ink shadow-[0_8px_18px_-9px_rgba(0,0,0,0.5)]",
+        // Opaque colored paper (fill + edge from --note, set inline via
+        // rt-sticky), a soft drop shadow so it lifts off the page, and true
+        // square corners — a real sticky note is cut square, not rounded (a
+        // hairline 1px keeps the render from aliasing to a hard pixel edge).
+        "rt-sticky relative rounded-[1px] border text-surface-ink shadow-[0_8px_18px_-9px_rgba(0,0,0,0.5)]",
         paddingStyles[padding],
         className
       )}
       style={
         {
           "--note": `var(--${tone})`,
-          background:
-            "color-mix(in srgb, var(--note) 28%, var(--surface-panel))",
-          borderColor: "color-mix(in srgb, var(--note) 42%, transparent)",
           rotate: tilt ? `${tilt}deg` : undefined,
           ...style,
         } as CSSProperties

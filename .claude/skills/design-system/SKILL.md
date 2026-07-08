@@ -23,7 +23,14 @@ the rules you cannot break.
 2. **Never hardcode hex, px colors, or raw font sizes in pages.** Use tokens — through
    Tailwind utilities (`bg-surface`, `text-surface-ink`, `font-display`, `rounded-pill`,
    `text-2xl`) or `var(--token)`. See [references/tokens.md](references/tokens.md).
-3. **Respect the accessibility floor** (below). It is non-negotiable, not a nice-to-have.
+3. **Never use `style={{}}` for a static value.** If it's the same on every render, it's a
+   Tailwind class or a token, not inline `style` — `className="rounded-[3px]"`, not
+   `style={{ borderRadius: "3px" }}`; a repeated formula (e.g. a `color-mix()` off a custom
+   property) is a CSS class in `globals.css` (see `.rt-sticky`, `.rt-marker`), not a string
+   retyped at every call site. `style={{}}` is reserved for values only known at render time
+   (a computed percentage, an index-based animation delay, a per-instance CSS custom
+   property). An ESLint rule enforces this — see docs/10-design-system.md.
+4. **Respect the accessibility floor** (below). It is non-negotiable, not a nice-to-have.
 
 ## The surface
 
