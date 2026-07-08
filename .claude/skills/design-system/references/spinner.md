@@ -1,8 +1,9 @@
 # Spinner
 
 A small "working on it" indicator for loading states. A doodled spiral in `currentColor` — the
-kind of absent-minded coil a bored person draws into the margin of a notebook — waved by the
-shared `#rt-doodle` turbulence filter (the same one every icon uses). A dash chases endlessly
+kind of absent-minded coil a bored person draws into the margin of a notebook, its hand-drawn
+character in the irregular spiral geometry itself (no runtime filter — the stroke animates, so a
+filter would re-rasterize every frame). A dash chases endlessly
 along the spiral, like a hand that can't stop re-tracing the same doodle, rather than a
 mechanical ring spinning. Unlike a tangle of crossing loops, a spiral never overlaps itself, so
 it reads as one deliberate doodle, not a scribbled-out mistake. Reads on either surface with no

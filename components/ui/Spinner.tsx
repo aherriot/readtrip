@@ -1,5 +1,4 @@
 import { cn } from "@/lib/ui/cn";
-import { DOODLE_FILTER_ID } from "@/components/ui/icons/IconDefs";
 
 type SpinnerSize = "sm" | "md" | "lg";
 
@@ -50,12 +49,13 @@ const SCRIBBLE_PATH =
  * a pen stroke in the same `currentColor` draws itself along it from start
  * to end (`motion-safe:animate-scribble`), then the whole stroke resets and
  * draws again — one continuous line growing at a time, never a fragment
- * appearing mid-path while another lingers elsewhere. Waved by the shared
- * `#rt-doodle` turbulence filter, the same one the icon set uses, for an
- * inked wobble. It inherits the surrounding text color, so it reads
- * correctly on either surface with no per-surface styling. The
- * reduced-motion floor collapses the draw to its final frame, leaving the
- * spiral fully drawn as a still (but still clearly hand-drawn) glyph.
+ * appearing mid-path while another lingers elsewhere. The hand-drawn character
+ * lives in the irregular spiral geometry itself (no runtime filter — a filter
+ * on an *animating* stroke would re-rasterize every frame). It inherits the
+ * surrounding text color, so it reads correctly on either surface with no
+ * per-surface styling. The reduced-motion floor collapses the draw to its final
+ * frame, leaving the spiral fully drawn as a still (but still clearly
+ * hand-drawn) glyph.
  *
  * Pair it with text: on its own a spinner says "wait" but not "for what". Inside
  * a labelled control (a loading Button) leave `label` off; standing alone, pass
@@ -70,36 +70,36 @@ export function Spinner({ size = "md", label, className }: SpinnerProps) {
       viewBox="0 0 24 24"
       className={cn("shrink-0", sizeStyles[size], className)}
     >
-      <g filter={`url(#${DOODLE_FILTER_ID})`}>
-        {/* The doodle underneath — always fully drawn, faint, like a line
-            already sketched. */}
-        <path
-          d={SCRIBBLE_PATH}
-          pathLength={300}
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="1.6"
-          strokeLinecap="round"
-          className="opacity-30"
-        />
-        {/* The pen drawing it — a single dash exactly as long as the whole
-            path (pathLength normalizes it to 300), so animating its offset
-            from 300 (nothing showing) to 0 (fully drawn) reveals ONE
-            continuously growing line from the start, never two separate
-            fragments. It only reaches offset 0 — fully traced — right as
-            the loop restarts back to 300, so a new pass never begins until
-            the last one finished. */}
-        <path
-          d={SCRIBBLE_PATH}
-          pathLength={300}
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="1.8"
-          strokeLinecap="round"
-          strokeDasharray="300"
-          className="motion-safe:animate-scribble"
-        />
-      </g>
+      {/* The doodle underneath — always fully drawn, faint, like a line
+          already sketched. */}
+      <path
+        d={SCRIBBLE_PATH}
+        pathLength={300}
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.6"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        className="opacity-30"
+      />
+      {/* The pen drawing it — a single dash exactly as long as the whole
+          path (pathLength normalizes it to 300), so animating its offset
+          from 300 (nothing showing) to 0 (fully drawn) reveals ONE
+          continuously growing line from the start, never two separate
+          fragments. It only reaches offset 0 — fully traced — right as
+          the loop restarts back to 300, so a new pass never begins until
+          the last one finished. */}
+      <path
+        d={SCRIBBLE_PATH}
+        pathLength={300}
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.8"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeDasharray="300"
+        className="motion-safe:animate-scribble"
+      />
     </svg>
   );
 
