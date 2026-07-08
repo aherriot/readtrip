@@ -134,7 +134,7 @@ const PRIMITIVES: Swatch[] = [
   },
   { name: "blush", token: "--blush", meta: "#F0B3AA", note: "Margin rule" },
   { name: "desk", token: "--desk", meta: "#E7E2D7", note: "Desk" },
-  { name: "cover", token: "--cover", meta: "#4A3527", note: "Leather cover" },
+  { name: "cover", token: "--cover", meta: "#6F5238", note: "Leather cover" },
   { name: "stitch", token: "--stitch", meta: "#D8C39A", note: "Cover stitch" },
 ];
 
