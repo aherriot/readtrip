@@ -1,6 +1,7 @@
 "use client";
 
 import { useActionState, useEffect, useId, useState } from "react";
+import { Avatar } from "@/components/ui/Avatar";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { SubmitButton } from "@/components/ui/SubmitButton";
@@ -34,29 +35,6 @@ const AVATAR_BG: Record<AvatarColor, string> = {
   leaf: "bg-leaf",
   violet: "bg-violet",
 };
-
-function Avatar({
-  color,
-  name,
-  size = "lg",
-}: {
-  color: AvatarColor;
-  name: string;
-  size?: "sm" | "lg";
-}) {
-  return (
-    <span
-      aria-hidden="true"
-      className={cn(
-        "flex shrink-0 items-center justify-center rounded-full font-display font-semibold text-[var(--ink)]",
-        size === "lg" ? "h-16 w-16 text-2xl" : "h-9 w-9 text-base",
-        AVATAR_BG[color]
-      )}
-    >
-      {name.trim().charAt(0).toUpperCase() || "?"}
-    </span>
-  );
-}
 
 type Editing = { mode: "create" } | { mode: "edit"; child: ChildProfile };
 

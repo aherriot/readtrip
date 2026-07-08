@@ -34,7 +34,6 @@ the index in [`SKILL.md`](../SKILL.md).
   the grid, mastered topics tuck into a pen-boxed `<details>`; a real list for screen readers.
 - **`XPBar`** — animated XP/level bar with count-up; `aria-live="polite"`.
 - **`ExpeditionStamp`** — a "stamped into the journal" badge with a press animation.
-- **`Avatar`** — the explorer token ("you are here"; cosmetic unlocks).
 - **`RewardBurst` / `LevelUpCelebration`** — contained overlays for XP/level/badge moments;
   reduced-motion safe.
 - **`Pip`** _(optional)_ — small guide mascot; gives the app a voice; keep it skippable and

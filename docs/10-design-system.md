@@ -176,6 +176,10 @@ re-styling ad hoc.** Live in `components/ui` (primitives), `components/game`, an
 - **Status markers** — **`StampMark`** (a rubber-stamp verdict pressed _over_ content — quiz
   "Yes!" / "Try again") and **`Highlight`** (a highlighter swipe over inline written text — the
   journal alternative to a pill, e.g. the XP "Lvl N" label).
+- **`Avatar`** — the explorer token ("you are here" on the map; profile picker). A rough round
+  patch in the child's chosen color — the same hand-run felt-tip edge as a color swatch
+  (`.rt-torn` masked to the shared inked-blob shape), as if a highlighter marker coloured in a
+  hand-drawn circle — with the explorer's initial inked on top, at a small hand-placed tilt.
 
 ### Game — `components/game/`
 
@@ -188,7 +192,6 @@ re-styling ad hoc.** Live in `components/ui` (primitives), `components/game`, an
 - **`XPBar`** — animated XP/level bar with a count-up; the "Lvl N" label is a `Highlight`
   marker swipe, not a pill. Announces changes politely to SRs.
 - **`ExpeditionStamp`** — a mastery badge "stamped into the journal" with a press animation.
-- **`Avatar`** — the explorer token ("you are here" on the map; cosmetic unlocks).
 - **`RewardBurst` / `LevelUpCelebration`** — overlay for XP gains, level-ups, badges.
 - **`Pip`** _(optional guide mascot)_ — a small companion that gives the app a voice
   ("Nice exploring! Want to try a tricky one?"). Personality drives kid engagement; keep

@@ -69,6 +69,7 @@ into `components/` and replace its row with a reference when you do).
 | `SubmitButton`   | ✅ [ref](references/submit-button.md) | A `<form>` submit that goes busy on its own pending state — server actions, nav.                                                                                                                       |
 | `Wordmark`       | ✅ [ref](references/wordmark.md)      | The ReadTrip brand mark — a hand-lettered inline-SVG logo. One per page (`/play` header, homepage hero); it's the logo, not a heading.                                                                 |
 | `InkFrame`       | ✅ [ref](references/ink-frame.md)     | The hand-drawn pen-box border itself — the low-level primitive `Card`/`Button`/`Input`/etc. render internally. Reach for it directly only when building a _new_ primitive that needs the same outline. |
+| `Avatar`         | ✅ [ref](references/avatar.md)        | The explorer token — a rough hand-coloured round patch (highlighter-in-a-hand-drawn-circle) with the initial inked on top. Profile picker, "you are here."                                             |
 
 ### Layout — `components/layout/`
 
@@ -84,8 +85,7 @@ Built: `TopicNode` ✅ [ref](references/topic-node.md) (signature map node),
 `RewardBurst` ✅ [ref](references/reward-burst.md) (an XP gain),
 `ExpeditionStamp` ✅ [ref](references/expedition-stamp.md) (a mastery badge),
 `LevelUpCelebration` ✅ [ref](references/level-up-celebration.md) (the level-up overlay).
-Planned (⏳, see [docs/10](../../../docs/10-design-system.md)): `Avatar`, `Pip`
-(optional mascot).
+Planned (⏳, see [docs/10](../../../docs/10-design-system.md)): `Pip` (optional mascot).
 
 ### Reading — `components/reading/` (⏳, see [docs/10](../../../docs/10-design-system.md))
 

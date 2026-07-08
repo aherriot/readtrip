@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
+import { Avatar } from "@/components/ui/Avatar";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { Heading } from "@/components/ui/Heading";
@@ -724,6 +725,29 @@ function HighlightVariants() {
   );
 }
 
+function AvatarVariants() {
+  return (
+    <div className="flex flex-col gap-6">
+      <Variant title="The explorer token — a highlighter-coloured hand-drawn patch">
+        <div className="flex flex-wrap items-center gap-6">
+          <Avatar color="sun" name="Ada" />
+          <Avatar color="coral" name="Ben" />
+          <Avatar color="aqua" name="Cleo" />
+          <Avatar color="leaf" name="Dov" />
+          <Avatar color="violet" name="Eve" />
+        </div>
+      </Variant>
+      <Variant title="Compact size — chrome / lists">
+        <div className="flex flex-wrap items-center gap-4">
+          <Avatar color="sun" name="Ada" size="sm" />
+          <Avatar color="coral" name="Ben" size="sm" />
+          <Avatar color="aqua" name="Cleo" size="sm" />
+        </div>
+      </Variant>
+    </div>
+  );
+}
+
 function WordmarkVariants() {
   return (
     <div className="flex flex-col gap-6">
@@ -1117,6 +1141,10 @@ export default function ComponentGallery() {
 
         <Section name="Highlight">
           <HighlightVariants />
+        </Section>
+
+        <Section name="Avatar">
+          <AvatarVariants />
         </Section>
 
         <Section name="Card">
