@@ -45,7 +45,7 @@ test("a child calibrates, lands on a reading level, and isn't asked again", asyn
   await page.getByRole("link", { name: /start exploring/i }).click();
 
   await expect(page).toHaveURL(/\/play$/);
-  await expect(page.getByLabel(/what do you want to explore/i)).toBeVisible();
+  await expect(page.getByLabel(/enter your own idea/i)).toBeVisible();
 
   // The calibrated level persisted — the parent's profile card reflects it.
   await page.getByRole("button", { name: /switch explorer/i }).click();
@@ -57,5 +57,5 @@ test("a child calibrates, lands on a reading level, and isn't asked again", asyn
   // Re-entering doesn't repeat calibration — it's a one-time first run.
   await page.getByRole("button", { name: /Bram/ }).click();
   await expect(page).toHaveURL(/\/play$/);
-  await expect(page.getByLabel(/what do you want to explore/i)).toBeVisible();
+  await expect(page.getByLabel(/enter your own idea/i)).toBeVisible();
 });

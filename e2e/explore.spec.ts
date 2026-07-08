@@ -18,7 +18,7 @@ test("shows free-form entry plus suggested topics, with the Explore button gated
 }) => {
   await reachExplore(page, CHILD);
 
-  await expect(page.getByLabel(/what do you want to explore/i)).toBeVisible();
+  await expect(page.getByLabel(/enter your own idea/i)).toBeVisible();
 
   // A few curated suggestions are offered as one-tap chips. Order is
   // randomized (lib/map/nodeState.ts orderNodes), so a fixed pair isn't
@@ -35,9 +35,7 @@ test("shows free-form entry plus suggested topics, with the Explore button gated
   const exploreButton = page.getByRole("button", { name: /^explore$/i });
   await expect(exploreButton).toBeDisabled();
 
-  await page
-    .getByLabel(/what do you want to explore/i)
-    .fill("why is the sky blue?");
+  await page.getByLabel(/enter your own idea/i).fill("why is the sky blue?");
   await expect(exploreButton).toBeEnabled();
 });
 
@@ -58,5 +56,5 @@ test("tapping a suggestion resolves straight into a lesson", async ({
 
   // And we can back out to explore something else.
   await page.getByRole("button", { name: /explore something else/i }).click();
-  await expect(page.getByLabel(/what do you want to explore/i)).toBeVisible();
+  await expect(page.getByLabel(/enter your own idea/i)).toBeVisible();
 });

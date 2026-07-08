@@ -87,7 +87,7 @@ test("warm up the Neon branch and every route the suite hits", async ({
 
   // Free-form entry compiles /api/explore (safety + normalize) — the known-
   // topic tap below skips it entirely, so it needs its own hit.
-  const input = page.getByLabel(/what do you want to explore/i);
+  const input = page.getByLabel(/enter your own idea/i);
   const exploreButton = page.getByRole("button", { name: /^explore$/i });
   await expect(async () => {
     await input.fill("why is the sky blue?");

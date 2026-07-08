@@ -82,7 +82,7 @@ test("finishing a quiz awards XP (Progress) and can steer to a brand-new expedit
   await expect(page.getByRole("dialog", { name: /level/i })).toBeHidden();
 
   await page.getByRole("button", { name: /explore something new/i }).click();
-  await expect(page.getByLabel(/what do you want to explore/i)).toBeVisible();
+  await expect(page.getByLabel(/enter your own idea/i)).toBeVisible();
 });
 
 test("replaying a topic masters it and levels up (Progress)", async ({
@@ -95,7 +95,7 @@ test("replaying a topic masters it and levels up (Progress)", async ({
   // Dismiss any celebration overlay, then steer back to Explore and replay the
   // *same* topic. (Visit 1 doesn't level up, but the dismiss is harmless.)
   await page.getByRole("button", { name: /explore something new/i }).click();
-  await expect(page.getByLabel(/what do you want to explore/i)).toBeVisible();
+  await expect(page.getByLabel(/enter your own idea/i)).toBeVisible();
   await playDinosaursToDone(page);
 
   // Visit 2: the cumulative 40 XP crosses the Level 2 threshold, so the
