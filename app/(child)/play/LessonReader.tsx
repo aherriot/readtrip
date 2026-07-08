@@ -10,7 +10,7 @@ import { Icon } from "@/components/ui/Icon";
 import { Spinner } from "@/components/ui/Spinner";
 import { Text } from "@/components/ui/Text";
 import { toLessonChunks } from "@/lib/reading/chunks";
-import { useStainSeed } from "@/components/layout/StainSeed";
+import { useStainSeed } from "@/components/layout/paper/StainSeed";
 import { QuizRunner } from "./QuizRunner";
 
 // The resolved topic the reader generates a lesson for (from ExploreEntry).

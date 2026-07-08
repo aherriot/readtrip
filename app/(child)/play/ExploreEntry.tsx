@@ -21,7 +21,7 @@ import { Spinner } from "@/components/ui/Spinner";
 import { Text } from "@/components/ui/Text";
 import type { MapNodeView } from "@/lib/map/nodeState";
 import { switchProfileAction } from "@/app/(parent)/profiles/actions";
-import { useStainSeed } from "@/components/layout/StainSeed";
+import { useStainSeed } from "@/components/layout/paper/StainSeed";
 import { LessonReader, type LessonTopic } from "./LessonReader";
 import { MapTilesSkeleton } from "./PlaySkeleton";
 

@@ -1,4 +1,4 @@
-import { PaperStains } from "@/components/layout/PaperStains";
+import { PaperStains } from "@/components/layout/paper/PaperStains";
 
 // Dev-only visual harness for the procedural paper stains. Each tile is a mini
 // journal page rendered with a fixed seed, so you can eyeball the variety across

@@ -1,7 +1,7 @@
 import type { ReactNode } from "react";
 import { cn } from "@/lib/ui/cn";
-import { PaperStains } from "./PaperStains";
-import { StainSeedProvider } from "./StainSeed";
+import { PaperStains } from "./paper/PaperStains";
+import { StainSeedProvider } from "./paper/StainSeed";
 
 /**
  * The "open field journal on a desk" page frame — three stacked layers:
