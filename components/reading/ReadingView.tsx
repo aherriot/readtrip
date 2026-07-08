@@ -27,15 +27,11 @@ export function ReadingView({
         // Transparent "pen box" (.rt-inkbox, heavier --lift outline like the
         // quiz): the JournalSheet's ruled lines show through — no opaque fill,
         // no separate margin rule. .rt-journal keeps the type on the grid.
-        "mx-auto w-full max-w-2xl rounded-[3px] text-surface-ink rt-journal rt-inkbox rt-inkbox--lift",
+        // Top/bottom padding are whole ruled rows so the first line lands on
+        // the grid; symmetric horizontal padding (no left margin gutter anymore).
+        "mx-auto w-full max-w-2xl rounded-[3px] px-6 py-[var(--journal-period)] text-surface-ink rt-journal rt-inkbox rt-inkbox--lift",
         className
       )}
-      // Top/bottom padding are whole ruled rows so the first line lands on the
-      // grid; symmetric horizontal padding (no left margin gutter anymore).
-      style={{
-        paddingBlock: "var(--journal-period)",
-        paddingInline: "1.5rem",
-      }}
       {...rest}
     >
       {children}

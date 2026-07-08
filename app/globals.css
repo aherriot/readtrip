@@ -511,3 +511,11 @@
   filter: url(#rt-sketch);
   pointer-events: none;
 }
+
+/* StickyNote paper: the fill + edge color are always the same formula off the
+   --note accent (a pale mix on light journal, deeper on dark), so only --note
+   itself (and the hand-placed tilt) need to be set per instance. */
+.rt-sticky {
+  background: color-mix(in srgb, var(--note) 28%, var(--surface-panel));
+  border-color: color-mix(in srgb, var(--note) 42%, transparent);
+}

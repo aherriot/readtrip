@@ -289,6 +289,16 @@ pure logic), gallery, and e2e coverage fails the parity check and is not mergeab
   (`.claude/skills/design-system`) is the operational "how & when to use" guide, and it's
   parity-checked against `components/ui/` by `npm run check:design-system` (pre-commit + CI)
   so the docs can't silently drift from the code.
+- **No inline styles for static values.** Anything that has the same value on every render
+  belongs in a Tailwind class or a token — `className="rounded-[3px] pt-[var(--journal-period)]"`,
+  never `style={{ borderRadius: "3px" }}`. Reach for a CSS class (`app/globals.css`) over a
+  literal in `style={{}}` even when the value references a CSS custom property, so the same
+  rule doesn't get retyped at every call site (see `.rt-marker`/`.rt-sticky`).
+  `style={{}}` is reserved for values only known at render time — an animation-delay stagger
+  computed from an index, a fill percentage, a per-instance CSS custom property like
+  `StickyNote`'s `--note`. An ESLint rule (`no-restricted-syntax` in `eslint.config.mjs`)
+  flags any `style={{}}` property whose value is a plain literal (string/number) — a static
+  value in disguise — so this can't silently regress.
 - **Storybook (recommended, optional):** a Storybook of the component library serves as a
   living style guide and showcases the design system as a deliberate, reusable system rather
   than one-off pages — useful for team collaboration and future development.
