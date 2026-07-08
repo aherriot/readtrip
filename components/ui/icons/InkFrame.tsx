@@ -181,12 +181,13 @@ export function InkFrame({
     if (!el) return;
     const measure = () => {
       const rect = el.getBoundingClientRect();
-      setSize((prev) =>
-        Math.round(prev.w) === Math.round(rect.width) &&
-        Math.round(prev.h) === Math.round(rect.height)
-          ? prev
-          : { w: rect.width, h: rect.height }
-      );
+      // Quantize to integer px: the wobble geometry is derived from this size, so
+      // using the raw fractional rect would let sub-pixel layout jitter shift a
+      // wobble point between renders — making the path non-reproducible (and
+      // flaking visual-regression snapshots). Integers are stable per layout.
+      const w = Math.round(rect.width);
+      const h = Math.round(rect.height);
+      setSize((prev) => (prev.w === w && prev.h === h ? prev : { w, h }));
     };
     measure();
     // Coalesce bursts of resize callbacks (e.g. a story streaming in) into one
@@ -231,6 +232,9 @@ export function InkFrame({
       className={className}
       style={style}
       viewBox={ready ? `0 0 ${w} ${h}` : undefined}
+      // The integer viewBox stretches to the element's exact (possibly
+      // fractional) box — a sub-pixel scale, imperceptible, keeps the frame flush.
+      preserveAspectRatio="none"
       fill="none"
       aria-hidden="true"
       focusable="false"
