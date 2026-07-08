@@ -328,11 +328,8 @@ export function ExploreEntry({
       )}
 
       <form onSubmit={onSubmit} className="flex flex-col gap-4">
-        <Text size="sm" tone="soft">
-          Or type your own idea:
-        </Text>
         <Input
-          label="What do you want to explore?"
+          label="Enter your own idea"
           name="rawQuery"
           value={query}
           onChange={(event) => setQuery(event.target.value)}

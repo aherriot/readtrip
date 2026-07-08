@@ -68,12 +68,8 @@ export function WorldMap({ nodes, onSelect, onDismiss }: WorldMapProps) {
       className="flex w-full flex-col gap-3"
     >
       <Heading id="world-map-heading" level={2}>
-        Your world map
+        Topics
       </Heading>
-      <Text tone="soft" size="sm">
-        Tap a glowing spot to explore it — new places appear as you discover
-        more.
-      </Text>
       {visible.length > 0 && (
         <ul className="grid list-none grid-cols-2 gap-4 sm:grid-cols-3">
           {visible.map((node, index) => (
