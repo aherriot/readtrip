@@ -8,6 +8,8 @@ to serve **engaging, age-appropriate explanations**, check understanding with **
 let the child **steer where to explore next**, and wrap the whole loop in **gamification**
 (points, levels, a world map of knowledge, and badges for mastering topics).
 
+https://readtripapp.vercel.app/
+
 ## The core loop
 
 ```
