@@ -210,9 +210,24 @@ export function TopicNode({
             setLeaving(true);
           }}
           aria-label={`Dismiss ${title}`}
-          className="absolute -right-2 -top-2 flex h-11 w-11 items-center justify-center rounded-pill bg-surface text-surface-ink-soft shadow-[var(--surface-elevation)] hover:bg-surface-ink/(--tint-wash)"
+          className={cn(
+            // A hand-drawn "cross it out" mark, not a badge: just the inked X
+            // (the shared doodle filter gives the glyph its wavy, pen-drawn
+            // edges) with no circle, fill, or shadow — a whole map of tiles
+            // must not read as a grid of red buttons. It rests as a quiet muted
+            // mark and inks up to the danger color (--surface-danger) on
+            // hover/focus, where the destructive removal is about to happen.
+            // The 44px button is an invisible kid-sized hit area around the
+            // small glyph, hung off the corner so it doesn't cover the
+            // tap-to-explore target.
+            "absolute -right-1.5 -top-1.5 flex h-11 w-11 items-center justify-center rounded-pill",
+            "text-surface-ink-soft transition",
+            "not-disabled:hover:text-surface-danger not-disabled:focus-visible:text-surface-danger",
+            "not-disabled:motion-safe:hover:scale-110",
+            "disabled:cursor-not-allowed"
+          )}
         >
-          <Icon name="close" decorative size="sm" />
+          <Icon name="close" decorative size="md" />
         </button>
       )}
     </div>

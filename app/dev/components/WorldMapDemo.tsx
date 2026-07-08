@@ -91,6 +91,9 @@ export function WorldMapDemo() {
               title="Volcanoes"
               state={state}
               kind={kind}
+              // Show the hand-inked dismiss ("cross it out") control where it
+              // renders — only suggested/explored nodes are dismissible.
+              onDismiss={() => {}}
             />
           ))}
         </div>
