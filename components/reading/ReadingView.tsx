@@ -6,13 +6,15 @@ export interface ReadingViewProps extends HTMLAttributes<HTMLElement> {
 }
 
 /**
- * The field-journal reading surface (docs/10). Switches the region to the warm
- * `paper` surface, constrains the column to a comfortable reading measure, and
- * lets the child focus on the lesson. Everything inside reads the `--surface-*`
- * tokens, so `Text`/`Heading`/`Card` render in their paper variants automatically.
+ * The field-journal reading surface (docs/10). A transparent hand-drawn pen box
+ * — the same treatment as the quiz `Card` — sitting on the JournalSheet page, so
+ * the page's ruled lines show through and the lesson reads as writing on the
+ * journal itself. Constrains the column to a comfortable reading measure and
+ * keeps the type on the ruled grid (`.rt-journal`). Everything inside reads the
+ * `--surface-*` tokens, so `Text`/`Heading` render in their paper variants.
  *
- * Wrap lesson (and later quiz) content in this — don't set the paper surface or
- * reading widths ad hoc on a page.
+ * Wrap lesson content in this — don't set the paper surface or reading widths
+ * ad hoc on a page.
  */
 export function ReadingView({
   children,
@@ -22,16 +24,17 @@ export function ReadingView({
   return (
     <section
       className={cn(
-        // Solid light paper, ruled lines the text sits on (.rt-lined + .rt-journal
-        // lock the type to the grid), inside a hand-drawn pen box (.rt-inkbox).
-        "mx-auto w-full max-w-2xl rounded-[3px] bg-surface text-surface-ink rt-lined rt-journal rt-inkbox",
+        // Transparent "pen box" (.rt-inkbox, heavier --lift outline like the
+        // quiz): the JournalSheet's ruled lines show through — no opaque fill,
+        // no separate margin rule. .rt-journal keeps the type on the grid.
+        "mx-auto w-full max-w-2xl rounded-[3px] text-surface-ink rt-journal rt-inkbox rt-inkbox--lift",
         className
       )}
       // Top/bottom padding are whole ruled rows so the first line lands on the
-      // grid; the left gutter (for the margin rule) comes from .rt-lined.
+      // grid; symmetric horizontal padding (no left margin gutter anymore).
       style={{
         paddingBlock: "var(--journal-period)",
-        paddingRight: "1.25rem",
+        paddingInline: "1.5rem",
       }}
       {...rest}
     >

@@ -1,4 +1,5 @@
 import { Wordmark } from "@/components/ui/Wordmark";
+import { JournalSheet } from "@/components/layout/JournalSheet";
 import { PlayShellSkeleton } from "./PlaySkeleton";
 
 // Instant skeleton for /play. The route's render is a couple of fast DB reads
@@ -8,9 +9,9 @@ import { PlayShellSkeleton } from "./PlaySkeleton";
 // map shell immediately and is swapped for the real page when ready.
 export default function Loading() {
   return (
-    <main className="mx-auto flex min-h-screen w-full max-w-xl flex-col items-center gap-6 p-6">
+    <JournalSheet contentClassName="max-w-xl items-center gap-6">
       <Wordmark className="h-9" />
       <PlayShellSkeleton />
-    </main>
+    </JournalSheet>
   );
 }

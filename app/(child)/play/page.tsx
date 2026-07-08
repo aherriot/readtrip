@@ -5,6 +5,7 @@ import { getChild } from "@/lib/children/queries";
 import { getSelectedChildId } from "@/lib/children/selection";
 import { getChildMap } from "@/lib/map/queries";
 import { Wordmark } from "@/components/ui/Wordmark";
+import { JournalSheet } from "@/components/layout/JournalSheet";
 import { ExploreEntry } from "./ExploreEntry";
 
 export const metadata: Metadata = {
@@ -35,7 +36,7 @@ export default async function PlayPage() {
   const needsSuggestions = !nodes.some((n) => n.status === "suggested");
 
   return (
-    <main className="mx-auto flex min-h-screen w-full max-w-xl flex-col items-center gap-6 p-6">
+    <JournalSheet contentClassName="max-w-xl items-center gap-6">
       <Wordmark className="h-9" />
 
       <ExploreEntry
@@ -44,6 +45,6 @@ export default async function PlayPage() {
         childName={child.displayName}
         xp={child.xp}
       />
-    </main>
+    </JournalSheet>
   );
 }

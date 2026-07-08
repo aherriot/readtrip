@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { Heading } from "@/components/ui/Heading";
 import { Text } from "@/components/ui/Text";
+import { JournalSheet } from "@/components/layout/JournalSheet";
 import { requireParent } from "@/lib/auth/session";
 import { getDashboardMetrics } from "@/lib/observability/queries";
 import type { DashboardMetrics } from "@/lib/observability/metrics";
@@ -117,7 +118,7 @@ export default async function DashboardPage() {
   const metrics = await getDashboardMetrics(parent.id);
 
   return (
-    <main className="mx-auto flex min-h-screen w-full max-w-3xl flex-col gap-8 p-6">
+    <JournalSheet contentClassName="max-w-3xl gap-8">
       <header className="flex flex-wrap items-end justify-between gap-4">
         <div className="flex flex-col gap-1">
           <Heading level={1}>Usage &amp; cost</Heading>
@@ -172,6 +173,6 @@ export default async function DashboardPage() {
           <ModelMix metrics={metrics} />
         </div>
       )}
-    </main>
+    </JournalSheet>
   );
 }

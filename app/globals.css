@@ -285,6 +285,126 @@
   margin-bottom: 0;
 }
 
+/*
+ * "Open field journal on a desk" — the framed surface for full-bleed pages
+ * (/play, /profiles). A light greige desk fills the viewport; the ruled page
+ * (.rt-sheet) rests on it, lifted by a soft shadow with page-stack edges, so the
+ * wide desktop margins read as a book sitting on a table rather than empty paper.
+ * Composed by <JournalSheet> (components/layout). Surface-aware — desk, paper,
+ * rule and shadow all track the --surface-* tokens.
+ */
+/* Layer 1 — the DESK: a light warm-greige surface with a faint vignette for
+   depth. On mobile it has no padding, so the leather cover bleeds to the screen
+   edges and no desk shows; from `sm` up a small inset frames the book with a
+   sliver of desk on every side. */
+.rt-desk {
+  min-height: 100svh;
+  padding: 0;
+  background-color: var(--surface-desk);
+  background-image: radial-gradient(
+    ellipse 120% 90% at 50% 30%,
+    transparent 55%,
+    color-mix(in srgb, var(--ink) 6%, transparent) 100%
+  );
+}
+@media (min-width: 40rem) {
+  .rt-desk {
+    padding: 16px;
+  }
+  .rt-cover {
+    min-height: calc(100svh - 32px);
+    border-radius: 12px;
+  }
+}
+
+/* Layer 2 — the LEATHER COVER the page is bound into: a deep-brown board with a
+   soft grain, a beveled edge (light top / dark bottom), a saddle-stitch line,
+   and the cast shadow that lifts the whole book off the desk. Its padding is the
+   visible leather lip around the page. --rt-page sets the book width; callers can
+   widen it (e.g. the landing page). */
+.rt-cover {
+  --rt-page: 56rem;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  margin-inline: auto;
+  max-width: var(--rt-page);
+  /* Mobile: the cover fills the whole viewport (no desk visible), squared to the
+     edges. From `sm` up the desk's 16px inset frames it and the corners round. */
+  min-height: 100svh;
+  padding: 14px;
+  border-radius: 0;
+  background-color: var(--surface-cover);
+  background-image:
+    radial-gradient(
+      140px 90px at 22% 14%,
+      rgba(255, 255, 255, 0.06),
+      transparent 70%
+    ),
+    radial-gradient(
+      180px 120px at 82% 88%,
+      rgba(0, 0, 0, 0.22),
+      transparent 72%
+    ),
+    repeating-linear-gradient(
+      118deg,
+      rgba(0, 0, 0, 0.05) 0 2px,
+      transparent 2px 5px
+    ),
+    repeating-linear-gradient(
+      28deg,
+      rgba(255, 255, 255, 0.02) 0 2px,
+      transparent 2px 6px
+    );
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.14),
+    inset 0 -2px 4px rgba(0, 0, 0, 0.4),
+    0 24px 50px -20px rgba(18, 10, 4, 0.55),
+    0 9px 20px -12px rgba(18, 10, 4, 0.45);
+}
+
+/* The saddle-stitch — a pale dashed thread just inside the leather edge. */
+.rt-cover::before {
+  content: "";
+  position: absolute;
+  inset: 7px;
+  border: 1.5px dashed var(--surface-stitch);
+  border-radius: 7px;
+  opacity: 0.55;
+  pointer-events: none;
+}
+
+/* Layer 3 — the PAGE: warm paper ruled with horizontal lines and the vertical
+   margin rule (the notebook margin — now page furniture on every JournalSheet),
+   dipping slightly at each side toward the binding. It fills the leather cover's
+   interior. --rt-margin is where the vertical rule sits from the page's left. */
+.rt-sheet {
+  --rt-margin: 2rem;
+  position: relative;
+  flex: 1;
+  border-radius: 4px;
+  background-color: var(--surface-bg);
+  background-image:
+    linear-gradient(
+      90deg,
+      transparent calc(var(--rt-margin) - 1px),
+      var(--journal-margin) calc(var(--rt-margin) - 1px),
+      var(--journal-margin) calc(var(--rt-margin) + 1px),
+      transparent calc(var(--rt-margin) + 1px)
+    ),
+    repeating-linear-gradient(
+      to bottom,
+      transparent 0,
+      transparent calc(var(--journal-period) - 1px),
+      var(--journal-line) calc(var(--journal-period) - 1px),
+      var(--journal-line) var(--journal-period)
+    );
+  box-shadow:
+    inset 0 0 0 1px color-mix(in srgb, var(--ink) 6%, transparent),
+    inset 22px 0 26px -24px color-mix(in srgb, var(--ink) 16%, transparent),
+    inset -22px 0 26px -24px color-mix(in srgb, var(--ink) 16%, transparent);
+}
+
 /* Hand-drawn "pen box": a transparent container whose ink border is waved into a
    hand-drawn rectangle by the #rt-sketch turbulence filter. The border lives on a
    filtered ::before so only the STROKE is displaced — the content stays crisp.

@@ -147,6 +147,9 @@ const PRIMITIVES: Swatch[] = [
     note: "Ruled lines",
   },
   { name: "blush", token: "--blush", meta: "#F0B3AA", note: "Margin rule" },
+  { name: "desk", token: "--desk", meta: "#E7E2D7", note: "Desk" },
+  { name: "cover", token: "--cover", meta: "#6F5238", note: "Leather cover" },
+  { name: "stitch", token: "--stitch", meta: "#D8C39A", note: "Cover stitch" },
 ];
 
 // Layer 2 — SEMANTIC: meaning mapped onto primitives. Components read THESE.
@@ -222,6 +225,24 @@ const SEMANTIC: Swatch[] = [
     token: "--journal-margin",
     meta: "= blush",
     note: "Margin rule",
+  },
+  {
+    name: "surface-desk",
+    token: "--surface-desk",
+    meta: "= desk",
+    note: "Desk",
+  },
+  {
+    name: "surface-cover",
+    token: "--surface-cover",
+    meta: "= cover",
+    note: "Leather cover",
+  },
+  {
+    name: "surface-stitch",
+    token: "--surface-stitch",
+    meta: "= stitch",
+    note: "Cover stitch",
   },
   {
     name: "focus-ring",
@@ -1047,8 +1068,8 @@ export default function ComponentGallery() {
           <ModalDemo />
         </section>
 
-        {/* ReadingView renders solid lined paper (a bespoke look), so it gets its
-            own section rather than the shared <Section> wrapper. */}
+        {/* ReadingView is a transparent pen box on the journal page (like the
+            quiz), so it gets its own section rather than the shared <Section>. */}
         <section
           data-testid="section-readingview"
           className="flex flex-col gap-4"

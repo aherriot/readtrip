@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { Heading } from "@/components/ui/Heading";
 import { Text } from "@/components/ui/Text";
+import { JournalSheet } from "@/components/layout/JournalSheet";
 
 export const metadata: Metadata = {
   title: "Check your email — ReadTrip",
@@ -10,7 +11,7 @@ export const metadata: Metadata = {
 
 export default function CheckEmailPage() {
   return (
-    <main className="flex min-h-screen flex-col items-center justify-center p-6">
+    <JournalSheet contentClassName="items-center justify-center">
       <Card elevated padding="lg" className="w-full max-w-md text-center">
         <div className="mb-6 flex flex-col gap-2">
           <Heading level={1} size="2xl">
@@ -25,6 +26,6 @@ export default function CheckEmailPage() {
           Back to sign in
         </Button>
       </Card>
-    </main>
+    </JournalSheet>
   );
 }
