@@ -346,6 +346,21 @@ test.describe("Highlight — contract", () => {
   });
 });
 
+test.describe("Avatar — contract", () => {
+  test("carves the fill to the hand-run torn edge and shows the explorer's initial", async ({
+    page,
+  }) => {
+    const region = page.getByTestId("avatar");
+    await expect(region.getByText("A", { exact: true }).first()).toBeVisible();
+    const blob = region.locator(".rt-torn").first();
+    const mask = await blob.evaluate(
+      (el) =>
+        getComputedStyle(el).webkitMaskImage || getComputedStyle(el).maskImage
+    );
+    expect(mask).not.toBe("none");
+  });
+});
+
 test.describe("Wordmark — contract", () => {
   test("exposes an accessible name; the decorative variant is hidden", async ({
     page,
