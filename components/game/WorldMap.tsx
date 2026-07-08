@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/Button";
 import { Heading } from "@/components/ui/Heading";
 import { Icon } from "@/components/ui/Icon";
 import { Text } from "@/components/ui/Text";
-import { InkFrame } from "@/components/ui/icons/InkFrame";
+import { InkFrame } from "@/components/ui/InkFrame";
 import { cn } from "@/lib/ui/cn";
 import { orderNodes, toNodeState, type MapNodeView } from "@/lib/map/nodeState";
 import { TopicNode } from "./TopicNode";

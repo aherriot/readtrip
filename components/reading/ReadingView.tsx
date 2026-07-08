@@ -1,6 +1,6 @@
 import type { HTMLAttributes, ReactNode } from "react";
 import { cn } from "@/lib/ui/cn";
-import { InkFrame } from "@/components/ui/icons/InkFrame";
+import { InkFrame } from "@/components/ui/InkFrame";
 
 export interface ReadingViewProps extends HTMLAttributes<HTMLElement> {
   children: ReactNode;

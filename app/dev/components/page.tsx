@@ -6,6 +6,7 @@ import { Heading } from "@/components/ui/Heading";
 import { Highlight } from "@/components/ui/Highlight";
 import { Icon } from "@/components/ui/Icon";
 import { ICON_NAMES } from "@/components/ui/icons/glyphs";
+import { InkFrame } from "@/components/ui/InkFrame";
 import { Input } from "@/components/ui/Input";
 import { ProgressBar } from "@/components/ui/ProgressBar";
 import { Select } from "@/components/ui/Select";
@@ -16,6 +17,7 @@ import { SubmitButton } from "@/components/ui/SubmitButton";
 import { Text } from "@/components/ui/Text";
 import { Wordmark } from "@/components/ui/Wordmark";
 import { cn } from "@/lib/ui/cn";
+import { JournalSheet } from "@/components/layout/JournalSheet";
 import { LessonChunk } from "@/components/reading/LessonChunk";
 import { ReadingView } from "@/components/reading/ReadingView";
 import { ModalDemo } from "./ModalDemo";
@@ -270,6 +272,24 @@ const SPACING = [
   { step: "16", cls: "w-16", px: "64px" },
 ] as const;
 
+const SHADOWS = [
+  {
+    name: "--surface-elevation",
+    cls: "shadow-[var(--surface-elevation)]",
+    note: "Soft lift · Modal",
+  },
+  {
+    name: "--surface-elevation-lifted",
+    cls: "shadow-[var(--surface-elevation-lifted)]",
+    note: "Popped off the page · StickyNote",
+  },
+  {
+    name: "--surface-elevation-tape",
+    cls: "shadow-[var(--surface-elevation-tape)]",
+    note: "Under a taped strip",
+  },
+] as const;
+
 const TYPE_SCALE = [
   { name: "text-xs", cls: "text-xs", rem: "0.875rem" },
   { name: "text-sm", cls: "text-sm", rem: "1rem" },
@@ -422,6 +442,27 @@ function PrimitiveTokens() {
                 <code className="font-mono text-xs text-surface-ink-soft">
                   {r.px}
                 </code>
+              </div>
+            ))}
+          </div>
+        </Variant>
+
+        <Variant title="Shadows / elevation (ink-mixed, never a hand-typed rgba)">
+          <div className="flex flex-wrap gap-8">
+            {SHADOWS.map((s) => (
+              <div key={s.name} className="flex flex-col items-center gap-2">
+                <div
+                  className={cn(
+                    "h-16 w-24 rounded-[3px] bg-surface-panel",
+                    s.cls
+                  )}
+                />
+                <code className="font-mono text-xs text-surface-ink-soft">
+                  {s.name}
+                </code>
+                <span className="text-center text-xs text-surface-ink-soft">
+                  {s.note}
+                </span>
               </div>
             ))}
           </div>
@@ -713,6 +754,61 @@ function CardVariants() {
           <Heading level={3}>Today&apos;s expedition</Heading>
           <Text tone="soft">Three topics explored since yesterday.</Text>
         </Card>
+      </Variant>
+    </div>
+  );
+}
+
+function InkFrameVariants() {
+  return (
+    <div className="flex flex-col gap-6">
+      <Variant title="Weight — the stroke each caller tunes to its context">
+        <div className="flex flex-wrap gap-6">
+          {[
+            { weight: 1.1, label: "1.1 · ProgressBar track" },
+            { weight: 1.8, label: "1.8 · default (Card, Modal)" },
+            { weight: 2.6, label: "2.6 · elevated Panel" },
+          ].map(({ weight, label }) => (
+            <div key={weight} className="flex flex-col items-center gap-2">
+              <div className="relative h-20 w-32 rounded-[3px]">
+                <InkFrame weight={weight} />
+              </div>
+              <code className="font-mono text-xs text-surface-ink-soft">
+                {label}
+              </code>
+            </div>
+          ))}
+        </div>
+      </Variant>
+      <Variant title="Tone (signals an error state, e.g. Input/Select)">
+        <div className="flex flex-wrap gap-6">
+          <div className="relative h-20 w-32 rounded-[3px]">
+            <InkFrame />
+          </div>
+          <div className="relative h-20 w-32 rounded-[3px]">
+            <InkFrame tone="var(--surface-danger)" />
+          </div>
+        </div>
+      </Variant>
+    </div>
+  );
+}
+
+function JournalSheetVariants() {
+  return (
+    <div className="flex flex-col gap-6">
+      <Variant title="The whole-page frame (contained + clipped here for the gallery — full-bleed in real routes)">
+        <div className="h-72 overflow-hidden rounded-md">
+          <JournalSheet contentClassName="max-w-none gap-2">
+            <Heading level={2} size="lg">
+              Volcanoes
+            </Heading>
+            <Text tone="soft">
+              Desk → leather cover → ruled page — every top-level route wraps
+              its content in this frame.
+            </Text>
+          </JournalSheet>
+        </div>
       </Variant>
     </div>
   );
@@ -1011,6 +1107,10 @@ export default function ComponentGallery() {
           <ButtonVariants />
         </Section>
 
+        <Section name="SubmitButton">
+          <SubmitButtonVariants />
+        </Section>
+
         <Section name="StampMark">
           <StampMarkVariants />
         </Section>
@@ -1023,8 +1123,16 @@ export default function ComponentGallery() {
           <CardVariants />
         </Section>
 
+        <Section name="InkFrame">
+          <InkFrameVariants />
+        </Section>
+
         <Section name="StickyNote">
           <StickyNoteVariants />
+        </Section>
+
+        <Section name="JournalSheet">
+          <JournalSheetVariants />
         </Section>
 
         <Section name="Wordmark">
@@ -1046,10 +1154,6 @@ export default function ComponentGallery() {
 
         <Section name="Spinner">
           <SpinnerVariants />
-        </Section>
-
-        <Section name="SubmitButton">
-          <SubmitButtonVariants />
         </Section>
 
         <Section name="Input">

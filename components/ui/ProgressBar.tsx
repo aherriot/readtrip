@@ -1,7 +1,7 @@
 import type { HTMLAttributes } from "react";
 import { cn } from "@/lib/ui/cn";
 import { toPercent } from "@/lib/ui/progress";
-import { InkFrame } from "@/components/ui/icons/InkFrame";
+import { InkFrame } from "@/components/ui/InkFrame";
 
 type ProgressTone = "accent" | "sun" | "leaf";
 

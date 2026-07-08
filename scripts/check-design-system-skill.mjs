@@ -20,7 +20,13 @@ import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const repoRoot = join(dirname(fileURLToPath(import.meta.url)), "..");
-const uiDir = join(repoRoot, "components", "ui");
+// Non-recursive per directory: components/ui/icons (glyph internals) and any
+// other subfolder is deliberately NOT walked — those files aren't
+// caller-facing components in their own right.
+const componentDirs = [
+  join(repoRoot, "components", "ui"),
+  join(repoRoot, "components", "layout"),
+];
 const skillDir = join(repoRoot, ".claude", "skills", "design-system");
 const skillIndex = join(skillDir, "SKILL.md");
 const refsDir = join(skillDir, "references");
@@ -38,16 +44,20 @@ const read = (path) => (existsSync(path) ? readFileSync(path, "utf8") : null);
 /** Whole-word match so "Input" doesn't satisfy a hypothetical "InputGroup". */
 const mentions = (text, name) => new RegExp(`\\b${name}\\b`).test(text);
 
-if (!existsSync(uiDir)) {
-  console.log("design-system parity: no components/ui yet — nothing to check.");
+const components = componentDirs
+  .filter((dir) => existsSync(dir))
+  .flatMap((dir) =>
+    readdirSync(dir)
+      .filter((f) => f.endsWith(".tsx"))
+      .filter((f) => !/\.(test|stories)\.tsx$/.test(f))
+      .map((f) => f.replace(/\.tsx$/, ""))
+      .filter((name) => name !== "index")
+  );
+
+if (components.length === 0) {
+  console.log("design-system parity: no components yet — nothing to check.");
   process.exit(0);
 }
-
-const components = readdirSync(uiDir)
-  .filter((f) => f.endsWith(".tsx"))
-  .filter((f) => !/\.(test|stories)\.tsx$/.test(f))
-  .map((f) => f.replace(/\.tsx$/, ""))
-  .filter((name) => name !== "index");
 
 // Coverage sources read once; a missing source is reported per-component below
 // (so the message points at the fix, not just "file not found").

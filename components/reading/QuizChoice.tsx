@@ -1,7 +1,7 @@
 "use client";
 
 import { Icon } from "@/components/ui/Icon";
-import { InkFrame } from "@/components/ui/icons/InkFrame";
+import { InkFrame } from "@/components/ui/InkFrame";
 import { StampMark, type StampTone } from "@/components/ui/StampMark";
 import type { IconName } from "@/components/ui/icons/glyphs";
 import { cn } from "@/lib/ui/cn";

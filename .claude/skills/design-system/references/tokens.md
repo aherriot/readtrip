@@ -48,9 +48,35 @@ changes.
 | `border-surface-rule`   | `--surface-rule`     | Hairlines, dividers                   |
 | `*-surface-accent`      | `--surface-accent`   | The surface accent (orchid)           |
 
-`--surface-elevation` is a soft paper shadow — use as `boxShadow:
-"var(--surface-elevation)"` or an arbitrary utility. (Note: most containers now use the
-hand-drawn `.rt-inkbox` pen box instead of a shadow.)
+See [Shadows / elevation](#shadows--elevation) below for `--surface-elevation` and its
+siblings.
+
+## Shadows / elevation
+
+A small named scale, not raw `rgba(0,0,0,…)` — every shadow is mixed from `--ink` so it stays
+correct if the ink token is ever retuned (e.g. a future theme), and no two components drift
+onto slightly different hand-typed blur/opacity values. **Never hand-write a `box-shadow` —
+reach for one of these three, or add a new named step if none fits** (don't retype a one-off
+`rgba()` at the call site).
+
+| Token                        | Use                                                                                                                                                                                                                                     |
+| ---------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `--surface-elevation`        | A soft paper lift for panels that float above the page — `Modal`. Most containers use the hand-drawn `.rt-inkbox` pen box (`InkFrame`) instead of a shadow; reach for this only when a real shadow (not an outline) is what's floating. |
+| `--surface-elevation-lifted` | A stronger lift for **opaque** paper that's popped off the page — `StickyNote`, the map-tile loading skeletons.                                                                                                                         |
+| `--surface-elevation-tape`   | The small shadow under a taped-on strip (`StickyNote`'s `tape` prop).                                                                                                                                                                   |
+
+```tsx
+// ✅ named token
+<div className="shadow-[var(--surface-elevation-lifted)]" />
+// ❌ a hand-typed shadow — no longer tied to --ink, drifts from every other shadow in the app
+<div className="shadow-[0_8px_18px_-9px_rgba(0,0,0,0.5)]" />
+```
+
+Two shadow-shaped effects deliberately live **outside** this scale as bespoke CSS:
+`.rt-cover`'s multi-layer leather-lift shadow (`app/globals.css`) is a one-off composed effect
+specific to that surface, not reused elsewhere; `ExpeditionStamp`'s `--sun`-colored glow
+(`shadow-[0_0_26px_-6px_var(--sun)]`) is a colored glow, not a neutral elevation cue, so it
+doesn't belong in an ink-mixed scale.
 
 ## Accent primitives
 

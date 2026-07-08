@@ -1,6 +1,6 @@
 import type { ElementType, HTMLAttributes, ReactNode } from "react";
 import { cn } from "@/lib/ui/cn";
-import { InkFrame } from "@/components/ui/icons/InkFrame";
+import { InkFrame } from "@/components/ui/InkFrame";
 
 type CardPadding = "sm" | "md" | "lg";
 
