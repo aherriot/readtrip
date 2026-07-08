@@ -20,9 +20,7 @@ async function reachMap(page: Page) {
 test("a new map seeds suggested starter topics", async ({ page }) => {
   await reachMap(page);
 
-  await expect(
-    page.getByRole("heading", { name: /your world map/i })
-  ).toBeVisible();
+  await expect(page.getByRole("heading", { name: /topics/i })).toBeVisible();
   // Curated starters are seeded as tappable "suggested" nodes. Tile order is
   // randomized, so Dinosaurs may sit behind "Show more" — reveal it first.
   await revealTopic(page, /dinosaurs tap to explore/i);

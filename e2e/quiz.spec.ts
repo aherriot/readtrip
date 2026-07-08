@@ -55,7 +55,7 @@ test("a child plays the quiz through to a result", async ({ page }) => {
   // Result: both right on the first try, and a way back to Explore (Steer).
   await expect(page.getByText(/2 of 2 on the first try/i)).toBeVisible();
   await page.getByRole("button", { name: /explore something new/i }).click();
-  await expect(page.getByLabel(/what do you want to explore/i)).toBeVisible();
+  await expect(page.getByLabel(/enter your own idea/i)).toBeVisible();
 });
 
 test("a wrong tap is a gentle 'try again', not a failure", async ({ page }) => {

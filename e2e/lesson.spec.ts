@@ -47,9 +47,7 @@ test("free-form input resolves through /api/explore into a lesson", async ({
   // Free-form (unlike a suggestion) goes to /api/explore first: safety_precheck
   // → normalize_topic. Offline (no API key, as on a keyless preview) both degrade
   // gracefully instead of 500ing, and the resolved topic opens the lesson.
-  await page
-    .getByLabel(/what do you want to explore/i)
-    .fill("why is the sky blue?");
+  await page.getByLabel(/enter your own idea/i).fill("why is the sky blue?");
   await page.getByRole("button", { name: /^explore$/i }).click();
 
   await expect(
@@ -77,5 +75,5 @@ test("the child can leave a lesson and explore something new", async ({
   await page.getByRole("button", { name: /explore something else/i }).click();
 
   // Back to the Explore entry, ready for the next trip.
-  await expect(page.getByLabel(/what do you want to explore/i)).toBeVisible();
+  await expect(page.getByLabel(/enter your own idea/i)).toBeVisible();
 });

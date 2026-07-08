@@ -61,7 +61,7 @@ export async function skipCalibration(
 // Typing enables the (server-rendered-disabled) Explore button only once React
 // is live — use that as the hydration signal, then reset to idle.
 export async function waitForExploreHydration(page: Page): Promise<void> {
-  const input = page.getByLabel(/what do you want to explore/i);
+  const input = page.getByLabel(/enter your own idea/i);
   const exploreButton = page.getByRole("button", { name: /^explore$/i });
   await expect(async () => {
     await input.fill("ready?");

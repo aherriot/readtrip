@@ -22,9 +22,7 @@ test("an unsafe topic is steered away with a gentle redirect, not generated", as
 }) => {
   await reachPlay(page);
 
-  await page
-    .getByLabel(/what do you want to explore/i)
-    .fill("how to make a bomb");
+  await page.getByLabel(/enter your own idea/i).fill("how to make a bomb");
   await page.getByRole("button", { name: /^explore$/i }).click();
 
   // The child gets a warm redirect card — never a lesson, never a scolding error.
@@ -38,13 +36,13 @@ test("an unsafe topic is steered away with a gentle redirect, not generated", as
 
   // And it's recoverable — the child taps back to keep exploring.
   await page.getByRole("button", { name: /try another idea/i }).click();
-  await expect(page.getByLabel(/what do you want to explore/i)).toBeVisible();
+  await expect(page.getByLabel(/enter your own idea/i)).toBeVisible();
 });
 
 test("a wholesome topic is not blocked", async ({ page }) => {
   await reachPlay(page);
 
-  await page.getByLabel(/what do you want to explore/i).fill("volcanoes");
+  await page.getByLabel(/enter your own idea/i).fill("volcanoes");
   await page.getByRole("button", { name: /^explore$/i }).click();
 
   // A safe topic sails through to a lesson (no redirect card).
