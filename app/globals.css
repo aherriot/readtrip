@@ -416,7 +416,7 @@ html {
 /* Hand-drawn "pen box": a transparent container framed by a hand-drawn ink
    rectangle. The wobble is PRE-BAKED into static SVG geometry drawn by the
    <InkFrame> component (an absolutely-positioned child), NOT a runtime
-   turbulence filter — see components/ui/icons/InkFrame.tsx. This class just
+   turbulence filter — see components/ui/InkFrame.tsx. This class just
    establishes the positioning context that InkFrame anchors to; the ink color,
    weight, and pill/box shape are InkFrame props (so the old `--lift/--danger/
    --correct/--retry/--pill/--thin` border modifiers are gone). */

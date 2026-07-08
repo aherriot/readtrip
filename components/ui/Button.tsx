@@ -8,7 +8,7 @@ import type {
 } from "react";
 import { Button as HeadlessButton } from "@headlessui/react";
 import { Spinner } from "./Spinner";
-import { InkFrame } from "@/components/ui/icons/InkFrame";
+import { InkFrame } from "@/components/ui/InkFrame";
 import { cn } from "@/lib/ui/cn";
 
 type ButtonVariant = "primary" | "secondary" | "ghost";

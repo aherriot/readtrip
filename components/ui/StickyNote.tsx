@@ -78,7 +78,7 @@ export function StickyNote({
         // rt-sticky), a soft drop shadow so it lifts off the page, and true
         // square corners — a real sticky note is cut square, not rounded (a
         // hairline 1px keeps the render from aliasing to a hard pixel edge).
-        "rt-sticky relative rounded-[1px] border text-surface-ink shadow-[0_8px_18px_-9px_rgba(0,0,0,0.5)]",
+        "rt-sticky relative rounded-[1px] border text-surface-ink shadow-[var(--surface-elevation-lifted)]",
         paddingStyles[padding],
         className
       )}
@@ -95,7 +95,7 @@ export function StickyNote({
         // A translucent strip of tape overlapping the top edge. Decorative.
         <span
           aria-hidden="true"
-          className="pointer-events-none absolute -top-2 left-1/2 h-4 w-14 -translate-x-1/2 -rotate-2 rounded-[2px] bg-surface-ink/(--tint-wash) shadow-[0_1px_2px_rgba(0,0,0,0.15)]"
+          className="pointer-events-none absolute -top-2 left-1/2 h-4 w-14 -translate-x-1/2 -rotate-2 rounded-[2px] bg-surface-ink/(--tint-wash) shadow-[var(--surface-elevation-tape)]"
         />
       )}
       {children}

@@ -9,7 +9,7 @@ import {
 } from "@headlessui/react";
 import { cn } from "@/lib/ui/cn";
 import { Icon } from "@/components/ui/Icon";
-import { InkFrame } from "@/components/ui/icons/InkFrame";
+import { InkFrame } from "@/components/ui/InkFrame";
 
 export interface ModalProps {
   /** Whether the dialog is shown. Controlled — the parent owns the state. */

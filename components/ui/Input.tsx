@@ -10,7 +10,7 @@ import {
 } from "@headlessui/react";
 import { cn } from "@/lib/ui/cn";
 import { Icon } from "@/components/ui/Icon";
-import { InkFrame } from "@/components/ui/icons/InkFrame";
+import { InkFrame } from "@/components/ui/InkFrame";
 
 type InputSize = "md" | "kid";
 

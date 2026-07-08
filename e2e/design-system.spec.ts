@@ -297,6 +297,21 @@ test.describe("StickyNote — contract", () => {
   });
 });
 
+test.describe("JournalSheet — contract", () => {
+  test("wraps its content in the desk → cover → page frame", async ({
+    page,
+  }) => {
+    const region = page.getByTestId("journalsheet");
+    // The three stacked layers a JournalSheet always composes.
+    await expect(region.locator(".rt-desk").first()).toBeVisible();
+    await expect(region.locator(".rt-cover").first()).toBeVisible();
+    const sheet = region.locator(".rt-sheet").first();
+    await expect(sheet).toBeVisible();
+    // Content renders inside the page, not floating outside the frame.
+    await expect(sheet.getByText("Volcanoes")).toBeVisible();
+  });
+});
+
 test.describe("StampMark — contract", () => {
   test("presses a tilted status stamp carrying an icon + word (not color alone)", async ({
     page,

@@ -1,6 +1,6 @@
 import type { CSSProperties, HTMLAttributes, ReactNode } from "react";
 import { cn } from "@/lib/ui/cn";
-import { InkFrame } from "@/components/ui/icons/InkFrame";
+import { InkFrame } from "@/components/ui/InkFrame";
 
 /** Which colored ink the stamp is inked in. Each maps to an AA-safe ink. */
 export type StampTone = "leaf" | "coral";

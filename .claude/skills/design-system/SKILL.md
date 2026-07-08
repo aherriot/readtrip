@@ -51,23 +51,30 @@ into `components/` and replace its row with a reference when you do).
 
 ### Primitives — `components/ui/`
 
-| Component        | Status                                | When to use                                                                                                                            |
-| ---------------- | ------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------- |
-| `StampMark`      | ✅ [ref](references/stamp-mark.md)    | A rubber-stamp verdict pressed _over_ content (tilted ink frame) — quiz "Yes!" / "Try again". Overlaps rather than reflowing the box.  |
-| `Highlight`      | ✅ [ref](references/highlight.md)     | A highlighter swipe over inline written text — the journal alt to a pill for a quiet status/label (e.g. the XP bar's "Lvl N").         |
-| `Input`          | ✅ [ref](references/input.md)         | Single-line text/number entry in a form (sign-in, profile name, search).                                                               |
-| `Select`         | ✅ [ref](references/select.md)        | Choosing one of several fixed, described options in an adult form (reading level).                                                     |
-| `Button`         | ✅ [ref](references/button.md)        | Any action/submit. Variants primary/secondary/ghost; `kid` size for child controls.                                                    |
-| `Card` (`Panel`) | ✅ [ref](references/card.md)          | Group related content in a transparent "pen box" (hand-drawn ink outline, lines showing through); `elevated` is the Panel look.        |
-| `StickyNote`     | ✅ [ref](references/sticky-note.md)   | A collected/pinned thing — opaque colored paper, tilt, tape, shadow. Map tiles + keepsakes. The _collection_ counterpart to `Card`.    |
-| `Heading`        | ✅ [ref](references/heading.md)       | Headings on the type scale with the right semantic level.                                                                              |
-| `Text`           | ✅ [ref](references/text.md)          | All body/label copy — Shantell Sans, reading-legibility defaults. No raw font sizing.                                                  |
-| `Icon`           | ✅ [ref](references/icon.md)          | The unified icon set: `<Icon name="…" />`, hand-drawn doodle glyphs from `components/ui/icons`. **No emoji / raw `<svg>` in pages.**   |
-| `Modal`          | ✅ [ref](references/modal.md)         | Focus-trapped dialog; `Escape`/backdrop close; returns focus to trigger.                                                               |
-| `ProgressBar`    | ✅ [ref](references/progress-bar.md)  | Generic animated bar (XP, calibration, quiz progress).                                                                                 |
-| `Spinner`        | ✅ [ref](references/spinner.md)       | Indeterminate "working on it" loading indicator; pair with text. `Button` embeds it.                                                   |
-| `SubmitButton`   | ✅ [ref](references/submit-button.md) | A `<form>` submit that goes busy on its own pending state — server actions, nav.                                                       |
-| `Wordmark`       | ✅ [ref](references/wordmark.md)      | The ReadTrip brand mark — a hand-lettered inline-SVG logo. One per page (`/play` header, homepage hero); it's the logo, not a heading. |
+| Component        | Status                                | When to use                                                                                                                                                                                            |
+| ---------------- | ------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `StampMark`      | ✅ [ref](references/stamp-mark.md)    | A rubber-stamp verdict pressed _over_ content (tilted ink frame) — quiz "Yes!" / "Try again". Overlaps rather than reflowing the box.                                                                  |
+| `Highlight`      | ✅ [ref](references/highlight.md)     | A highlighter swipe over inline written text — the journal alt to a pill for a quiet status/label (e.g. the XP bar's "Lvl N").                                                                         |
+| `Input`          | ✅ [ref](references/input.md)         | Single-line text/number entry in a form (sign-in, profile name, search).                                                                                                                               |
+| `Select`         | ✅ [ref](references/select.md)        | Choosing one of several fixed, described options in an adult form (reading level).                                                                                                                     |
+| `Button`         | ✅ [ref](references/button.md)        | Any action/submit. Variants primary/secondary/ghost; `kid` size for child controls.                                                                                                                    |
+| `Card` (`Panel`) | ✅ [ref](references/card.md)          | Group related content in a transparent "pen box" (hand-drawn ink outline, lines showing through); `elevated` is the Panel look.                                                                        |
+| `StickyNote`     | ✅ [ref](references/sticky-note.md)   | A collected/pinned thing — opaque colored paper, tilt, tape, shadow. Map tiles + keepsakes. The _collection_ counterpart to `Card`.                                                                    |
+| `Heading`        | ✅ [ref](references/heading.md)       | Headings on the type scale with the right semantic level.                                                                                                                                              |
+| `Text`           | ✅ [ref](references/text.md)          | All body/label copy — Shantell Sans, reading-legibility defaults. No raw font sizing.                                                                                                                  |
+| `Icon`           | ✅ [ref](references/icon.md)          | The unified icon set: `<Icon name="…" />`, hand-drawn doodle glyphs from `components/ui/icons`. **No emoji / raw `<svg>` in pages.**                                                                   |
+| `Modal`          | ✅ [ref](references/modal.md)         | Focus-trapped dialog; `Escape`/backdrop close; returns focus to trigger.                                                                                                                               |
+| `ProgressBar`    | ✅ [ref](references/progress-bar.md)  | Generic animated bar (XP, calibration, quiz progress).                                                                                                                                                 |
+| `Spinner`        | ✅ [ref](references/spinner.md)       | Indeterminate "working on it" loading indicator; pair with text. `Button` embeds it.                                                                                                                   |
+| `SubmitButton`   | ✅ [ref](references/submit-button.md) | A `<form>` submit that goes busy on its own pending state — server actions, nav.                                                                                                                       |
+| `Wordmark`       | ✅ [ref](references/wordmark.md)      | The ReadTrip brand mark — a hand-lettered inline-SVG logo. One per page (`/play` header, homepage hero); it's the logo, not a heading.                                                                 |
+| `InkFrame`       | ✅ [ref](references/ink-frame.md)     | The hand-drawn pen-box border itself — the low-level primitive `Card`/`Button`/`Input`/etc. render internally. Reach for it directly only when building a _new_ primitive that needs the same outline. |
+
+### Layout — `components/layout/`
+
+| Component      | Status                                | When to use                                                                                                  |
+| -------------- | ------------------------------------- | ------------------------------------------------------------------------------------------------------------ |
+| `JournalSheet` | ✅ [ref](references/journal-sheet.md) | The whole-page "open journal on a desk" frame — every top-level route and its loading skeleton wrap in this. |
 
 ### Game — `components/game/`
 
@@ -123,14 +130,16 @@ Full details in [references/testing.md](references/testing.md). The short versio
 
 This skill is **parity-checked** against the code by
 `scripts/check-design-system-skill.mjs` (run via `npm run check:design-system`, enforced in
-the pre-commit hook and CI). The check fails if a `components/ui/` component lacks a
-reference doc, a gallery entry, **or** an e2e test. So, whenever you:
+the pre-commit hook and CI). It walks the **direct** children of `components/ui/` and
+`components/layout/` (not subfolders — `components/ui/icons/` is glyph internals, not
+caller-facing components) and fails if any lacks a reference doc, a gallery entry, **or** an
+e2e test. So, whenever you:
 
-- **Add a `components/ui/*` component:** (1) create `references/<name>.md` (kebab-case, e.g.
-  `Button` → `references/button.md`) and document its API + _when to use / when not_ + a11y
-  notes; (2) flip its row in the index above to ✅ with a link; (3) add a `<Section>` for it
-  in `app/dev/components/page.tsx`; (4) add contract coverage in `e2e/design-system.spec.ts`.
-  The parity check enforces all four.
+- **Add a `components/ui/*` or `components/layout/*` component:** (1) create
+  `references/<name>.md` (kebab-case, e.g. `Button` → `references/button.md`) and document its
+  API + _when to use / when not_ + a11y notes; (2) flip its row in the index above to ✅ with a
+  link; (3) add a `<Section>` for it in `app/dev/components/page.tsx`; (4) add contract
+  coverage in `e2e/design-system.spec.ts`. The parity check enforces all four.
 - **Change a component's props/behavior:** update its reference file and its gallery
   variants so docs, manual review, and tests don't drift.
 - **Build a game/reading component:** add it under the right `components/` folder, give it a

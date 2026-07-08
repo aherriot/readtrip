@@ -71,6 +71,15 @@
   --surface-cover: var(--cover); /* the leather cover the page is bound into */
   --surface-stitch: var(--stitch); /* the stitch thread on the leather cover */
   --surface-elevation: 0 2px 10px color-mix(in srgb, var(--ink) 8%, transparent);
+  /* A stronger lift for opaque paper that's "popped off" the page — StickyNote,
+     the map-tile loading skeletons. Same shape (soft, offset down, no hard
+     edge) as --surface-elevation, just more of it — a Card outline handles
+     "framed on the page"; this handles "sitting above the page". */
+  --surface-elevation-lifted: 0 8px 18px -9px
+    color-mix(in srgb, var(--ink) 50%, transparent);
+  /* The small shadow under a taped-on strip (StickyNote's `tape` prop). */
+  --surface-elevation-tape: 0 1px 2px
+    color-mix(in srgb, var(--ink) 15%, transparent);
 
   /* Status — always paired with an icon + text, never color alone. The bright
      hue is the fill / large-element color; the `-strong` hue is the SAME meaning

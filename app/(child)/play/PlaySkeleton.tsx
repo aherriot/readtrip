@@ -10,7 +10,7 @@ export function MapTilesSkeleton() {
         // stuck onto the page (square corners + note drop shadow, no border).
         <div
           key={i}
-          className="h-28 animate-pulse rounded-[1px] bg-surface-ink/(--tint-wash) shadow-[0_8px_18px_-9px_rgba(0,0,0,0.35)]"
+          className="h-28 animate-pulse rounded-[1px] bg-surface-ink/(--tint-wash) shadow-[var(--surface-elevation-lifted)]"
         />
       ))}
     </div>
