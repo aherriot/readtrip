@@ -1,7 +1,10 @@
 # ProgressBar
 
 Generic, animated progress track with a real `progressbar` role. Used by XP, reading-level
-calibration, and quiz progress. Source:
+calibration, and quiz progress. The track is a hand-inked pen box (`.rt-inkbox`, the same
+double-traced ink stroke as `Card`/`Button`) traced round — the one shape the journal keeps
+round on purpose; the fill is waved by the shared `#rt-doodle` filter so its leading edge reads
+as a felt-tip stroke. Source:
 [`components/ui/ProgressBar.tsx`](../../../../components/ui/ProgressBar.tsx).
 
 ```tsx
