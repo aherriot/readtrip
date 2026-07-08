@@ -381,6 +381,10 @@
 .rt-sheet {
   --rt-margin: 2rem;
   position: relative;
+  /* Own stacking context so the decorative <PaperStains> overlay (z-index:-1)
+     paints above the paper + ruled lines but below the written content, and
+     never slips behind the leather cover. */
+  isolation: isolate;
   flex: 1;
   border-radius: 4px;
   background-color: var(--surface-bg);

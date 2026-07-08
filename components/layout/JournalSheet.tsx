@@ -1,5 +1,7 @@
 import type { ReactNode } from "react";
 import { cn } from "@/lib/ui/cn";
+import { PaperStains } from "./paper/PaperStains";
+import { StainSeedProvider } from "./paper/StainSeed";
 
 /**
  * The "open field journal on a desk" page frame — three stacked layers:
@@ -34,19 +36,22 @@ export function JournalSheet({
   wide?: boolean;
 }) {
   return (
-    <div className="rt-desk">
-      <div className={cn("rt-cover", wide && "[--rt-page:72rem]")}>
-        <main
-          aria-busy={busy || undefined}
-          className="rt-sheet flex flex-col py-8 pr-6 pl-9 sm:pr-12 sm:pl-16"
-        >
-          <div
-            className={`mx-auto flex w-full flex-1 flex-col ${contentClassName}`}
+    <StainSeedProvider>
+      <div className="rt-desk">
+        <div className={cn("rt-cover", wide && "[--rt-page:72rem]")}>
+          <main
+            aria-busy={busy || undefined}
+            className="rt-sheet flex flex-col py-8 pr-6 pl-9 sm:pr-12 sm:pl-16"
           >
-            {children}
-          </div>
-        </main>
+            <PaperStains />
+            <div
+              className={`mx-auto flex w-full flex-1 flex-col ${contentClassName}`}
+            >
+              {children}
+            </div>
+          </main>
+        </div>
       </div>
-    </div>
+    </StainSeedProvider>
   );
 }

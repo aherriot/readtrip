@@ -10,6 +10,7 @@ import { Icon } from "@/components/ui/Icon";
 import { Spinner } from "@/components/ui/Spinner";
 import { Text } from "@/components/ui/Text";
 import { toLessonChunks } from "@/lib/reading/chunks";
+import { useStainSeed } from "@/components/layout/paper/StainSeed";
 import { QuizRunner } from "./QuizRunner";
 
 // The resolved topic the reader generates a lesson for (from ExploreEntry).
@@ -53,6 +54,10 @@ export function LessonReader({
   const [status, setStatus] = useState<Status>("loading");
   const [redirect, setRedirect] = useState("");
   const [showQuiz, setShowQuiz] = useState(false);
+
+  // Own the paper's stain seed while a lesson is open: the story and its quiz
+  // each get their own pattern, keyed to the topic so it's stable per topic.
+  useStainSeed(`${showQuiz ? "quiz" : "story"}:${topic.topicSlug}`);
 
   useEffect(() => {
     // Each run owns its request; cleanup aborts it. Under React StrictMode (dev)

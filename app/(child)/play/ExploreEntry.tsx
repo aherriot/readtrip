@@ -21,6 +21,7 @@ import { Spinner } from "@/components/ui/Spinner";
 import { Text } from "@/components/ui/Text";
 import type { MapNodeView } from "@/lib/map/nodeState";
 import { switchProfileAction } from "@/app/(parent)/profiles/actions";
+import { useStainSeed } from "@/components/layout/paper/StainSeed";
 import { LessonReader, type LessonTopic } from "./LessonReader";
 import { MapTilesSkeleton } from "./PlaySkeleton";
 
@@ -77,6 +78,11 @@ export function ExploreEntry({
   const [dismissing, setDismissing] = useState<Set<string>>(new Set());
 
   const busy = phase.name === "resolving";
+
+  // Re-stain the paper as the expedition moves between views. While a lesson is
+  // open, LessonReader owns the seed (story vs quiz), so we bow out with `null`;
+  // otherwise the map's seed (bumped per expedition) is in force.
+  useStainSeed(phase.name === "reading" ? null : `map:${expedition}`);
 
   // Lift the "charting" cover whenever a server refresh delivers a fresh map:
   // the new tiles — or an unchanged empty map, if generation produced none —
