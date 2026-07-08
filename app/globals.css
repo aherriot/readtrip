@@ -381,9 +381,18 @@
 .rt-sheet {
   --rt-margin: 2rem;
   position: relative;
+  /* Own stacking context so the ::after grain (z-index:-1) stays above this
+     page's own background but below its written content — and doesn't fall
+     behind the leather cover. */
+  isolation: isolate;
   flex: 1;
   border-radius: 4px;
   background-color: var(--surface-bg);
+  /* Layers, front-to-back: the crisp margin rule and ruled lines, then a set of
+     warm, off-center foxing / coffee-stain blooms and edge-yellowing that make
+     the paper read as aged rather than printer-fresh. The stains sit behind the
+     ruled lines (lines stay crisp) but over the paper color. All layers are
+     100%-sized gradients, so no background-size list is needed. */
   background-image:
     linear-gradient(
       90deg,
@@ -398,11 +407,52 @@
       transparent calc(var(--journal-period) - 1px),
       var(--journal-line) calc(var(--journal-period) - 1px),
       var(--journal-line) var(--journal-period)
+    ),
+    radial-gradient(
+      60% 45% at 82% 12%,
+      color-mix(in srgb, var(--surface-stain) 10%, transparent),
+      transparent 70%
+    ),
+    radial-gradient(
+      50% 40% at 14% 86%,
+      color-mix(in srgb, var(--surface-stain) 8%, transparent),
+      transparent 72%
+    ),
+    radial-gradient(
+      26% 20% at 66% 60%,
+      color-mix(in srgb, var(--surface-stain) 9%, transparent),
+      transparent 62%
+    ),
+    radial-gradient(
+      120% 80% at 50% 0%,
+      transparent 58%,
+      color-mix(in srgb, var(--surface-stain) 7%, transparent)
+    ),
+    radial-gradient(
+      120% 85% at 50% 100%,
+      transparent 60%,
+      color-mix(in srgb, var(--surface-stain) 6%, transparent)
     );
   box-shadow:
     inset 0 0 0 1px color-mix(in srgb, var(--ink) 6%, transparent),
     inset 22px 0 26px -24px color-mix(in srgb, var(--ink) 16%, transparent),
     inset -22px 0 26px -24px color-mix(in srgb, var(--ink) 16%, transparent);
+}
+
+/* A faint fiber grain over the whole page. It's a statically-rasterized SVG
+   noise tile (var(--surface-grain)) — cached by the browser, not a live filter —
+   multiplied at low opacity so it darkens like paper texture rather than greying
+   it. Sits under the written content (z-index:-1), so ink stays crisp. */
+.rt-sheet::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background-image: var(--surface-grain);
+  background-size: 160px 160px;
+  mix-blend-mode: multiply;
+  opacity: 0.35;
+  pointer-events: none;
 }
 
 /* The pre-baked "felt-tip blob" mask shape, shared by the highlighter marker and
