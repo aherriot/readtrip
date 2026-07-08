@@ -40,6 +40,18 @@ export default function StainsPreviewPage() {
           </div>
         ))}
       </div>
+
+      {/* Tall page: the stains must keep their size and repeat down the page,
+          not stretch, as a lesson grows. */}
+      <h2 className="mt-10 mb-4 font-display text-xl text-surface-ink">
+        Tall page — stains should tile, never stretch
+      </h2>
+      <div className="rt-sheet relative min-h-[1600px] overflow-hidden p-4">
+        <PaperStains seed="story:crystal-caves" />
+        <p className="relative font-display text-sm text-surface-ink">
+          story:crystal-caves (tall)
+        </p>
+      </div>
     </div>
   );
 }
