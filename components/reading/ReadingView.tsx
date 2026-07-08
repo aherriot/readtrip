@@ -1,5 +1,6 @@
 import type { HTMLAttributes, ReactNode } from "react";
 import { cn } from "@/lib/ui/cn";
+import { InkFrame } from "@/components/ui/icons/InkFrame";
 
 export interface ReadingViewProps extends HTMLAttributes<HTMLElement> {
   children: ReactNode;
@@ -29,11 +30,12 @@ export function ReadingView({
         // no separate margin rule. .rt-journal keeps the type on the grid.
         // Top/bottom padding are whole ruled rows so the first line lands on
         // the grid; symmetric horizontal padding (no left margin gutter anymore).
-        "mx-auto w-full max-w-2xl rounded-[3px] px-6 py-[var(--journal-period)] text-surface-ink rt-journal rt-inkbox rt-inkbox--lift",
+        "mx-auto w-full max-w-2xl rounded-[3px] px-6 py-[var(--journal-period)] text-surface-ink rt-journal rt-inkbox",
         className
       )}
       {...rest}
     >
+      <InkFrame weight={2.6} />
       {children}
     </section>
   );

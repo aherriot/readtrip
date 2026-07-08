@@ -9,6 +9,7 @@ import {
 } from "@headlessui/react";
 import { cn } from "@/lib/ui/cn";
 import { Icon } from "@/components/ui/Icon";
+import { InkFrame } from "@/components/ui/icons/InkFrame";
 
 export interface ModalProps {
   /** Whether the dialog is shown. Controlled — the parent owns the state. */
@@ -76,6 +77,7 @@ export function Modal({
           "transition duration-200 ease-out data-[closed]:translate-y-2 data-[closed]:opacity-0"
         )}
       >
+        <InkFrame />
         <div className="mb-4 flex items-start justify-between gap-4">
           <DialogTitle className="min-w-0 break-words font-display text-2xl font-semibold text-surface-ink">
             {title}

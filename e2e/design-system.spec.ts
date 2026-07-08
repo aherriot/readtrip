@@ -253,23 +253,26 @@ test.describe("Card — contract", () => {
     const card = page.getByTestId("card");
     await expect(card.getByText("Volcanoes")).toBeVisible();
     // The Card is a transparent "pen box": no opaque fill, framed by a hand-drawn
-    // ink border on its ::before. The border color comes from the surface ink
-    // token (so it's surface-aware) — assert it equals the resolved text color,
-    // which is also --surface-ink, rather than a hardcoded value.
+    // ink border drawn by an <InkFrame> SVG (the stroke color comes from the
+    // surface ink token, so it's surface-aware). Assert the box is transparent
+    // and the drawn stroke equals the resolved text color (also --surface-ink),
+    // rather than a hardcoded value.
     const box = card.locator(".rt-inkbox").first();
-    const { bg, borderWidth, borderColor, color } = await box.evaluate((el) => {
+    const { bg, color } = await box.evaluate((el) => {
       const cs = getComputedStyle(el);
-      const before = getComputedStyle(el, "::before");
-      return {
-        bg: cs.backgroundColor,
-        borderWidth: before.borderTopWidth,
-        borderColor: before.borderTopColor,
-        color: cs.color,
-      };
+      return { bg: cs.backgroundColor, color: cs.color };
     });
     expect(bg).toBe("rgba(0, 0, 0, 0)"); // transparent — the ruled lines show through
-    expect(parseFloat(borderWidth)).toBeGreaterThan(0); // a drawn outline exists
-    expect(borderColor).toBe(color); // ink border from the surface token
+    // InkFrame measures its box then draws the wavy stroke (client-side), so wait
+    // for the path to exist before reading it.
+    const stroke = box.locator("svg path").first();
+    await expect(stroke).toBeVisible();
+    const { strokeColor, strokeWidth } = await stroke.evaluate((el) => {
+      const cs = getComputedStyle(el);
+      return { strokeColor: cs.stroke, strokeWidth: cs.strokeWidth };
+    });
+    expect(parseFloat(strokeWidth)).toBeGreaterThan(0); // a drawn outline exists
+    expect(strokeColor).toBe(color); // ink stroke from the surface token
   });
 });
 
@@ -302,10 +305,11 @@ test.describe("StampMark — contract", () => {
     // The word carries the meaning — visible for sighted + SR users.
     await expect(region.getByText("Yes!", { exact: true })).toBeVisible();
     await expect(region.getByText("Try again", { exact: true })).toBeVisible();
-    // Stamped on at a hand-pressed angle (the individual `rotate` property).
+    // Stamped on at a hand-pressed angle (the individual `rotate` property, set
+    // via inline style on the stamp root span).
     const rotate = await region
       .getByText("Yes!", { exact: true })
-      .locator("xpath=ancestor-or-self::*[contains(@class,'rt-stamp')][1]")
+      .locator("xpath=ancestor-or-self::*[contains(@style,'rotate')][1]")
       .evaluate((el) => getComputedStyle(el).rotate);
     expect(rotate).not.toBe("none");
   });

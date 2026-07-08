@@ -1,5 +1,6 @@
 import type { ElementType, HTMLAttributes, ReactNode } from "react";
 import { cn } from "@/lib/ui/cn";
+import { InkFrame } from "@/components/ui/icons/InkFrame";
 
 type CardPadding = "sm" | "md" | "lg";
 
@@ -51,12 +52,11 @@ export function Card({
         // (see .rt-inkbox in globals.css). No opaque panel fill.
         "rounded-[3px] text-surface-ink rt-inkbox",
         paddingStyles[padding],
-        // Panel emphasis is a heavier, drawn-twice outline (not a drop shadow).
-        elevated && "rt-inkbox--lift",
         className
       )}
       {...rest}
     >
+      <InkFrame weight={elevated ? 2.6 : 1.8} />
       {children}
     </Tag>
   );
