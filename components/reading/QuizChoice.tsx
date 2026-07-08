@@ -71,9 +71,10 @@ export function QuizChoice({
         stateStyles[state]
       )}
     >
-      {/* Reserve room on the right so a long answer doesn't run under the stamp
-          pressed into the corner. */}
-      <span className={cn("w-full", stamp && "pr-24")}>{children}</span>
+      {/* Always reserve room on the right for the stamp's corner, whether or not
+          it's currently shown — so the answer's wrap/height never shifts when
+          the stamp appears (it would if this padding toggled with `stamp`). */}
+      <span className="w-full pr-24">{children}</span>
       {/* The feedback is a rubber stamp pressed over the choice's corner. It's
           absolutely positioned in its own wrapper (out of flow), so it overlays
           the box without changing its height or spanning its width — it only
