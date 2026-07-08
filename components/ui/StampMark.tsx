@@ -1,5 +1,6 @@
 import type { CSSProperties, HTMLAttributes, ReactNode } from "react";
 import { cn } from "@/lib/ui/cn";
+import { InkFrame } from "@/components/ui/icons/InkFrame";
 
 /** Which colored ink the stamp is inked in. Each maps to an AA-safe ink. */
 export type StampTone = "leaf" | "coral";
@@ -54,16 +55,13 @@ export function StampMark({
   return (
     <span
       className={cn(
-        // The frame itself lives on a filtered ::before (see globals.css
-        // .rt-stamp) so the ink wobbles like a pressed stamp while the label
-        // stays sharp. Uppercase, tracked, bold — reads as stamped, not typed.
-        "rt-stamp relative inline-flex items-center gap-1.5 px-2.5 py-1",
+        // Uppercase, tracked, bold — reads as stamped, not typed.
+        "relative inline-flex items-center gap-1.5 px-2.5 py-1",
         "font-display text-sm font-bold uppercase tracking-[0.08em]",
         className
       )}
       style={
         {
-          "--stamp-ink": toneInk[tone],
           color: toneInk[tone],
           rotate: `${tilt}deg`,
           ...style,
@@ -71,6 +69,13 @@ export function StampMark({
       }
       {...rest}
     >
+      {/* A double-ruled hand-drawn frame — an outer box plus a lighter inset
+          rule — reads as a pressed rubber stamp. Pre-baked geometry, no filter;
+          the label stays crisp since the frame is its own layer. */}
+      <InkFrame weight={2} tone={toneInk[tone]} />
+      <span aria-hidden="true" className="absolute inset-[3px] opacity-[0.85]">
+        <InkFrame weight={1.4} tone={toneInk[tone]} />
+      </span>
       {icon != null && <span aria-hidden="true">{icon}</span>}
       <span>{children}</span>
     </span>

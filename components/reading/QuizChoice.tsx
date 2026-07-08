@@ -1,6 +1,7 @@
 "use client";
 
 import { Icon } from "@/components/ui/Icon";
+import { InkFrame } from "@/components/ui/icons/InkFrame";
 import { StampMark, type StampTone } from "@/components/ui/StampMark";
 import type { IconName } from "@/components/ui/icons/glyphs";
 import { cn } from "@/lib/ui/cn";
@@ -26,8 +27,17 @@ export interface QuizChoiceProps {
 const stateStyles: Record<QuizChoiceState, string> = {
   default: "bg-surface-panel not-disabled:hover:bg-surface-ink/(--tint-wash)",
   selected: "bg-surface-accent/(--tint-wash)",
-  correct: "rt-inkbox--correct bg-leaf/(--tint-fill)",
-  retry: "rt-inkbox--retry bg-coral/(--tint-soft)",
+  correct: "bg-leaf/(--tint-fill)",
+  retry: "bg-coral/(--tint-soft)",
+};
+
+// The hand-drawn pen box re-inks to the semantic color on a resolved answer
+// (paired with the stamp's icon + word — never color alone).
+const frameTone: Record<QuizChoiceState, string | undefined> = {
+  default: undefined,
+  selected: undefined,
+  correct: "var(--leaf)",
+  retry: "var(--coral)",
 };
 
 type Feedback = {
@@ -71,6 +81,7 @@ export function QuizChoice({
         stateStyles[state]
       )}
     >
+      <InkFrame tone={frameTone[state]} />
       <span className="w-full">{children}</span>
       {/* The feedback is a rubber stamp pressed over the choice's corner. It's
           absolutely positioned in its own wrapper (out of flow), so it overlays

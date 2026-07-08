@@ -10,6 +10,7 @@ import {
 } from "@headlessui/react";
 import { cn } from "@/lib/ui/cn";
 import { Icon } from "@/components/ui/Icon";
+import { InkFrame } from "@/components/ui/icons/InkFrame";
 
 type SelectSize = "md" | "kid";
 
@@ -89,7 +90,8 @@ export const Select = forwardRef<HTMLSelectElement, SelectProps>(
 
         {/* Hand-drawn ink pen box on the wrapper (a <select> can't carry
             ::before/::after); re-inks to the danger color on error. */}
-        <div className={cn("relative rt-inkbox", error && "rt-inkbox--danger")}>
+        <div className="relative rt-inkbox">
+          <InkFrame tone={error ? "var(--surface-danger)" : undefined} />
           <HeadlessSelect
             ref={ref}
             required={required}

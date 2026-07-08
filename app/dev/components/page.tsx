@@ -299,7 +299,7 @@ function ColorSwatch({ name, token, meta, note }: Swatch) {
       <div className="h-14" style={{ rotate: `${swatchTilt(name)}deg` }}>
         <div
           aria-hidden="true"
-          className="h-full w-full rounded-[3px] [filter:url(#rt-sketch)]"
+          className="rt-torn h-full w-full"
           // The token itself is the subject — read it directly, don't proxy it
           // through a utility class.
           style={{ backgroundColor: `var(${token})` }}

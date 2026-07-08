@@ -405,97 +405,36 @@
     inset -22px 0 26px -24px color-mix(in srgb, var(--ink) 16%, transparent);
 }
 
-/* Hand-drawn "pen box": a transparent container whose ink border is waved into a
-   hand-drawn rectangle by the #rt-sketch turbulence filter. The border lives on a
-   filtered ::before so only the STROKE is displaced — the content stays crisp.
-   Surface-aware: the ink switches with the surface. */
+/* The pre-baked "felt-tip blob" mask shape, shared by the highlighter marker and
+   the color swatch (.rt-torn). Baked once (scripts/bake-ink.mjs) — the black
+   fill is the visible mask area; `preserveAspectRatio='none'` lets it stretch to
+   any element without a runtime filter. */
+html {
+  --rt-inked-blob: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100' preserveAspectRatio='none'%3E%3Cpath fill='%23000' d='M94.6 50C94.7 51.8 95.2 53.7 95.2 55.6C95.1 57.5 94.9 59.4 94.4 61.3C93.9 63.2 93.1 65.1 92.1 66.9C91.1 68.7 89.8 70.4 88.4 72C86.9 73.6 85.2 75 83.4 76.3C81.6 77.6 79.5 78.7 77.5 79.7C75.4 80.7 73.2 81.5 70.9 82.2C68.7 82.9 66.4 83.4 64.1 83.8C61.8 84.3 59.4 84.6 57.1 84.8C54.7 85 52.4 85.2 50 85.2C47.6 85.2 45.3 85.1 42.9 84.8C40.6 84.6 38.2 84.2 36 83.7C33.7 83.2 31.4 82.5 29.3 81.7C27.2 80.9 25.1 80 23.1 78.9C21.2 77.8 19.4 76.5 17.8 75.2C16.1 73.8 14.6 72.3 13.3 70.8C12 69.3 10.8 67.6 9.8 65.9C8.9 64.2 8.1 62.5 7.4 60.7C6.8 59 6.3 57.2 6 55.4C5.7 53.6 5.5 51.8 5.6 50C5.6 48.2 5.8 46.4 6.2 44.6C6.6 42.9 7.2 41.1 7.9 39.4C8.7 37.8 9.7 36.1 10.8 34.6C12 33.1 13.3 31.6 14.8 30.3C16.3 29 18 27.8 19.8 26.8C21.5 25.8 23.4 24.9 25.4 24.2C27.3 23.5 29.4 22.9 31.4 22.4C33.4 21.9 35.5 21.6 37.6 21.3C39.7 21.1 41.7 20.9 43.8 20.7C45.9 20.6 47.9 20.5 50 20.5C52.1 20.4 54.1 20.4 56.2 20.5C58.3 20.5 60.5 20.6 62.6 20.8C64.7 21.1 66.8 21.3 68.9 21.8C71 22.3 73.1 22.8 75.1 23.5C77.1 24.3 79.1 25.2 80.8 26.2C82.6 27.3 84.3 28.5 85.8 29.9C87.3 31.2 88.6 32.7 89.8 34.3C90.9 35.9 91.8 37.6 92.5 39.3C93.2 41 93.7 42.8 94.1 44.6C94.4 46.4 94.4 48.2 94.6 50Z'/%3E%3C/svg%3E");
+}
+
+/* Hand-drawn "pen box": a transparent container framed by a hand-drawn ink
+   rectangle. The wobble is PRE-BAKED into static SVG geometry drawn by the
+   <InkFrame> component (an absolutely-positioned child), NOT a runtime
+   turbulence filter — see components/ui/icons/InkFrame.tsx. This class just
+   establishes the positioning context that InkFrame anchors to; the ink color,
+   weight, and pill/box shape are InkFrame props (so the old `--lift/--danger/
+   --correct/--retry/--pill/--thin` border modifiers are gone). */
 .rt-inkbox {
   position: relative;
 }
-/* Two nearly-square ink strokes with DIFFERENT turbulence seeds sit on top of
-   each other → a hand-drawn, drawn-twice pen box (not a rounded rect with
-   jitter). Near-square corners (3px) so the displacement reads as pen corners.
-   Both live on filtered pseudo-elements, so the content stays crisp. */
-.rt-inkbox::before,
-.rt-inkbox::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  border: 1.8px solid var(--surface-ink);
-  border-radius: 3px;
-  pointer-events: none;
-}
-.rt-inkbox::before {
-  filter: url(#rt-sketch);
-}
-.rt-inkbox::after {
-  filter: url(#rt-sketch-b);
-  opacity: 0.5; /* a fainter second pass, like re-tracing a line */
-}
-/* Elevated = a heavier pen box (the Panel emphasis in this language). */
-.rt-inkbox.rt-inkbox--lift::before,
-.rt-inkbox.rt-inkbox--lift::after {
-  border-width: 2.6px;
-}
-/* Error state: the pen box is re-inked in the danger color (for form fields). */
-.rt-inkbox.rt-inkbox--danger::before,
-.rt-inkbox.rt-inkbox--danger::after {
-  border-color: var(--surface-danger);
-}
-/* Quiz feedback: the pen box takes the semantic accent (paired with an icon +
-   word, never color alone — see QuizChoice). */
-.rt-inkbox.rt-inkbox--correct::before,
-.rt-inkbox.rt-inkbox--correct::after {
-  border-color: var(--leaf);
-}
-.rt-inkbox.rt-inkbox--retry::before,
-.rt-inkbox.rt-inkbox--retry::after {
-  border-color: var(--coral);
-}
-/* Pill radius: the round bits that survive the journal's squared-off language
-   (progress tracks, per tokens.md) still get the same double hand-inked
-   stroke, just traced round instead of the 3px "pen corner" square. */
-.rt-inkbox.rt-inkbox--pill::before,
-.rt-inkbox.rt-inkbox--pill::after {
-  border-radius: 999px;
-}
-/* Thin: a lighter stroke for small controls (the ProgressBar track) where the
-   default 1.8px pen box would read as too heavy against a 12px-tall bar. */
-.rt-inkbox.rt-inkbox--thin::before,
-.rt-inkbox.rt-inkbox--thin::after {
-  border-width: 1.1px;
-}
-
-/* Rubber stamp: a tilted, double-ruled ink frame pressed over content (the
-   caller rotates + positions it). Two #rt-sketch-waved borders — an outer frame
-   plus an inset inner line — read as a hand-pressed stamp, not a typed box. The
-   ink color is set per use via --stamp-ink; the label stays crisp because the
-   frame lives on the pseudo-elements. See StampMark. (The stamp element carries
-   its own `relative` utility for the pseudo's containing block — don't set
-   position here, or it would beat an `absolute` placement utility.) */
-.rt-stamp::before,
-.rt-stamp::after {
-  content: "";
-  position: absolute;
-  border: 2px solid var(--stamp-ink, var(--surface-ink));
-  border-radius: 3px;
-  filter: url(#rt-sketch);
-  pointer-events: none;
-}
-.rt-stamp::before {
-  inset: 0;
-}
-.rt-stamp::after {
-  inset: 3px;
-  border-width: 1.4px;
-  opacity: 0.85; /* the inner rule, a touch lighter */
-}
 
 /* Highlighter marker: a translucent swipe of color run over inline text, the way
-   you'd highlight a word in a journal. The swipe lives on a filtered ::before
-   (uneven, hand-run edges) behind the crisp text; it overshoots sideways like a
-   real marker stroke and sits slightly askew. The color is set per use via
-   --marker (an accent token), kept translucent so the ink reads through. */
+   you'd highlight a word in a journal. The swipe lives on a ::before behind the
+   crisp text; it overshoots sideways like a real marker stroke and sits slightly
+   askew. The color is set per use via --marker (an accent token), kept
+   translucent so the ink reads through.
+
+   The uneven, hand-run edge is a PRE-BAKED blob shape applied as a `mask` (see
+   scripts/bake-ink.mjs) — no runtime turbulence filter. The colored background
+   only shows through the wavy blob, so the swipe keeps its felt-tip edge while
+   the color stays a themeable CSS token. Stretch (mask-size:100% 100%) is fine
+   on a blob — there's no even-stroke to distort. */
 .rt-marker {
   position: relative;
   isolation: isolate;
@@ -506,10 +445,18 @@
   inset: 0.08em -0.28em 0.04em;
   z-index: -1;
   background: color-mix(in srgb, var(--marker, var(--sun)) 48%, transparent);
-  border-radius: 2px;
   transform: rotate(-1.4deg);
-  filter: url(#rt-sketch);
   pointer-events: none;
+  -webkit-mask: var(--rt-inked-blob) center / 100% 100% no-repeat;
+  mask: var(--rt-inked-blob) center / 100% 100% no-repeat;
+}
+
+/* A solid fill carved to a hand-run, felt-tip edge — the swatch/marker blob mask
+   applied to whatever `background` the element carries (so the color stays a
+   themeable token). No runtime filter. */
+.rt-torn {
+  -webkit-mask: var(--rt-inked-blob) center / 100% 100% no-repeat;
+  mask: var(--rt-inked-blob) center / 100% 100% no-repeat;
 }
 
 /* StickyNote paper: the fill + edge color are always the same formula off the

@@ -10,6 +10,7 @@ import {
 } from "@headlessui/react";
 import { cn } from "@/lib/ui/cn";
 import { Icon } from "@/components/ui/Icon";
+import { InkFrame } from "@/components/ui/icons/InkFrame";
 
 type InputSize = "md" | "kid";
 
@@ -90,7 +91,8 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(function Input(
 
       {/* The hand-drawn ink pen box lives on the wrapper (an <input> can't carry
           ::before/::after); it re-inks to the danger color on error. */}
-      <div className={cn("relative rt-inkbox", error && "rt-inkbox--danger")}>
+      <div className="relative rt-inkbox">
+        <InkFrame tone={error ? "var(--surface-danger)" : undefined} />
         {leadingIcon && (
           <span
             aria-hidden="true"

@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/Button";
 import { Heading } from "@/components/ui/Heading";
 import { Icon } from "@/components/ui/Icon";
 import { Text } from "@/components/ui/Text";
+import { InkFrame } from "@/components/ui/icons/InkFrame";
 import { cn } from "@/lib/ui/cn";
 import { orderNodes, toNodeState, type MapNodeView } from "@/lib/map/nodeState";
 import { TopicNode } from "./TopicNode";
@@ -133,71 +134,75 @@ export function WorldMap({ nodes, onSelect, onDismiss }: WorldMapProps) {
         </Button>
       )}
       {mastered.length > 0 && (
-        <details
-          open={masteredOpen}
-          onToggle={(event) => setMasteredOpen(event.currentTarget.open)}
-          className="rt-inkbox mt-1 rounded-[3px] px-4 py-3"
-        >
-          {/* Hide the native disclosure triangle; we draw our own chevron so the
+        <div className="relative mt-1">
+          <InkFrame />
+          <details
+            open={masteredOpen}
+            onToggle={(event) => setMasteredOpen(event.currentTarget.open)}
+            className="rounded-[3px] px-4 py-3"
+          >
+            {/* Hide the native disclosure triangle; we draw our own chevron so the
               affordance matches the journal language and flips on open. */}
-          <summary className="flex cursor-pointer list-none items-center gap-2 font-display font-medium text-surface-ink [&::-webkit-details-marker]:hidden">
-            <Icon name="medal" decorative size="sm" />
-            <span className="flex-1">
-              {mastered.length} topic{mastered.length === 1 ? "" : "s"} mastered
-            </span>
-            <span className="text-surface-ink-soft">
-              <Icon
-                name="chevron-down"
-                decorative
-                size="sm"
-                className={cn(
-                  "transition-transform motion-reduce:transition-none",
-                  masteredOpen && "rotate-180"
-                )}
-              />
-            </span>
-          </summary>
-          {/* Keyed on open state so the rows remount — and re-run their cascade
+            <summary className="flex cursor-pointer list-none items-center gap-2 font-display font-medium text-surface-ink [&::-webkit-details-marker]:hidden">
+              <Icon name="medal" decorative size="sm" />
+              <span className="flex-1">
+                {mastered.length} topic{mastered.length === 1 ? "" : "s"}{" "}
+                mastered
+              </span>
+              <span className="text-surface-ink-soft">
+                <Icon
+                  name="chevron-down"
+                  decorative
+                  size="sm"
+                  className={cn(
+                    "transition-transform motion-reduce:transition-none",
+                    masteredOpen && "rotate-180"
+                  )}
+                />
+              </span>
+            </summary>
+            {/* Keyed on open state so the rows remount — and re-run their cascade
               — each time the child expands the disclosure, not just on mount
               (when they're still display:none inside the closed <details>). */}
-          <ul
-            key={masteredOpen ? "open" : "closed"}
-            className="mt-3 flex list-none flex-col divide-y divide-surface-rule"
-          >
-            {masteredVisible.map((node, index) => (
-              <li
-                key={node.topicSlug}
-                className="motion-safe:animate-cascade-in"
-                style={{ animationDelay: `${Math.min(index, 8) * 40}ms` }}
-              >
-                <button
-                  type="button"
-                  onClick={() => onSelect(node)}
-                  className="flex w-full items-center gap-2 py-3 text-left transition-colors hover:bg-surface-ink/(--tint-wash)"
-                >
-                  <Icon name="medal" decorative size="sm" />
-                  <span className="min-w-0 flex-1 truncate font-body text-sm text-surface-ink">
-                    {node.title}
-                  </span>
-                  <span className="font-body text-xs text-surface-ink-soft">
-                    Mastered
-                  </span>
-                </button>
-              </li>
-            ))}
-          </ul>
-          {masteredRemaining > 0 && (
-            <Button
-              type="button"
-              variant="secondary"
-              size="md"
-              className="mt-3 w-full"
-              onClick={() => setMasteredShown((n) => n + MASTERED_PAGE_SIZE)}
+            <ul
+              key={masteredOpen ? "open" : "closed"}
+              className="mt-3 flex list-none flex-col divide-y divide-surface-rule"
             >
-              Show {Math.min(MASTERED_PAGE_SIZE, masteredRemaining)} more
-            </Button>
-          )}
-        </details>
+              {masteredVisible.map((node, index) => (
+                <li
+                  key={node.topicSlug}
+                  className="motion-safe:animate-cascade-in"
+                  style={{ animationDelay: `${Math.min(index, 8) * 40}ms` }}
+                >
+                  <button
+                    type="button"
+                    onClick={() => onSelect(node)}
+                    className="flex w-full items-center gap-2 py-3 text-left transition-colors hover:bg-surface-ink/(--tint-wash)"
+                  >
+                    <Icon name="medal" decorative size="sm" />
+                    <span className="min-w-0 flex-1 truncate font-body text-sm text-surface-ink">
+                      {node.title}
+                    </span>
+                    <span className="font-body text-xs text-surface-ink-soft">
+                      Mastered
+                    </span>
+                  </button>
+                </li>
+              ))}
+            </ul>
+            {masteredRemaining > 0 && (
+              <Button
+                type="button"
+                variant="secondary"
+                size="md"
+                className="mt-3 w-full"
+                onClick={() => setMasteredShown((n) => n + MASTERED_PAGE_SIZE)}
+              >
+                Show {Math.min(MASTERED_PAGE_SIZE, masteredRemaining)} more
+              </Button>
+            )}
+          </details>
+        </div>
       )}
     </section>
   );

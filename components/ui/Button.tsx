@@ -8,6 +8,7 @@ import type {
 } from "react";
 import { Button as HeadlessButton } from "@headlessui/react";
 import { Spinner } from "./Spinner";
+import { InkFrame } from "@/components/ui/icons/InkFrame";
 import { cn } from "@/lib/ui/cn";
 
 type ButtonVariant = "primary" | "secondary" | "ghost";
@@ -127,8 +128,11 @@ export const Button = forwardRef<
   } = props;
 
   const classes = buttonClasses({ variant, size, fullWidth, className });
+  // primary/secondary wear the hand-drawn pen box (`.rt-inkbox`); ghost has none.
+  const hasBox = (variant ?? "primary") !== "ghost";
   const content = (
     <>
+      {hasBox && <InkFrame />}
       {loading ? (
         // A spinner takes the leading slot; the label stays so the action is
         // still named. Kept aria-hidden (Spinner with no label) — aria-busy on

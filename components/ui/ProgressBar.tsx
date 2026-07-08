@@ -1,7 +1,7 @@
 import type { HTMLAttributes } from "react";
 import { cn } from "@/lib/ui/cn";
 import { toPercent } from "@/lib/ui/progress";
-import { DOODLE_FILTER_ID } from "@/components/ui/icons/IconDefs";
+import { InkFrame } from "@/components/ui/icons/InkFrame";
 
 type ProgressTone = "accent" | "sun" | "leaf";
 
@@ -36,11 +36,9 @@ const toneStyles: Record<ProgressTone, string> = {
  * and a human `aria-valuetext`, so screen readers announce progress. The fill
  * animates; the global reduced-motion floor turns that into an instant update.
  *
- * The track is a hand-inked pen box (the `.rt-inkbox` double stroke, same
- * language as `Card`/`Button`) traced round via the `--pill` modifier — the
- * one shape in the journal that stays round on purpose (tokens.md). The fill
- * itself is waved by the shared `#rt-doodle` filter so its leading edge reads
- * as a felt-tip stroke, not a mechanical bar.
+ * The track is a hand-drawn pen box (an `<InkFrame>`, same squared language as
+ * `Card`/`Button` — no pill; the journal is squared-off) with a plain filled bar
+ * inside it.
  *
  * Usage guidance: .claude/skills/design-system/references/progress-bar.md
  */
@@ -66,19 +64,17 @@ export function ProgressBar({
         aria-valuemax={100}
         aria-valuetext={`${rounded}%`}
         className={cn(
-          "rt-inkbox rt-inkbox--pill rt-inkbox--thin",
-          "relative h-3 w-full rounded-pill bg-surface-ink/(--tint-soft)"
+          "rt-inkbox",
+          "relative h-3 w-full rounded-[3px] bg-surface-ink/(--tint-soft)"
         )}
       >
+        <InkFrame weight={1.1} />
         <div
           className={cn(
-            "h-full rounded-pill transition-[width] duration-500 ease-out",
+            "h-full rounded-[2px] transition-[width] duration-500 ease-out",
             toneStyles[tone]
           )}
-          style={{
-            width: `${percent}%`,
-            filter: `url(#${DOODLE_FILTER_ID})`,
-          }}
+          style={{ width: `${percent}%` }}
         />
       </div>
       {showValue && (
