@@ -84,6 +84,21 @@ export function ExploreEntry({
   const [dismissing, setDismissing] = useState<Set<string>>(new Set());
 
   const busy = phase.name === "resolving";
+  // Read inside chartMapUpdate's `.finally` without retriggering the
+  // callback's own identity — see there for why a `router.refresh()` can't
+  // just fire whenever the background map request happens to resolve.
+  const phaseRef = useRef(phase);
+  phaseRef.current = phase;
+  // Set when a map refresh was deferred because a lesson was open when the
+  // background request resolved; drained once the child leaves "reading".
+  const pendingMapRefresh = useRef(false);
+  useEffect(() => {
+    if (phase.name !== "reading" && pendingMapRefresh.current) {
+      pendingMapRefresh.current = false;
+      router.refresh();
+    }
+  }, [phase.name, router]);
+
   // Picked once per mount, not per render — otherwise every state update in
   // this component (map growth, dismiss, streaming) would reshuffle the
   // illustrations. Scoped to the "idle" (map) view only, so they don't
@@ -124,12 +139,26 @@ export function ExploreEntry({
   // the result; the effect above lifts the cover once the fresh map lands.
   // Best-effort: a failed request just refreshes to whatever did persist. Shared
   // by the empty-map backfill and the after-a-loop growth.
+  //
+  // If the background request resolves while a lesson is open, DON'T refresh
+  // yet — a `router.refresh()` re-renders this route from the server, and
+  // that landing mid-stream was disrupting LessonReader's fetch (and its
+  // stain-seed claim) even though nothing here actually unmounts: the lesson
+  // text would visibly snap backward and the page would flash blank for a
+  // moment. Defer it; the effect above fires it once the child leaves the
+  // reading view instead.
   const chartMapUpdate = useCallback(
     (work: Promise<unknown>) => {
       setCharting(true);
       void work
         .catch((err) => console.error("[map] update failed:", err))
-        .finally(() => router.refresh());
+        .finally(() => {
+          if (phaseRef.current.name === "reading") {
+            pendingMapRefresh.current = true;
+          } else {
+            router.refresh();
+          }
+        });
     },
     [router]
   );

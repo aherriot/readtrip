@@ -53,6 +53,22 @@ export interface SteerHandlers {
 
 type Status = "loading" | "streaming" | "done" | "blocked" | "error";
 
+type LessonStream = {
+  ignore: boolean;
+  controller: AbortController;
+  pendingTeardown: ReturnType<typeof setTimeout> | null;
+};
+
+// Deferred, cancelable teardown — see LessonReader's fetch effect for why a
+// stream can't just be aborted synchronously on every cleanup.
+function scheduleTeardown(state: LessonStream): void {
+  state.pendingTeardown = setTimeout(() => {
+    state.ignore = true;
+    state.pendingTeardown = null;
+    state.controller.abort();
+  }, 0);
+}
+
 export function LessonReader({
   topic,
   onExplore,
@@ -108,11 +124,66 @@ export function LessonReader({
   const firstAnchorRef = useRef<number | null>(null);
   const secondAnchorRef = useRef<number | null>(null);
 
+  // Identifies the stream started below, so a re-invocation of the fetch
+  // effect can tell whether it's for the SAME lesson (reuse the running
+  // stream) or a genuinely new one (tear down and restart). Content-based,
+  // not `topic`'s object reference — see the effect for why reference alone
+  // isn't a safe signal here.
+  const topicKey = JSON.stringify([
+    topic.topicSlug,
+    topic.title,
+    topic.intent,
+    topic.rawQuery,
+    topic.parentLoopId ?? null,
+    topic.parentContext ?? null,
+    topic.previousLesson ?? null,
+  ]);
+  const streamRef = useRef<(LessonStream & { topicKey: string }) | null>(null);
+
   useEffect(() => {
-    // Each run owns its request; cleanup aborts it. Under React StrictMode (dev)
-    // the effect fires twice — the first request is aborted by its cleanup and
-    // its abort error is swallowed below, and the second runs to completion.
+    // React re-invokes this effect more than once for the SAME topic: once,
+    // predictably, under React StrictMode's dev-only mount→cleanup→mount
+    // double-invoke; and again, less predictably, whenever a `next/dynamic`
+    // Illustration below finishes loading and its Suspense boundary
+    // resolves for the first time (confirmed empirically — disabling the
+    // illustrations removes the extra invocations entirely). `topic`'s
+    // reference and this component's DOM node both stay provably identical
+    // across these re-invocations, so this isn't a remount; it's React
+    // replaying effects.
+    //
+    // Naively aborting-and-restarting on every invocation throws the
+    // in-progress stream away and starts a fresh one from scratch each
+    // time — the lesson text visibly snaps backward to a short, fresh
+    // chunk and the reader flashes blank for a moment as the new stream
+    // catches back up. Since React always runs the PREVIOUS effect's
+    // cleanup before the next invocation, the cleanup below defers its
+    // teardown by a tick; if the very next invocation is for the same
+    // topic, it cancels that pending teardown and reuses the still-running
+    // stream instead of starting a new one. A genuine topic change (a new
+    // lesson) tears down the old stream immediately, same as before.
+    const existing = streamRef.current;
+    if (existing && existing.topicKey === topicKey) {
+      if (existing.pendingTeardown !== null) {
+        clearTimeout(existing.pendingTeardown);
+        existing.pendingTeardown = null;
+      }
+      return () => scheduleTeardown(existing);
+    }
+    if (existing) {
+      if (existing.pendingTeardown !== null)
+        clearTimeout(existing.pendingTeardown);
+      existing.ignore = true;
+      existing.controller.abort();
+    }
+
     const controller = new AbortController();
+    const state = {
+      topicKey,
+      controller,
+      ignore: false,
+      pendingTeardown: null as ReturnType<typeof setTimeout> | null,
+    };
+    streamRef.current = state;
 
     async function run() {
       try {
@@ -139,6 +210,7 @@ export function LessonReader({
 
         for (;;) {
           const { value, done } = await reader.read();
+          if (state.ignore) return;
           if (done) break;
           buffer += decoder.decode(value, { stream: true });
 
@@ -156,33 +228,38 @@ export function LessonReader({
 
             if (event.type === "chunk") {
               acc += event.text;
+              if (state.ignore) return;
               setText(acc);
               setStatus("streaming");
             } else if (event.type === "blocked") {
+              if (state.ignore) return;
               setRedirect(event.redirect);
               setStatus("blocked");
               return;
             } else if (event.type === "done") {
+              if (state.ignore) return;
               setStatus("done");
               return;
             } else {
+              if (state.ignore) return;
               setStatus("error");
               return;
             }
           }
         }
         // Stream ended without an explicit done/error frame.
-        setStatus((s) => (s === "streaming" ? "done" : "error"));
+        if (!state.ignore)
+          setStatus((s) => (s === "streaming" ? "done" : "error"));
       } catch (err) {
-        if (controller.signal.aborted) return;
+        if (state.ignore || controller.signal.aborted) return;
         console.error(err);
         setStatus("error");
       }
     }
 
     void run();
-    return () => controller.abort();
-  }, [topic]);
+    return () => scheduleTeardown(state);
+  }, [topic, topicKey]);
 
   if (status === "blocked") {
     return (
