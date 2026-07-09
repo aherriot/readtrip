@@ -2,9 +2,10 @@ import type { CSSProperties } from "react";
 import { cn } from "@/lib/ui/cn";
 import type { AvatarColor } from "@/lib/children/validation";
 
-// Same hand-run felt-tip edge the color swatches use (.rt-torn in globals.css,
-// masked to the shared --rt-inked-blob shape) — a rough round patch, as if a
-// highlighter marker coloured it in, rather than a printed circle.
+// Same felt-tip masking technique the color swatches use, but the round-patch
+// shape (.rt-torn in globals.css, masked to --rt-inked-blob) rather than the
+// swatches' elongated stroke — a rough round patch, as if a highlighter
+// marker coloured it in, rather than a printed circle.
 const AVATAR_TOKEN: Record<AvatarColor, string> = {
   sun: "--sun",
   coral: "--coral",

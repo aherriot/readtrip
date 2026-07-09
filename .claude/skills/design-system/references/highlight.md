@@ -39,6 +39,6 @@ import { Highlight } from "@/components/ui/Highlight";
   (`.rt-marker`), never a fill that recolors it.
 - It's a **text treatment, not a control** — no role, no focus. If a highlighted word ever
   carries state, make sure that state is also in the words (never color alone — a11y floor).
-- The swipe uses the shared `#rt-sketch` turbulence filter for uneven, hand-run edges; it sits
-  behind the text via `isolation: isolate` + `z-index: -1`, so it can't drop behind ancestor
-  backgrounds.
+- The swipe uses a pre-baked marker-stroke mask (`--rt-marker-stroke`, an elongated capsule) for
+  uneven, hand-run edges; it sits behind the text via `isolation: isolate` + `z-index: -1`, so
+  it can't drop behind ancestor backgrounds.
