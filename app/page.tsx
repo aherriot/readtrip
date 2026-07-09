@@ -8,6 +8,8 @@ import { Text } from "@/components/ui/Text";
 import { Wordmark } from "@/components/ui/Wordmark";
 import { JournalSheet } from "@/components/layout/JournalSheet";
 import type { IconName } from "@/components/ui/icons/glyphs";
+import { Illustration } from "@/components/ui/illustrations/Illustration";
+import { pickRandomIllustrations } from "@/lib/illustrations/pick";
 
 export const metadata: Metadata = {
   title: "ReadTrip — a curiosity engine for kids",
@@ -37,6 +39,12 @@ export default async function Home() {
   const session = await auth();
   const isSignedIn = Boolean(session?.user?.id);
   const primaryHref = isSignedIn ? "/profiles" : "/sign-in";
+  // A fresh pair every load — this route already reads cookies() via auth(),
+  // which opts it out of static rendering, so Math.random() here re-runs
+  // per request for free. Each <Illustration> reserves its own box (fixed
+  // h-*/w-* on the wrapper) regardless of when its chunk resolves, so picking
+  // a different pair never shifts the layout.
+  const [aboveHowItWorks, belowFeatures] = pickRandomIllustrations(2);
 
   return (
     <JournalSheet
@@ -63,6 +71,8 @@ export default async function Home() {
         </Text>
       </section>
 
+      <Illustration name={aboveHowItWorks} size="xl" decorative />
+
       {/* What it does */}
       <section className="flex w-full max-w-5xl flex-col gap-8">
         <Heading level={2} size="xl">
@@ -80,6 +90,8 @@ export default async function Home() {
           ))}
         </ul>
       </section>
+
+      <Illustration name={belowFeatures} size="xl" decorative />
 
       {/* Who it's for */}
       <section className="w-full max-w-3xl">

@@ -5,6 +5,10 @@
 // model set. Prompt the model to emit JSON, extract it, and validate here — the
 // schema is the source of truth for "schema-valid" regardless of the model.
 import { z } from "zod";
+import {
+  ILLUSTRATION_CATEGORIES,
+  ILLUSTRATION_TAGS,
+} from "@/components/ui/illustrations/catalog";
 
 // --- normalize_topic ---
 export const NormalizeSchema = z.object({
@@ -58,6 +62,15 @@ export const TopicSuggestionSchema = z.object({
   // deliberate breadth, unrelated to it — keeps the map from narrowing
   // entirely onto one interest (docs/05).
   kind: z.enum(["neighbor", "different"]),
+  // Illustration matching (see lib/illustrations/resolve.ts). Both are closed
+  // enums read straight from the illustration catalog — a value outside
+  // either list fails validation and the whole suggestion is dropped (see
+  // topicMap.ts), never resolved via fuzzy string matching. `illustrationTag`
+  // is the specific subject; `illustrationCategory` is the coarser
+  // near-guaranteed-to-have-art fallback the resolver falls back to when the
+  // tag doesn't (yet) have a matching illustration.
+  illustrationTag: z.enum(ILLUSTRATION_TAGS),
+  illustrationCategory: z.enum(ILLUSTRATION_CATEGORIES),
 });
 export type TopicSuggestion = z.infer<typeof TopicSuggestionSchema>;
 

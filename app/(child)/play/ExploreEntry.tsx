@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import {
   useCallback,
   useEffect,
+  useMemo,
   useRef,
   useState,
   type FormEvent,
@@ -16,6 +17,7 @@ import { Card } from "@/components/ui/Card";
 import { SubmitButton } from "@/components/ui/SubmitButton";
 import { Heading } from "@/components/ui/Heading";
 import { Icon } from "@/components/ui/Icon";
+import { Illustration } from "@/components/ui/illustrations/Illustration";
 import { Input } from "@/components/ui/Input";
 import { Spinner } from "@/components/ui/Spinner";
 import { Text } from "@/components/ui/Text";
@@ -25,6 +27,7 @@ import {
   randomSeedSuffix,
   useStainSeed,
 } from "@/components/layout/paper/StainSeed";
+import { pickRandomIllustrations } from "@/lib/illustrations/pick";
 import { LessonReader, type LessonTopic } from "./LessonReader";
 import { MapTilesSkeleton } from "./PlaySkeleton";
 
@@ -81,6 +84,14 @@ export function ExploreEntry({
   const [dismissing, setDismissing] = useState<Set<string>>(new Set());
 
   const busy = phase.name === "resolving";
+  // Picked once per mount, not per render — otherwise every state update in
+  // this component (map growth, dismiss, streaming) would reshuffle the
+  // illustrations. Scoped to the "idle" (map) view only, so they don't
+  // compete with the reading view's own inline illustrations.
+  const [mapBelowShowMore, mapBelowExplore] = useMemo(
+    () => pickRandomIllustrations(2),
+    []
+  );
 
   // A per-mount nonce so the map's stains don't redraw identically on every
   // reload or every return trip to /play — only `expedition` bumping within a
@@ -197,7 +208,12 @@ export function ExploreEntry({
 
   // A map node or curated chip is a known concept, so tapping it skips the
   // safety + normalize round-trip and resolves straight away.
-  function startTopic(topic: { title: string; topicSlug: string }) {
+  function startTopic(topic: {
+    title: string;
+    topicSlug: string;
+    illustrationTag?: string | null;
+    illustrationCategory?: LessonTopic["illustrationCategory"];
+  }) {
     if (busy) return;
     startReading({
       title: topic.title,
@@ -207,6 +223,8 @@ export function ExploreEntry({
       parentLoopId: null,
       parentContext: null,
       previousLesson: null,
+      illustrationTag: topic.illustrationTag ?? null,
+      illustrationCategory: topic.illustrationCategory ?? null,
     });
   }
 
@@ -340,6 +358,9 @@ export function ExploreEntry({
           nodes={initialNodes}
           onSelect={startTopic}
           onDismiss={dismissTopic}
+          afterShowMore={
+            <Illustration name={mapBelowShowMore} size="xl" decorative />
+          }
         />
       )}
 
@@ -367,6 +388,13 @@ export function ExploreEntry({
           </Text>
         )}
       </form>
+
+      <Illustration
+        name={mapBelowExplore}
+        size="xl"
+        decorative
+        className="self-center"
+      />
 
       <form action={switchProfileAction} className="self-center">
         <SubmitButton variant="ghost" size="md">

@@ -1,14 +1,18 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { Fragment, useEffect, useMemo, useState } from "react";
 import { LessonChunk } from "@/components/reading/LessonChunk";
 import { ReadingView } from "@/components/reading/ReadingView";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { Heading } from "@/components/ui/Heading";
 import { Icon } from "@/components/ui/Icon";
+import type { IllustrationCategory } from "@/components/ui/illustrations/catalog";
+import { Illustration } from "@/components/ui/illustrations/Illustration";
 import { Spinner } from "@/components/ui/Spinner";
 import { Text } from "@/components/ui/Text";
+import { pickRandomIllustrations } from "@/lib/illustrations/pick";
+import { resolveIllustration } from "@/lib/illustrations/resolve";
 import { toLessonChunks } from "@/lib/reading/chunks";
 import { useStainSeed } from "@/components/layout/paper/StainSeed";
 import { QuizRunner } from "./QuizRunner";
@@ -25,6 +29,14 @@ export interface LessonTopic {
   parentContext?: string | null;
   /** The parent loop's lesson text, so a follow-up covers new ground. */
   previousLesson?: string | null;
+  /**
+   * Illustration matching (lib/illustrations/resolve.ts) — set when this
+   * topic came from a map node the topic_map LLM tagged. Absent/null for a
+   * free-form /api/explore topic (normalize_topic doesn't emit these yet),
+   * in which case the reader falls back to a random pair.
+   */
+  illustrationTag?: string | null;
+  illustrationCategory?: IllustrationCategory | null;
 }
 
 /** How the child steers on from a finished quiz (docs/01 §6). */
@@ -54,6 +66,29 @@ export function LessonReader({
   const [status, setStatus] = useState<Status>("loading");
   const [redirect, setRedirect] = useState("");
   const [showQuiz, setShowQuiz] = useState(false);
+  // Picked once per topic (not per streamed chunk) so the pair stays put
+  // while the lesson text streams in around them. When the topic came from a
+  // map node the topic_map LLM tagged, resolve real matches (two different
+  // seeds off the same tag/category, so the pair isn't the same illustration
+  // twice); a free-form /api/explore topic has neither field yet, so falls
+  // back to a random pair.
+  const [storyFirst, storySecond] = useMemo(() => {
+    if (topic.illustrationTag || topic.illustrationCategory) {
+      return [
+        resolveIllustration({
+          tag: topic.illustrationTag,
+          category: topic.illustrationCategory,
+          seed: topic.topicSlug,
+        }),
+        resolveIllustration({
+          tag: topic.illustrationTag,
+          category: topic.illustrationCategory,
+          seed: `${topic.topicSlug}:2`,
+        }),
+      ];
+    }
+    return pickRandomIllustrations(2);
+  }, [topic.topicSlug, topic.illustrationTag, topic.illustrationCategory]);
 
   // Own the paper's stain seed while a lesson is open: the story and its quiz
   // each get their own pattern, keyed to the topic so it's stable per topic.
@@ -185,6 +220,18 @@ export function LessonReader({
 
   const chunks = toLessonChunks(text);
 
+  // Never at the top — the first illustration lands roughly a third of the
+  // way down, the second roughly two-thirds. Recomputed from the current
+  // chunk count as the lesson streams in, so it settles at the true 1/3 and
+  // 2/3 marks once streaming finishes; Math.max(1, …) keeps the first one
+  // from ever landing on chunk 0 in a very short lesson.
+  const firstIllustrationAt =
+    chunks.length > 0 ? Math.max(1, Math.floor(chunks.length / 3)) : -1;
+  const secondIllustrationAt =
+    chunks.length > 0
+      ? Math.max(firstIllustrationAt + 1, Math.floor((chunks.length * 2) / 3))
+      : -1;
+
   return (
     <div className="flex w-full flex-col items-center gap-6">
       <ReadingView
@@ -200,10 +247,26 @@ export function LessonReader({
         ) : (
           // No flex `gap` here — the ruled rhythm comes from .rt-journal's
           // per-paragraph margins (a whole ruled row), so text stays on the
-          // lines. A stray gap would push every paragraph off the grid.
+          // lines. A stray gap would push every paragraph off the grid. Each
+          // illustration sits in a 224px (7 ruled rows) box for the same
+          // reason — a bare 208px xl illustration isn't a whole multiple of
+          // the ruled-row height, which would knock every line after it off
+          // the grid.
           <div aria-live="polite">
             {chunks.map((chunk, i) => (
-              <LessonChunk key={i}>{chunk}</LessonChunk>
+              <Fragment key={i}>
+                <LessonChunk>{chunk}</LessonChunk>
+                {i === firstIllustrationAt && (
+                  <div className="flex h-[224px] items-center justify-center">
+                    <Illustration name={storyFirst} size="xl" decorative />
+                  </div>
+                )}
+                {i === secondIllustrationAt && (
+                  <div className="flex h-[224px] items-center justify-center">
+                    <Illustration name={storySecond} size="xl" decorative />
+                  </div>
+                )}
+              </Fragment>
             ))}
           </div>
         )}

@@ -3,6 +3,7 @@
 // TopicProgress, so it's layered in here at read time. The resulting state drives
 // the TopicNode's look — each state has a distinct icon + label, not just color.
 // Pure so it's unit-testable without a DB or DOM.
+import type { IllustrationCategory } from "@/components/ui/illustrations/catalog";
 
 /** The persisted status of a map node (see `MapNode.status` in the schema). */
 export type MapNodeStatus = "suggested" | "explored";
@@ -23,6 +24,12 @@ export interface MapNodeView {
   mastered: boolean;
   /** Deep/diverse pool, set while `suggested`; null once meaning is moot. */
   kind: SuggestionKind | null;
+  /** Illustration matching (lib/illustrations/resolve.ts). Null for topics
+   * from a path that doesn't set these yet (a free-form /api/explore
+   * topic) or rows written before this existed — the resolver's generic
+   * fallback covers that case. */
+  illustrationTag: string | null;
+  illustrationCategory: IllustrationCategory | null;
 }
 
 /**

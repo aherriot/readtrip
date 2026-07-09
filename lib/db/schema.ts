@@ -172,6 +172,14 @@ export const mapNodes = pgTable(
     // meaningless.
     kind: text("kind"),
     neighbors: jsonb("neighbors").notNull(), // adjacent topic slugs (graph edges)
+    // Illustration matching (lib/illustrations/resolve.ts) — the topic_map
+    // LLM's picks, validated against the catalog's closed tag/category enums
+    // (lib/llm/schemas.ts) before ever reaching here. Nullable: rows written
+    // before this column existed, or by a path that doesn't set it yet (a
+    // free-form /api/explore topic), simply resolve via the illustration
+    // resolver's generic fallback.
+    illustrationTag: text("illustrationTag"),
+    illustrationCategory: text("illustrationCategory"),
     createdAt: createdAt(),
   },
   (t) => [unique().on(t.childId, t.topicSlug), index().on(t.childId)]

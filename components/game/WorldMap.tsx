@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import type { ReactNode } from "react";
 import { Button } from "@/components/ui/Button";
 import { Heading } from "@/components/ui/Heading";
 import { Icon } from "@/components/ui/Icon";
@@ -20,6 +21,14 @@ export interface WorldMapProps {
    * from their map. Never offered for mastered nodes (tucked below).
    */
   onDismiss?: (node: MapNodeView) => void;
+  /**
+   * An arbitrary decorative slot rendered after the tile grid + "show more"
+   * toggle, but before the "N topics mastered" disclosure — a caller-owned
+   * spot (e.g. a centered `<Illustration>`) that stays put regardless of
+   * whether either neighbour is present. Kept generic (not illustration-
+   * specific) so this component doesn't couple to that feature.
+   */
+  afterShowMore?: ReactNode;
 }
 
 // Enough to orient without pushing the free-form input far down the page —
@@ -39,7 +48,12 @@ const MASTERED_PAGE_SIZE = 10;
  * as the screen-reader-friendly list view; it's never purely spatial (a11y
  * floor, docs/10). Tiles are sticky notes laid out on the field journal.
  */
-export function WorldMap({ nodes, onSelect, onDismiss }: WorldMapProps) {
+export function WorldMap({
+  nodes,
+  onSelect,
+  onDismiss,
+  afterShowMore,
+}: WorldMapProps) {
   const [expanded, setExpanded] = useState(false);
   const [masteredShown, setMasteredShown] = useState(MASTERED_PAGE_SIZE);
   const [masteredOpen, setMasteredOpen] = useState(false);
@@ -128,6 +142,9 @@ export function WorldMap({ nodes, onSelect, onDismiss }: WorldMapProps) {
             ? "Show fewer topics"
             : `Show ${remaining} more topic${remaining === 1 ? "" : "s"}`}
         </Button>
+      )}
+      {afterShowMore && (
+        <div className="flex justify-center">{afterShowMore}</div>
       )}
       {mastered.length > 0 && (
         <div className="relative mt-1">

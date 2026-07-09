@@ -3,10 +3,18 @@
 // through the same age-appropriateness guardrails (docs/07). SYSTEM stable +
 // cached; USER carries the current topic, the child's reading level, and what
 // the child has already explored.
+import {
+  ILLUSTRATION_CATEGORIES,
+  ILLUSTRATION_TAGS,
+} from "@/components/ui/illustrations/catalog";
 import { readingLevelTopicGuidance, type ReadingLevel } from "./readingLevel";
 
-export const TOPIC_MAP_PROMPT_VERSION = "topic-map-v3";
+export const TOPIC_MAP_PROMPT_VERSION = "topic-map-v4";
 
+// Built from the illustration catalog at module load — still a stable string
+// per deploy (so prompt caching isn't defeated), but it grows automatically as
+// tags are added, with no separate prompt edit required for tags that already
+// exist (see components/ui/illustrations/catalog.ts).
 export const TOPIC_MAP_SYSTEM = `You suggest where a curious child could explore next on their learning world map. Given the topic they just finished, you propose both nearby topics that build on it AND a couple of unrelated, different topics for breadth, so the map doesn't narrow entirely onto one interest. Sometimes there is no current topic (a brand-new explorer, or one who has turned down every topic offered so far) — in that case propose a diverse set of starter topics instead, all as "different".
 
 # Rules
@@ -16,13 +24,18 @@ export const TOPIC_MAP_SYSTEM = `You suggest where a curious child could explore
 - Do not repeat topics the child has already explored (you will be told which).
 - The child may also have turned down (dismissed) topics offered before without exploring them. Do not suggest those again, and steer away from similar ones too — they were not appealing, so try a genuinely different angle.
 - Keep titles short and inviting.
+- Every suggestion also picks an illustration tag and category, for a decorative picture shown with the topic:
+  - "illustrationTag": the single BEST match from this exact list: ${ILLUSTRATION_TAGS.join(", ")}. Most topics won't closely match any of these — that's expected and fine; still pick whichever is the least-bad fit, never invent a tag outside this list.
+  - "illustrationCategory": the single BEST match from this exact list: ${ILLUSTRATION_CATEGORIES.join(", ")}. This one should almost always fit reasonably well — pick the closest broad subject area.
 
 # Output format
 Return ONLY a JSON object, no prose, no markdown fence, in exactly this shape:
-{ "suggestions": [ { "title": "...", "topicSlug": "...", "kind": "neighbor" } ] }
+{ "suggestions": [ { "title": "...", "topicSlug": "...", "kind": "neighbor", "illustrationTag": "...", "illustrationCategory": "..." } ] }
 - "title": short kid-friendly display name, at most about 6 words.
 - "topicSlug": lowercase, hyphen-joined, letters and digits only, no leading/trailing hyphen — the same canonical form used elsewhere so nodes dedupe.
-- "kind": either "neighbor" (connects to the current topic) or "different" (deliberate breadth).`;
+- "kind": either "neighbor" (connects to the current topic) or "different" (deliberate breadth).
+- "illustrationTag": one of the exact tag values listed above.
+- "illustrationCategory": one of the exact category values listed above.`;
 
 export interface TopicMapRequest {
   /** The topic the child just finished, as a display title. Omitted when there is no

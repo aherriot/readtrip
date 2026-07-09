@@ -3,9 +3,11 @@ import { Button } from "@/components/ui/Button";
 import { Heading } from "@/components/ui/Heading";
 import { Icon } from "@/components/ui/Icon";
 import { Text } from "@/components/ui/Text";
+import { Illustration } from "@/components/ui/illustrations/Illustration";
 import { JournalSheet } from "@/components/layout/JournalSheet";
 import { requireParent } from "@/lib/auth/session";
 import { listChildren } from "@/lib/children/queries";
+import { pickRandomIllustrations } from "@/lib/illustrations/pick";
 import { signOutAction } from "./actions";
 import { ProfilesManager } from "./ProfilesManager";
 
@@ -21,6 +23,9 @@ const JOURNAL_LINK =
 export default async function ProfilesPage() {
   const parent = await requireParent();
   const profiles = await listChildren(parent.id);
+  // A fresh pick every load — this route reads cookies() via requireParent(),
+  // which already opts it out of static rendering.
+  const [belowProfiles] = pickRandomIllustrations(1);
 
   return (
     <JournalSheet contentClassName="max-w-2xl gap-8">
@@ -34,6 +39,13 @@ export default async function ProfilesPage() {
       </header>
 
       <ProfilesManager profiles={profiles} />
+
+      <Illustration
+        name={belowProfiles}
+        size="xl"
+        decorative
+        className="self-center"
+      />
 
       {/* Secondary account actions live at the foot of the page — a wavy pen
           underline marks them as hand-written but plainly tappable links. */}
