@@ -1,6 +1,6 @@
 "use client";
 
-import { Fragment, useEffect, useMemo, useState } from "react";
+import { Fragment, useEffect, useMemo, useRef, useState } from "react";
 import { LessonChunk } from "@/components/reading/LessonChunk";
 import { ReadingView } from "@/components/reading/ReadingView";
 import { Button } from "@/components/ui/Button";
@@ -93,6 +93,10 @@ export function LessonReader({
   // Own the paper's stain seed while a lesson is open: the story and its quiz
   // each get their own pattern, keyed to the topic so it's stable per topic.
   useStainSeed(`${showQuiz ? "quiz" : "story"}:${topic.topicSlug}`);
+
+  // Pinned paragraph offsets — see usage below for why refs, not derived values.
+  const firstAnchorRef = useRef<number | null>(null);
+  const secondAnchorRef = useRef<number | null>(null);
 
   useEffect(() => {
     // Each run owns its request; cleanup aborts it. Under React StrictMode (dev)
@@ -220,17 +224,32 @@ export function LessonReader({
 
   const chunks = toLessonChunks(text);
 
-  // Never at the top — the first illustration lands roughly a third of the
-  // way down, the second roughly two-thirds. Recomputed from the current
-  // chunk count as the lesson streams in, so it settles at the true 1/3 and
-  // 2/3 marks once streaming finishes; Math.max(1, …) keeps the first one
-  // from ever landing on chunk 0 in a very short lesson.
-  const firstIllustrationAt =
-    chunks.length > 0 ? Math.max(1, Math.floor(chunks.length / 3)) : -1;
-  const secondIllustrationAt =
-    chunks.length > 0
-      ? Math.max(firstIllustrationAt + 1, Math.floor((chunks.length * 2) / 3))
-      : -1;
+  // Fixed paragraph offsets, not fractions of the (still-growing) total: once
+  // paragraph 2 or 4 has streamed in, "right after paragraph 2/4" never
+  // changes no matter how many more paragraphs follow, so the illustration
+  // never has to hop to a new spot in the chunks.map below. A fraction-based
+  // position (e.g. "1/3 of the way down") keeps sliding forward as the total
+  // grows, which moves the <Illustration> to a different tree position each
+  // time — React unmounts the old instance and mounts a fresh one (each is a
+  // next/dynamic import with no `loading` fallback), flashing blank until it
+  // resolves. Short lessons that never reach paragraph 2 (or 4) only settle
+  // once streaming finishes, tacking the illustration on at the end.
+  if (firstAnchorRef.current === null) {
+    if (chunks.length > 2) {
+      firstAnchorRef.current = 1; // right after the 2nd paragraph
+    } else if (status === "done" && chunks.length > 0) {
+      firstAnchorRef.current = chunks.length - 1;
+    }
+  }
+  if (secondAnchorRef.current === null) {
+    if (chunks.length > 4) {
+      secondAnchorRef.current = 3; // right after the 4th paragraph
+    } else if (status === "done" && chunks.length > 0) {
+      secondAnchorRef.current = chunks.length - 1;
+    }
+  }
+  const firstIllustrationAt = firstAnchorRef.current ?? -1;
+  const secondIllustrationAt = secondAnchorRef.current ?? -1;
 
   return (
     <div className="flex w-full flex-col items-center gap-6">
