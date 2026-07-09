@@ -72,6 +72,27 @@ Match `pyramid.tsx`'s technique:
 - Keep total path count in the same order of magnitude as `pyramid.tsx` (~20 elements).
   More than that starts to cost real render time across a page with several illustrations.
 
+## Favor one continuous stroke over many disjointed shapes
+
+The single biggest quality gap between a piece that reads as "drawn" and one that reads as
+"assembled" is how many separate `<path>`s it takes to build the main subject. A pen never
+lifts mid-silhouette; a mouse-driven vector tool wants to. Fight that:
+
+- **The main subject's outline is one `d`**, not a body path plus a separate head path plus a
+  separate limb path stitched together at the joins. See `dinosaur.tsx`'s body+neck path — one
+  continuous silhouette from tail to snout, not two blobs touching. Before adding a new closed
+  shape, ask whether it can instead be a bump/notch on the silhouette path you already have.
+- **Prefer one winding path over a cluster of short unconnected ones** wherever the subject is
+  logically one line — a rope, a river, a vine, a shell's spiral, a wisp of smoke. Each extra
+  disconnected segment is a place the "pen" implausibly teleported.
+- **Small independent marks are still fine and expected** — texture lines, spots, stars, a
+  bird, stone courses. Those genuinely are separate pen touches in a real sketch. The rule
+  targets the _primary subject's structural shapes_ (body, head, limbs, main object) not
+  every mark on the page.
+- When reviewing a draft, count how many `<path>`s it takes to trace the subject's outline
+  alone. If a single animal or object's silhouette needs four or five stitched-together
+  blobs where a real sketch would use one confident continuous line, merge them.
+
 ## Avoiding the "obviously SVG" look
 
 The single biggest tell that a piece was drawn by code, not a pen, is **geometric
@@ -82,6 +103,22 @@ straight 80px wall or an exact circle. Concretely, when authoring or reviewing a
   a head, a window, a knob, a tower body — is a hand-authored closed `<path>` with 5-8
   uneven points, none of them equidistant from a center and none of the "sides" quite
   parallel. A perfect circle reads as CAD, not pen.
+  - **But don't turn "uneven points" into a string of small, similar-sized bumps
+    chained all the way around — that's the literal cloud-drawing technique and reads as
+    a sheep or a cloud, not a helmet/coin/lens.** A truly round object (compass housing,
+    magnifying-glass lens, a coin, a moon) wants the `pyramid.tsx` sun / `telescope.tsx`
+    moon treatment instead: one closed path, only ~4 long curve segments sweeping most of
+    the way around each, with the asymmetry in where those 4 segments bulge, not in dozens
+    of small repeated scallops. Reserve the many-small-points technique for genuinely
+    irregular organic edges (a cloud, a splash), not for anything meant to read as round.
+  - **A structural silhouette (a body, a helmet-and-torso, an animal) needs to be
+    recognizable as that specific shape, not an amorphous rounded blob with the right
+    number of curves.** Before finalizing, name the real proportions out loud — a head is
+    narrower than the shoulders below it, a torso tapers to a waist, a shark's body is
+    long and tapered not round — and make sure the curve _segments_ map onto those real
+    features (a head arc, a neck-in, a shoulder-out bulge, a taper to waist), the same
+    economy of a handful of purposeful big curves that `castle.tsx`'s towers use, rather
+    than many same-size wobbles that could belong to any blob.
 - **No straight edge longer than ~15-20 units.** A real hand can't rule a long straight
   line freehand. Any wall, limb, tube, or silhouette edge longer than that should be a `C`/
   `Q` curve that bows a couple of px off the straight path — asymmetrically, not a clean

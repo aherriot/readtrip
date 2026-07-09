@@ -23,8 +23,11 @@ Grown one at a time, drawn by hand (no illustration-generation pipeline) — see
 [illustrations skill](../../illustrations/SKILL.md) for how to draw a new one and wire it
 into `catalog.ts`/`registry.ts`. Current names: `pyramid`, `castle`, `volcano`,
 `microscope`, `dinosaur`, `human-body`, `mountain-range`, `rainforest`, `rocket-launch`,
-`telescope`. Browse them all, with their `tag`/`category` metadata, and search-filter by any
-of the three, at `/dev/illustrations`.
+`telescope`, `shark`, `storm`, `desert`, `knight`, `astronaut`, plus a generic fallback pool
+(`compass`, `magnifying-glass`, `field-journal`) that `lib/illustrations/resolve.ts` picks
+from when a topic's tag and category both fail to resolve to art. Browse them all, with
+their `tag`/`category` metadata, and search-filter by any of the three, at
+`/dev/illustrations`.
 
 ## When to use
 
