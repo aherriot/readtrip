@@ -29,7 +29,23 @@ import { usePathname } from "next/navigation";
  * MOST-RECENTLY-SET view wins. That makes the outcome independent of React's
  * child-before-parent effect ordering — when LessonReader takes over it wins;
  * when it unmounts, ExploreEntry's map seed is what's left.
+ *
+ * The pathname fallback is deliberately NOT just the pathname: a fixed-forever
+ * seed made the pattern feel too static — reloading /play or navigating back to
+ * it always drew identical stains. So a random suffix is mixed in and
+ * regenerated on every pathname change (including a full reload, which remounts
+ * this provider outright). It's still stable across ordinary re-renders and
+ * state changes within one visit — only a *new visit* to the route reseeds it.
  */
+/**
+ * A short random string for mixing into a seed so a fresh mount doesn't repeat
+ * the last visit's pattern. Exported for views like ExploreEntry's world map,
+ * whose explicit seed (`map:<expedition>`) otherwise starts from the same
+ * `map:0` on every remount (a reload, or navigating back to /play).
+ */
+export function randomSeedSuffix(): string {
+  return Math.random().toString(36).slice(2, 10);
+}
 type Registry = {
   register: (id: string, seed: string | null) => void;
   seed: string;
@@ -43,6 +59,19 @@ export function StainSeedProvider({ children }: { children: ReactNode }) {
     Map<string, { seed: string; order: number }>
   >(new Map());
   const orderRef = useRef(0);
+
+  // Fresh random suffix per visit to a pathname — not per render. Regenerated
+  // whenever the pathname changes (React's "adjust state during render"
+  // pattern); a hard reload remounts the provider entirely, so the `useState`
+  // initializer covers that case.
+  const [pathSeed, setPathSeed] = useState(
+    () => `${pathname}:${randomSeedSuffix()}`
+  );
+  const [prevPathname, setPrevPathname] = useState(pathname);
+  if (pathname !== prevPathname) {
+    setPrevPathname(pathname);
+    setPathSeed(`${pathname}:${randomSeedSuffix()}`);
+  }
 
   const register = useCallback((id: string, seed: string | null) => {
     setEntries((prev) => {
@@ -60,8 +89,8 @@ export function StainSeedProvider({ children }: { children: ReactNode }) {
     for (const entry of entries.values()) {
       if (!best || entry.order > best.order) best = entry;
     }
-    return best?.seed ?? pathname;
-  }, [entries, pathname]);
+    return best?.seed ?? pathSeed;
+  }, [entries, pathSeed]);
 
   const value = useMemo(() => ({ register, seed }), [register, seed]);
   return (
