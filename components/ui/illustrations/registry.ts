@@ -13,78 +13,109 @@ import type { IllustrationName } from "./catalog";
  *
  * `next/dynamic` code-splits in Server Components too — an illustration is
  * static markup, so it renders straight to HTML with no client JS shipped.
+ *
+ * Each loader is also keyed in `LOADERS` below so a caller that already
+ * knows which name(s) it's about to render can warm the chunk ahead of
+ * time via `preloadIllustration` — see that function for why.
  */
-export const ILLUSTRATIONS: Record<IllustrationName, ComponentType> = {
-  pyramid: dynamic(() =>
-    import("./pyramid").then((m) => m.PyramidIllustration)
-  ),
-  castle: dynamic(() => import("./castle").then((m) => m.CastleIllustration)),
-  volcano: dynamic(() =>
-    import("./volcano").then((m) => m.VolcanoIllustration)
-  ),
-  microscope: dynamic(() =>
-    import("./microscope").then((m) => m.MicroscopeIllustration)
-  ),
-  dinosaur: dynamic(() =>
-    import("./dinosaur").then((m) => m.DinosaurIllustration)
-  ),
-  "human-body": dynamic(() =>
-    import("./human-body").then((m) => m.HumanBodyIllustration)
-  ),
-  "mountain-range": dynamic(() =>
-    import("./mountain-range").then((m) => m.MountainRangeIllustration)
-  ),
-  rainforest: dynamic(() =>
-    import("./rainforest").then((m) => m.RainforestIllustration)
-  ),
-  "rocket-launch": dynamic(() =>
-    import("./rocket-launch").then((m) => m.RocketLaunchIllustration)
-  ),
-  telescope: dynamic(() =>
-    import("./telescope").then((m) => m.TelescopeIllustration)
-  ),
-  shark: dynamic(() => import("./shark").then((m) => m.SharkIllustration)),
-  storm: dynamic(() => import("./storm").then((m) => m.StormIllustration)),
-  desert: dynamic(() => import("./desert").then((m) => m.DesertIllustration)),
-  knight: dynamic(() => import("./knight").then((m) => m.KnightIllustration)),
-  astronaut: dynamic(() =>
-    import("./astronaut").then((m) => m.AstronautIllustration)
-  ),
-  compass: dynamic(() =>
-    import("./compass").then((m) => m.CompassIllustration)
-  ),
-  "magnifying-glass": dynamic(() =>
-    import("./magnifying-glass").then((m) => m.MagnifyingGlassIllustration)
-  ),
-  "field-journal": dynamic(() =>
-    import("./field-journal").then((m) => m.FieldJournalIllustration)
-  ),
-  "viking-ship": dynamic(() =>
-    import("./viking-ship").then((m) => m.VikingShipIllustration)
-  ),
-  "greek-temple": dynamic(() =>
-    import("./greek-temple").then((m) => m.GreekTempleIllustration)
-  ),
-  "coral-reef": dynamic(() =>
-    import("./coral-reef").then((m) => m.CoralReefIllustration)
-  ),
-  butterfly: dynamic(() =>
-    import("./butterfly").then((m) => m.ButterflyIllustration)
-  ),
-  beehive: dynamic(() =>
-    import("./beehive").then((m) => m.BeehiveIllustration)
-  ),
-  waterfall: dynamic(() =>
-    import("./waterfall").then((m) => m.WaterfallIllustration)
-  ),
-  glacier: dynamic(() =>
-    import("./glacier").then((m) => m.GlacierIllustration)
-  ),
-  "chemistry-lab": dynamic(() =>
-    import("./chemistry-lab").then((m) => m.ChemistryLabIllustration)
-  ),
-  satellite: dynamic(() =>
-    import("./satellite").then((m) => m.SatelliteIllustration)
-  ),
-  comet: dynamic(() => import("./comet").then((m) => m.CometIllustration)),
+const LOADERS: Record<
+  IllustrationName,
+  () => Promise<{ default: ComponentType }>
+> = {
+  pyramid: () =>
+    import("./pyramid").then((m) => ({ default: m.PyramidIllustration })),
+  castle: () =>
+    import("./castle").then((m) => ({ default: m.CastleIllustration })),
+  volcano: () =>
+    import("./volcano").then((m) => ({ default: m.VolcanoIllustration })),
+  microscope: () =>
+    import("./microscope").then((m) => ({
+      default: m.MicroscopeIllustration,
+    })),
+  dinosaur: () =>
+    import("./dinosaur").then((m) => ({ default: m.DinosaurIllustration })),
+  "human-body": () =>
+    import("./human-body").then((m) => ({
+      default: m.HumanBodyIllustration,
+    })),
+  "mountain-range": () =>
+    import("./mountain-range").then((m) => ({
+      default: m.MountainRangeIllustration,
+    })),
+  rainforest: () =>
+    import("./rainforest").then((m) => ({
+      default: m.RainforestIllustration,
+    })),
+  "rocket-launch": () =>
+    import("./rocket-launch").then((m) => ({
+      default: m.RocketLaunchIllustration,
+    })),
+  telescope: () =>
+    import("./telescope").then((m) => ({ default: m.TelescopeIllustration })),
+  shark: () =>
+    import("./shark").then((m) => ({ default: m.SharkIllustration })),
+  storm: () =>
+    import("./storm").then((m) => ({ default: m.StormIllustration })),
+  desert: () =>
+    import("./desert").then((m) => ({ default: m.DesertIllustration })),
+  knight: () =>
+    import("./knight").then((m) => ({ default: m.KnightIllustration })),
+  astronaut: () =>
+    import("./astronaut").then((m) => ({ default: m.AstronautIllustration })),
+  compass: () =>
+    import("./compass").then((m) => ({ default: m.CompassIllustration })),
+  "magnifying-glass": () =>
+    import("./magnifying-glass").then((m) => ({
+      default: m.MagnifyingGlassIllustration,
+    })),
+  "field-journal": () =>
+    import("./field-journal").then((m) => ({
+      default: m.FieldJournalIllustration,
+    })),
+  "viking-ship": () =>
+    import("./viking-ship").then((m) => ({
+      default: m.VikingShipIllustration,
+    })),
+  "greek-temple": () =>
+    import("./greek-temple").then((m) => ({
+      default: m.GreekTempleIllustration,
+    })),
+  "coral-reef": () =>
+    import("./coral-reef").then((m) => ({ default: m.CoralReefIllustration })),
+  butterfly: () =>
+    import("./butterfly").then((m) => ({ default: m.ButterflyIllustration })),
+  beehive: () =>
+    import("./beehive").then((m) => ({ default: m.BeehiveIllustration })),
+  waterfall: () =>
+    import("./waterfall").then((m) => ({ default: m.WaterfallIllustration })),
+  glacier: () =>
+    import("./glacier").then((m) => ({ default: m.GlacierIllustration })),
+  "chemistry-lab": () =>
+    import("./chemistry-lab").then((m) => ({
+      default: m.ChemistryLabIllustration,
+    })),
+  satellite: () =>
+    import("./satellite").then((m) => ({ default: m.SatelliteIllustration })),
+  comet: () =>
+    import("./comet").then((m) => ({ default: m.CometIllustration })),
 };
+
+export const ILLUSTRATIONS: Record<IllustrationName, ComponentType> =
+  Object.fromEntries(
+    (Object.keys(LOADERS) as IllustrationName[]).map((name) => [
+      name,
+      dynamic(LOADERS[name]),
+    ])
+  ) as Record<IllustrationName, ComponentType>;
+
+/**
+ * Warms an illustration's chunk ahead of when `<Illustration>` actually
+ * renders it. `LessonReader` calls this as soon as it knows which two
+ * illustrations a lesson will use — well before either one's paragraph
+ * anchor streams in — so by the time `<Illustration>` mounts, the chunk
+ * is (usually) already resolved and it paints immediately instead of
+ * rendering blank while the import resolves.
+ */
+export function preloadIllustration(name: IllustrationName) {
+  void LOADERS[name]();
+}
