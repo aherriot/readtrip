@@ -85,7 +85,7 @@ export function ExploreEntry({
   // this component (map growth, dismiss, streaming) would reshuffle the
   // illustrations. Scoped to the "idle" (map) view only, so they don't
   // compete with the reading view's own inline illustrations.
-  const [mapAboveTopics, mapBelowExplore] = useMemo(
+  const [mapBelowShowMore, mapBelowExplore] = useMemo(
     () => pickRandomIllustrations(2),
     []
   );
@@ -344,14 +344,14 @@ export function ExploreEntry({
           <MapTilesSkeleton />
         </div>
       ) : (
-        <div className="flex flex-col items-center gap-6">
-          <Illustration name={mapAboveTopics} size="xl" decorative />
-          <WorldMap
-            nodes={initialNodes}
-            onSelect={startTopic}
-            onDismiss={dismissTopic}
-          />
-        </div>
+        <WorldMap
+          nodes={initialNodes}
+          onSelect={startTopic}
+          onDismiss={dismissTopic}
+          afterShowMore={
+            <Illustration name={mapBelowShowMore} size="xl" decorative />
+          }
+        />
       )}
 
       <form onSubmit={onSubmit} className="flex flex-col gap-4">
