@@ -98,6 +98,31 @@ const LOADERS: Record<
     import("./satellite").then((m) => ({ default: m.SatelliteIllustration })),
   comet: () =>
     import("./comet").then((m) => ({ default: m.CometIllustration })),
+  bridge: () =>
+    import("./bridge").then((m) => ({ default: m.BridgeIllustration })),
+  crane: () =>
+    import("./crane").then((m) => ({ default: m.CraneIllustration })),
+  "gears-machine": () =>
+    import("./gears-machine").then((m) => ({
+      default: m.GearsMachineIllustration,
+    })),
+  "robot-arm": () =>
+    import("./robot-arm").then((m) => ({ default: m.RobotArmIllustration })),
+  "steam-train": () =>
+    import("./steam-train").then((m) => ({
+      default: m.SteamTrainIllustration,
+    })),
+  "hot-air-balloon": () =>
+    import("./hot-air-balloon").then((m) => ({
+      default: m.HotAirBalloonIllustration,
+    })),
+  sailboat: () =>
+    import("./sailboat").then((m) => ({ default: m.SailboatIllustration })),
+  bicycle: () =>
+    import("./bicycle").then((m) => ({ default: m.BicycleIllustration })),
+  airplane: () =>
+    import("./airplane").then((m) => ({ default: m.AirplaneIllustration })),
+  car: () => import("./car").then((m) => ({ default: m.CarIllustration })),
 };
 
 export const ILLUSTRATIONS: Record<IllustrationName, ComponentType> =

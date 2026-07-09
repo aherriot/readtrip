@@ -20,6 +20,8 @@ export const ILLUSTRATION_CATEGORIES = [
   "biology",
   "geography",
   "space",
+  "engineering",
+  "transportation",
 ] as const;
 export type IllustrationCategory = (typeof ILLUSTRATION_CATEGORIES)[number];
 
@@ -105,6 +107,44 @@ export const ILLUSTRATION_CATALOG = {
   },
   satellite: { label: "Satellite", tag: "satellites", category: "space" },
   comet: { label: "Comet", tag: "comets", category: "space" },
+  bridge: { label: "Bridge", tag: "bridges", category: "engineering" },
+  crane: { label: "Crane", tag: "cranes", category: "engineering" },
+  "gears-machine": {
+    label: "Gears machine",
+    tag: "gears",
+    category: "engineering",
+  },
+  "robot-arm": {
+    label: "Robot arm",
+    tag: "robotics",
+    category: "engineering",
+  },
+  "steam-train": {
+    label: "Steam train",
+    tag: "trains",
+    category: "transportation",
+  },
+  "hot-air-balloon": {
+    label: "Hot air balloon",
+    tag: "hot-air-balloons",
+    category: "transportation",
+  },
+  sailboat: {
+    label: "Sailboat",
+    tag: "sailboats",
+    category: "transportation",
+  },
+  bicycle: {
+    label: "Bicycle",
+    tag: "bicycles",
+    category: "transportation",
+  },
+  airplane: {
+    label: "Airplane",
+    tag: "airplanes",
+    category: "transportation",
+  },
+  car: { label: "Car", tag: "cars", category: "transportation" },
 } as const satisfies Record<string, IllustrationMeta>;
 
 export type IllustrationName = keyof typeof ILLUSTRATION_CATALOG;
