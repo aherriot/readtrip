@@ -6,10 +6,12 @@ const ink = {
 } as const;
 
 /**
- * A field-journal illustration: an armored knight, helmet through torso as
- * one continuous silhouette (the plume, shield, sword, and legs break off as
- * their own strokes — the same way a dinosaur's legs do, not a stitched-on
- * head or chest plate).
+ * A field-journal illustration: an armored knight. Helmet through torso is
+ * one continuous silhouette, but it reads as a figure — not a blob —
+ * because the outline actually narrows at the neck before flaring back out
+ * at the shoulders (pauldrons), the same in/out landmark a real suit of
+ * armor has. The plume, shield, sword, and legs break off as their own
+ * strokes.
  */
 export function KnightIllustration() {
   return (
@@ -26,28 +28,30 @@ export function KnightIllustration() {
         opacity="0.1"
       />
 
-      {/* helmet + torso, one continuous silhouette */}
+      {/* helmet + torso, one continuous silhouette: dome, neck-in,
+          shoulder/pauldron flare, torso taper, belt */}
       <path
-        d="M100 30C108 26 116 30 116 38C124 40 128 48 124 56C132 60 136 70 130 78C140 84 146 96 138 104C144 112 142 124 130 128C132 138 126 148 112 148C110 154 90 154 88 148C74 148 68 138 70 128C58 124 56 112 62 104C54 96 58 84 68 78C62 70 66 60 74 56C70 48 74 40 82 38C82 30 90 26 100 30Z"
+        d="M100 24C116 25 128 37 128 52C129 61 124 68 120 72C118 77 113 79 110 80C124 78 142 79 150 92C155 106 148 122 137 133C130 143 118 147 106 146C93 150 79 147 70 140C59 130 54 115 59 99C51 88 66 77 85 79C91 78 93 75 90 70C74 68 70 60 72 52C73 37 85 25 100 24Z"
         fill="var(--sky)"
         opacity="0.18"
       />
       <path
-        d="M100 30C108 26 116 30 116 38C124 40 128 48 124 56C132 60 136 70 130 78C140 84 146 96 138 104C144 112 142 124 130 128C132 138 126 148 112 148C110 154 90 154 88 148C74 148 68 138 70 128C58 124 56 112 62 104C54 96 58 84 68 78C62 70 66 60 74 56C70 48 74 40 82 38C82 30 90 26 100 30Z"
+        d="M100 24C116 25 128 37 128 52C129 61 124 68 120 72C118 77 113 79 110 80C124 78 142 79 150 92C155 106 148 122 137 133C130 143 118 147 106 146C93 150 79 147 70 140C59 130 54 115 59 99C51 88 66 77 85 79C91 78 93 75 90 70C74 68 70 60 72 52C73 37 85 25 100 24Z"
         {...ink}
         strokeWidth="2.2"
       />
+      {/* sketchy retrace pass */}
       <path
-        d="M99 32C106 28 114 32 114 39C122 41 126 49 122 56C130 61 134 70 128 78C138 85 143 96 136 104C142 113 140 123 129 127C131 137 125 146 112 146C110 151 91 151 89 146C76 146 70 137 72 127C60 123 58 112 64 104C56 97 60 85 70 79C64 71 68 61 76 57C72 49 76 41 83 39C83 32 91 28 99 32Z"
+        d="M99 26C114 27 126 39 126 53C127 62 122 68 118 72C127 76 141 80 148 92C153 105 146 121 136 132C129 141 117 145 105 144C93 148 80 145 72 138C61 129 56 115 61 100C53 89 67 78 86 80C79 76 76 70 76 65C70 58 68 55 70 51C71 38 86 27 99 26Z"
         {...ink}
         strokeWidth="1.1"
         opacity="0.4"
       />
 
       {/* visor slit + faceplate rivets */}
-      <path d="M90 62c8-1 14-1 20 1" {...ink} strokeWidth="1.6" />
+      <path d="M88 56c8-1 16-1 24 1" {...ink} strokeWidth="1.6" />
       <path
-        d="M84 46h.01M116 46h.01M84 92h.01M116 92h.01"
+        d="M84 42h.01M114 42h.01M64 100h.01M140 100h.01"
         {...ink}
         strokeWidth="2.2"
         opacity="0.55"
@@ -55,60 +59,60 @@ export function KnightIllustration() {
 
       {/* plume on top */}
       <path
-        d="M98 30c-2-8-1-16 3-22M104 28c1-9 4-16 8-21M110 30c3-8 7-14 12-18"
+        d="M98 24c-2-8-1-16 3-22M104 22c1-9 4-16 8-21M110 24c3-8 7-14 12-18"
         {...ink}
         strokeWidth="1.6"
       />
       <path
-        d="M99 22c3-9 9-15 16-18-1 9-6 16-12 21-2 1-4-1-4-3Z"
+        d="M99 16c3-9 9-15 16-18-1 9-6 16-12 21-2 1-4-1-4-3Z"
         fill="var(--coral)"
         opacity="0.8"
       />
       <path
-        d="M99 22c3-9 9-15 16-18-1 9-6 16-12 21-2 1-4-1-4-3Z"
+        d="M99 16c3-9 9-15 16-18-1 9-6 16-12 21-2 1-4-1-4-3Z"
         {...ink}
         strokeWidth="1.5"
       />
 
       {/* shield, its own stroke */}
       <path
-        d="M40 88C42 78 52 72 62 74C64 92 62 110 56 124C48 120 40 112 38 100C37 96 38 91 40 88Z"
+        d="M32 92C34 82 44 76 54 78C56 96 54 114 48 128C40 124 32 116 30 104C29 100 30 95 32 92Z"
         fill="var(--sky)"
         opacity="0.5"
       />
       <path
-        d="M40 88C42 78 52 72 62 74C64 92 62 110 56 124C48 120 40 112 38 100C37 96 38 91 40 88Z"
+        d="M32 92C34 82 44 76 54 78C56 96 54 114 48 128C40 124 32 116 30 104C29 100 30 95 32 92Z"
         {...ink}
         strokeWidth="1.8"
       />
       <path
-        d="M50 84 44 96 52 96 46 108"
+        d="M42 88 36 100 44 100 38 112"
         {...ink}
         strokeWidth="1.4"
         opacity="0.7"
       />
 
       {/* sword, its own stroke */}
-      <path d="M148 60C150 88 152 116 154 140" {...ink} strokeWidth="2.4" />
+      <path d="M162 64C163 92 164 118 164 142" {...ink} strokeWidth="2.4" />
       <path
-        d="M148 60c1-6 3-10 5-13M148 60c-2-5-1-10 2-14"
+        d="M162 64c1-6 3-10 5-13M162 64c-2-5-1-10 2-14"
         {...ink}
         strokeWidth="1.6"
       />
-      <path d="M138 96 164 96" {...ink} strokeWidth="2.6" />
+      <path d="M152 100 174 100" {...ink} strokeWidth="2.6" />
       <path
-        d="M154 140c-3 3-3 7 0 10 3-3 3-7 0-10Z"
+        d="M164 142c-3 3-3 7 0 10 3-3 3-7 0-10Z"
         fill="var(--sun)"
         opacity="0.8"
       />
 
       {/* legs */}
       <path
-        d="M92 148c-2 12-3 22-4 32M108 148c2 12 3 22 3 32"
+        d="M84 146c-2 12-3 22-4 32M108 146c2 12 3 22 3 32"
         {...ink}
         strokeWidth="6"
       />
-      <path d="M84 180h10M104 180h11" {...ink} strokeWidth="5" opacity="0.9" />
+      <path d="M76 178h10M100 178h11" {...ink} strokeWidth="5" opacity="0.9" />
 
       {/* ground + grass */}
       <path

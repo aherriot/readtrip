@@ -103,6 +103,22 @@ straight 80px wall or an exact circle. Concretely, when authoring or reviewing a
   a head, a window, a knob, a tower body — is a hand-authored closed `<path>` with 5-8
   uneven points, none of them equidistant from a center and none of the "sides" quite
   parallel. A perfect circle reads as CAD, not pen.
+  - **But don't turn "uneven points" into a string of small, similar-sized bumps
+    chained all the way around — that's the literal cloud-drawing technique and reads as
+    a sheep or a cloud, not a helmet/coin/lens.** A truly round object (compass housing,
+    magnifying-glass lens, a coin, a moon) wants the `pyramid.tsx` sun / `telescope.tsx`
+    moon treatment instead: one closed path, only ~4 long curve segments sweeping most of
+    the way around each, with the asymmetry in where those 4 segments bulge, not in dozens
+    of small repeated scallops. Reserve the many-small-points technique for genuinely
+    irregular organic edges (a cloud, a splash), not for anything meant to read as round.
+  - **A structural silhouette (a body, a helmet-and-torso, an animal) needs to be
+    recognizable as that specific shape, not an amorphous rounded blob with the right
+    number of curves.** Before finalizing, name the real proportions out loud — a head is
+    narrower than the shoulders below it, a torso tapers to a waist, a shark's body is
+    long and tapered not round — and make sure the curve _segments_ map onto those real
+    features (a head arc, a neck-in, a shoulder-out bulge, a taper to waist), the same
+    economy of a handful of purposeful big curves that `castle.tsx`'s towers use, rather
+    than many same-size wobbles that could belong to any blob.
 - **No straight edge longer than ~15-20 units.** A real hand can't rule a long straight
   line freehand. Any wall, limb, tube, or silhouette edge longer than that should be a `C`/
   `Q` curve that bows a couple of px off the straight path — asymmetrically, not a clean

@@ -8,8 +8,10 @@ const ink = {
 /**
  * A field-journal illustration: a brass compass over a torn map corner. One
  * generic entry in the "no specific art yet" fallback pool (see
- * `lib/illustrations/resolve.ts`) — the compass housing is one continuous
- * hand-drawn silhouette, never a `<circle>`.
+ * `lib/illustrations/resolve.ts`) — the housing is a genuinely round object,
+ * so it uses the `pyramid.tsx` sun / `telescope.tsx` moon treatment (one
+ * closed path, a handful of long sweeps) instead of a chain of small bumps,
+ * which reads as a cloud rather than a compass.
  */
 export function CompassIllustration() {
   return (
@@ -38,33 +40,36 @@ export function CompassIllustration() {
         opacity="0.4"
       />
 
-      {/* compass housing, one continuous hand-drawn silhouette */}
+      {/* compass housing — a round object, drawn as a handful of long
+          sweeps, not a chain of small scallops */}
       <path
-        d="M100 40C118 38 132 50 134 68C148 72 156 86 150 102C158 112 156 128 144 136C142 152 126 162 110 158C104 168 88 168 82 158C66 160 54 148 56 132C44 126 40 110 50 100C46 84 56 70 72 66C74 52 86 42 100 40Z"
+        d="M100 42C132 40 158 65 160 98C162 131 137 157 104 158C71 160 46 135 44 102C42 69 68 44 100 42Z"
         fill="var(--sun)"
         opacity="0.22"
       />
       <path
-        d="M100 40C118 38 132 50 134 68C148 72 156 86 150 102C158 112 156 128 144 136C142 152 126 162 110 158C104 168 88 168 82 158C66 160 54 148 56 132C44 126 40 110 50 100C46 84 56 70 72 66C74 52 86 42 100 40Z"
+        d="M100 42C132 40 158 65 160 98C162 131 137 157 104 158C71 160 46 135 44 102C42 69 68 44 100 42Z"
         {...ink}
         strokeWidth="2.3"
       />
       <path
-        d="M99 42C116 40 129 51 131 68C144 73 152 86 146 101C154 111 152 127 141 134C139 150 124 159 109 156C103 165 89 165 83 156C68 158 57 147 59 132C48 127 44 111 54 101C50 86 59 72 74 68C76 55 87 44 99 42Z"
+        d="M99 44C129 43 154 66 156 97C158 128 135 154 105 156C74 158 50 134 48 103C46 72 70 46 99 44Z"
         {...ink}
         strokeWidth="1"
         opacity="0.35"
       />
 
-      {/* inner rim + tick marks */}
+      {/* inner rim, same round technique at a smaller radius */}
       <path
-        d="M96 58C110 56 121 66 122 80C132 84 138 94 134 106C140 114 138 126 128 132C126 144 114 152 102 149C97 156 87 156 82 149C70 151 61 143 63 131C55 127 51 117 58 108C55 96 62 86 74 82C75 71 84 62 96 58Z"
+        d="M100 58C122 57 140 74 141 98C142 122 125 141 102 142C79 143 60 126 59 102C58 78 76 59 100 58Z"
         {...ink}
         strokeWidth="1.4"
         opacity="0.6"
       />
+
+      {/* tick marks */}
       <path
-        d="M100 46 100 56M154 100 144 100M100 154 100 144M46 100 56 100M124 56 118 64M144 76 136 82M144 126 136 120M124 146 118 138M76 146 82 138M56 126 64 120M56 76 64 82M76 56 82 64"
+        d="M100 44 100 55M156 100 145 100M100 156 100 145M44 100 55 100M129 58 122 66M142 76 133 81M142 124 133 119M129 142 122 134M71 142 78 134M58 124 67 119M58 76 67 81M71 58 78 66"
         {...ink}
         strokeWidth="1.3"
         opacity="0.55"
@@ -72,11 +77,11 @@ export function CompassIllustration() {
 
       {/* needle */}
       <path
-        d="M100 68 108 98 100 94 92 98Z"
+        d="M100 66 108 98 100 94 92 98Z"
         fill="var(--coral)"
         opacity="0.85"
       />
-      <path d="M100 68 108 98 100 94 92 98Z" {...ink} strokeWidth="1.4" />
+      <path d="M100 66 108 98 100 94 92 98Z" {...ink} strokeWidth="1.4" />
       <path
         d="M100 94 108 98 100 130 92 98Z"
         fill="var(--surface-ink)"

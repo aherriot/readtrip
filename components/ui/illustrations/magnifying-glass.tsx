@@ -8,9 +8,11 @@ const ink = {
 /**
  * A field-journal illustration: a magnifying glass held over a leaf. One
  * generic entry in the "no specific art yet" fallback pool (see
- * `lib/illustrations/resolve.ts`) — the lens is a hand-drawn closed
- * silhouette, never a `<circle>`, and the handle is one continuous stroke
- * out of the rim rather than a separate stitched-on rectangle.
+ * `lib/illustrations/resolve.ts`) — the lens is a genuinely round object, so
+ * it uses the `pyramid.tsx` sun / `telescope.tsx` moon treatment (one closed
+ * path, a handful of long sweeps) instead of a chain of small bumps, which
+ * reads as a cloud rather than a lens. The handle continues off the rim as
+ * one stroke rather than a separate stitched-on rectangle.
  */
 export function MagnifyingGlassIllustration() {
   return (
@@ -45,20 +47,20 @@ export function MagnifyingGlassIllustration() {
         opacity="0.5"
       />
 
-      {/* lens rim, one continuous hand-drawn silhouette, and its handle
-          growing out of the same path — not a separate stitched rectangle */}
+      {/* lens rim — a round object, drawn as a handful of long sweeps,
+          not a chain of small scallops */}
       <path
-        d="M96 40C114 38 128 50 130 68C144 72 152 86 146 102C158 112 162 128 152 138C148 146 138 150 128 148C122 158 108 164 94 158C80 164 64 158 58 144C46 138 42 124 50 112C42 100 46 84 60 76C60 60 74 46 90 44C92 41 94 40 96 40Z"
+        d="M98 40C130 38 156 62 158 94C160 126 136 152 104 154C72 156 46 132 44 100C42 68 66 42 98 40Z"
         fill="var(--sky)"
         opacity="0.18"
       />
       <path
-        d="M96 40C114 38 128 50 130 68C144 72 152 86 146 102C158 112 162 128 152 138C148 146 138 150 128 148C122 158 108 164 94 158C80 164 64 158 58 144C46 138 42 124 50 112C42 100 46 84 60 76C60 60 74 46 90 44C92 41 94 40 96 40Z"
+        d="M98 40C130 38 156 62 158 94C160 126 136 152 104 154C72 156 46 132 44 100C42 68 66 42 98 40Z"
         {...ink}
         strokeWidth="2.3"
       />
       <path
-        d="M95 42C112 40 126 51 128 68C141 73 149 86 143 101C154 111 158 126 149 136C145 144 136 148 127 146C121 156 108 162 95 156C82 162 67 156 61 143C50 137 46 124 54 113C46 101 50 86 63 78C64 63 77 49 92 46C93 44 94 43 95 42Z"
+        d="M97 42C127 41 152 64 154 94C156 124 133 149 105 152C75 154 51 131 49 101C47 71 69 44 97 42Z"
         {...ink}
         strokeWidth="1.1"
         opacity="0.35"
@@ -73,9 +75,9 @@ export function MagnifyingGlassIllustration() {
       />
 
       {/* handle, continuing off the rim */}
-      <path d="M152 138C160 150 168 162 178 174" {...ink} strokeWidth="7" />
+      <path d="M148 138C157 150 166 162 178 174" {...ink} strokeWidth="7" />
       <path
-        d="M150 140C158 152 166 164 176 176"
+        d="M146 140C155 152 164 164 176 176"
         {...ink}
         strokeWidth="2"
         opacity="0.4"
