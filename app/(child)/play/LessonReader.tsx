@@ -9,6 +9,7 @@ import { Heading } from "@/components/ui/Heading";
 import { Icon } from "@/components/ui/Icon";
 import type { IllustrationCategory } from "@/components/ui/illustrations/catalog";
 import { Illustration } from "@/components/ui/illustrations/Illustration";
+import { preloadIllustration } from "@/components/ui/illustrations/registry";
 import { Spinner } from "@/components/ui/Spinner";
 import { Text } from "@/components/ui/Text";
 import { pickRandomIllustrations } from "@/lib/illustrations/pick";
@@ -89,6 +90,15 @@ export function LessonReader({
     }
     return pickRandomIllustrations(2);
   }, [topic.topicSlug, topic.illustrationTag, topic.illustrationCategory]);
+
+  // Warm both illustrations' chunks as soon as we know which two the lesson
+  // will use — long before either one's paragraph anchor streams in — so
+  // `<Illustration>` below finds the chunk already resolved instead of
+  // rendering blank while a `next/dynamic` import fetches mid-stream.
+  useEffect(() => {
+    preloadIllustration(storyFirst);
+    preloadIllustration(storySecond);
+  }, [storyFirst, storySecond]);
 
   // Own the paper's stain seed while a lesson is open: the story and its quiz
   // each get their own pattern, keyed to the topic so it's stable per topic.
