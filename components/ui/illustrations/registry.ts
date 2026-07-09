@@ -59,4 +59,32 @@ export const ILLUSTRATIONS: Record<IllustrationName, ComponentType> = {
   "field-journal": dynamic(() =>
     import("./field-journal").then((m) => m.FieldJournalIllustration)
   ),
+  "viking-ship": dynamic(() =>
+    import("./viking-ship").then((m) => m.VikingShipIllustration)
+  ),
+  "greek-temple": dynamic(() =>
+    import("./greek-temple").then((m) => m.GreekTempleIllustration)
+  ),
+  "coral-reef": dynamic(() =>
+    import("./coral-reef").then((m) => m.CoralReefIllustration)
+  ),
+  butterfly: dynamic(() =>
+    import("./butterfly").then((m) => m.ButterflyIllustration)
+  ),
+  beehive: dynamic(() =>
+    import("./beehive").then((m) => m.BeehiveIllustration)
+  ),
+  waterfall: dynamic(() =>
+    import("./waterfall").then((m) => m.WaterfallIllustration)
+  ),
+  glacier: dynamic(() =>
+    import("./glacier").then((m) => m.GlacierIllustration)
+  ),
+  "chemistry-lab": dynamic(() =>
+    import("./chemistry-lab").then((m) => m.ChemistryLabIllustration)
+  ),
+  satellite: dynamic(() =>
+    import("./satellite").then((m) => m.SatelliteIllustration)
+  ),
+  comet: dynamic(() => import("./comet").then((m) => m.CometIllustration)),
 };
