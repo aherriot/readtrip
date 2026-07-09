@@ -1,16 +1,25 @@
 /**
- * Bakes the highlighter/swatch "felt-tip blob" mask shape into a STATIC SVG path,
- * so the marker never pays for a runtime `feTurbulence` filter.
+ * Bakes the hand-run "felt-tip" mask shapes into STATIC SVG paths, so nothing
+ * pays for a runtime `feTurbulence` filter.
  *
  * The app used to wave its pen-box borders, stamps, and highlighter swipes with
  * live `#rt-sketch` turbulence filters — a per-pixel Perlin field recomputed for
  * every element, on every repaint. The borders/stamps are now drawn by
  * <InkFrame> (which generates its wobble at real pixel size at runtime — see
- * components/ui/icons/InkFrame.tsx). This script bakes only the one remaining
- * static shape:
- *   - app/globals.css → --rt-inked-blob (the marker / .rt-torn CSS mask)
+ * components/ui/icons/InkFrame.tsx). This script bakes the two remaining
+ * static shapes:
+ *   - app/globals.css → --rt-inked-blob (Avatar's round patch, via .rt-torn)
+ *   - app/globals.css → --rt-marker-stroke (the Highlight swipe / color-swatch
+ *     chip — an elongated capsule, not a circle, since both are wide and short)
  *
- * It is deterministic (seeded), so re-running reproduces the exact same path.
+ * A single circular shape used to serve both cases via `mask-size: 100% 100%`,
+ * but forcing a circle to fill a wide, short box just stretches it into a
+ * smooth ellipse/pill — the hand-run wobble gets squashed away and it reads as
+ * a printed oval instead of a marker stroke. The two shapes are baked at the
+ * aspect ratio their caller actually uses, so the mask fills the box (no
+ * distorting stretch) and the wave stays visible.
+ *
+ * Deterministic (seeded), so re-running reproduces the exact same paths.
  * Run: `node scripts/bake-ink.mjs`
  */
 
@@ -63,21 +72,49 @@ function toPath(pts, precision = 1) {
   return d + "Z";
 }
 
-// The highlighter/swatch blob: a filled rounded shape with an uneven, hand-run
-// edge. Used as a CSS mask (stretch is fine on a blob — no even stroke to
-// distort), so the swipe color stays a themeable token.
-function blob(seed, { rx = 44, ry = 34, amp = 4.5, per = 40 } = {}) {
+// A closed shape sampled by angle around (50,50), with the radius on each axis
+// warped by `n` (a superellipse exponent: 2 = a true ellipse/circle, higher =
+// straighter sides + rounder corners, i.e. a stadium/capsule) and perturbed by
+// a hand-run wave for an uneven, felt-tip edge.
+function ringShape(seed, { rx, ry, n = 2, amp, per }) {
   const rng = mulberry32(seed);
   const wave = makeWave(rng, amp);
   const pts = [];
   for (let i = 0; i < per; i++) {
     const t = i / per;
     const a = t * Math.PI * 2;
+    const c = Math.cos(a);
+    const s = Math.sin(a);
+    const ex = Math.sign(c) * Math.abs(c) ** (2 / n);
+    const ey = Math.sign(s) * Math.abs(s) ** (2 / n);
     const w = wave(t);
-    pts.push([50 + Math.cos(a) * (rx + w), 50 + Math.sin(a) * (ry + w)]);
+    pts.push([50 + ex * (rx + w), 50 + ey * (ry + w)]);
   }
   return toPath(pts);
 }
 
-console.log("// globals.css — --rt-inked-blob (marker / .rt-torn)");
-console.log("BLOB =", JSON.stringify(blob(7)));
+// Avatar's round patch: a true circle (rx === ry, n=2) so it reads as a rough
+// hand-coloured disc in Avatar's square box, not an egg.
+function roundBlob(seed) {
+  return ringShape(seed, { rx: 44, ry: 44, n: 2, amp: 4.5, per: 40 });
+}
+
+// The highlighter swipe / swatch chip: an elongated capsule (high superellipse
+// exponent → flat long edges + blunt rounded ends, not tapered oval tips) baked
+// wide to begin with, so it drops into a wide-short box without the extreme
+// anisotropic stretch that flattens the wobble into a smooth pill. The wave
+// runs mostly along the long top/bottom edges, where a real marker's uneven
+// pass actually shows.
+function markerStroke(seed) {
+  return ringShape(seed, { rx: 48, ry: 32, n: 7, amp: 5, per: 56 });
+}
+
+console.log(
+  "// globals.css — --rt-inked-blob (Avatar's round patch, via .rt-torn)"
+);
+console.log("ROUND_BLOB =", JSON.stringify(roundBlob(7)));
+console.log();
+console.log(
+  "// globals.css — --rt-marker-stroke (Highlight swipe / .rt-swatch chip)"
+);
+console.log("MARKER_STROKE =", JSON.stringify(markerStroke(11)));

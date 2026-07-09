@@ -310,9 +310,9 @@ function swatchTilt(seed: string): number {
 
 /**
  * A colour chip — drawn as if someone swatched the marker on the paper to test
- * it: the real token colour with uneven, hand-run edges (the #rt-sketch
- * turbulence filter) and a hand-placed tilt, so it reads as laid down by hand
- * rather than a printed chip.
+ * it: the real token colour carved to the pre-baked marker-stroke edge
+ * (.rt-swatch, masked to --rt-marker-stroke) and a hand-placed tilt, so it
+ * reads as laid down by hand rather than a printed chip.
  */
 function ColorSwatch({ name, token, meta, note }: Swatch) {
   return (
@@ -320,7 +320,7 @@ function ColorSwatch({ name, token, meta, note }: Swatch) {
       <div className="h-14" style={{ rotate: `${swatchTilt(name)}deg` }}>
         <div
           aria-hidden="true"
-          className="rt-torn h-full w-full"
+          className="rt-swatch h-full w-full"
           // The token itself is the subject — read it directly, don't proxy it
           // through a utility class.
           style={{ backgroundColor: `var(${token})` }}

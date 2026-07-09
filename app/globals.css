@@ -409,12 +409,24 @@
     inset -22px 0 26px -24px color-mix(in srgb, var(--ink) 16%, transparent);
 }
 
-/* The pre-baked "felt-tip blob" mask shape, shared by the highlighter marker and
-   the color swatch (.rt-torn). Baked once (scripts/bake-ink.mjs) — the black
-   fill is the visible mask area; `preserveAspectRatio='none'` lets it stretch to
-   any element without a runtime filter. */
+/* The pre-baked "felt-tip" mask shapes (scripts/bake-ink.mjs) — the black fill
+   is the visible mask area; `preserveAspectRatio='none'` lets each stretch to
+   fill its element without a runtime filter.
+
+   Two distinct shapes, not one shared blob: stretching a circle non-uniformly
+   to fill a wide, short box just smooths it into a pill/oval — the hand-run
+   wobble gets squashed away and it reads as a printed oval, not a marker
+   stroke. Each shape below is baked at roughly the aspect ratio its caller
+   actually uses, so the mask fills the box without an extreme stretch and the
+   wave stays visible.
+     --rt-inked-blob: a true round patch (rx=ry) — Avatar's square token, via
+       .rt-torn.
+     --rt-marker-stroke: an elongated capsule (flat long edges, blunt rounded
+       ends, not tapered oval tips) — the Highlight swipe and the color-swatch
+       chip, via .rt-swatch. */
 html {
-  --rt-inked-blob: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100' preserveAspectRatio='none'%3E%3Cpath fill='%23000' d='M94.6 50C94.7 51.8 95.2 53.7 95.2 55.6C95.1 57.5 94.9 59.4 94.4 61.3C93.9 63.2 93.1 65.1 92.1 66.9C91.1 68.7 89.8 70.4 88.4 72C86.9 73.6 85.2 75 83.4 76.3C81.6 77.6 79.5 78.7 77.5 79.7C75.4 80.7 73.2 81.5 70.9 82.2C68.7 82.9 66.4 83.4 64.1 83.8C61.8 84.3 59.4 84.6 57.1 84.8C54.7 85 52.4 85.2 50 85.2C47.6 85.2 45.3 85.1 42.9 84.8C40.6 84.6 38.2 84.2 36 83.7C33.7 83.2 31.4 82.5 29.3 81.7C27.2 80.9 25.1 80 23.1 78.9C21.2 77.8 19.4 76.5 17.8 75.2C16.1 73.8 14.6 72.3 13.3 70.8C12 69.3 10.8 67.6 9.8 65.9C8.9 64.2 8.1 62.5 7.4 60.7C6.8 59 6.3 57.2 6 55.4C5.7 53.6 5.5 51.8 5.6 50C5.6 48.2 5.8 46.4 6.2 44.6C6.6 42.9 7.2 41.1 7.9 39.4C8.7 37.8 9.7 36.1 10.8 34.6C12 33.1 13.3 31.6 14.8 30.3C16.3 29 18 27.8 19.8 26.8C21.5 25.8 23.4 24.9 25.4 24.2C27.3 23.5 29.4 22.9 31.4 22.4C33.4 21.9 35.5 21.6 37.6 21.3C39.7 21.1 41.7 20.9 43.8 20.7C45.9 20.6 47.9 20.5 50 20.5C52.1 20.4 54.1 20.4 56.2 20.5C58.3 20.5 60.5 20.6 62.6 20.8C64.7 21.1 66.8 21.3 68.9 21.8C71 22.3 73.1 22.8 75.1 23.5C77.1 24.3 79.1 25.2 80.8 26.2C82.6 27.3 84.3 28.5 85.8 29.9C87.3 31.2 88.6 32.7 89.8 34.3C90.9 35.9 91.8 37.6 92.5 39.3C93.2 41 93.7 42.8 94.1 44.6C94.4 46.4 94.4 48.2 94.6 50Z'/%3E%3C/svg%3E");
+  --rt-inked-blob: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100' preserveAspectRatio='none'%3E%3Cpath fill='%23000' d='M94.6 50C94.7 52.4 95.2 54.8 95.2 57.2C95.1 59.6 94.9 62 94.4 64.4C93.9 66.8 93.1 69.2 92.1 71.5C91.1 73.7 89.8 75.9 88.4 77.9C86.9 79.9 85.2 81.7 83.4 83.4C81.6 85 79.5 86.5 77.5 87.8C75.4 89.1 73.2 90.2 70.9 91.1C68.7 92 66.4 92.8 64.1 93.4C61.8 94 59.4 94.4 57.1 94.7C54.7 95 52.4 95.2 50 95.2C47.6 95.2 45.3 95 42.9 94.7C40.6 94.4 38.2 93.9 36 93.2C33.7 92.5 31.4 91.7 29.3 90.7C27.2 89.6 25.1 88.4 23.1 87C21.2 85.6 19.4 84 17.8 82.2C16.1 80.5 14.6 78.6 13.3 76.7C12 74.7 10.8 72.6 9.8 70.5C8.9 68.3 8.1 66.1 7.4 63.8C6.8 61.6 6.3 59.3 6 57C5.7 54.7 5.5 52.3 5.6 50C5.6 47.7 5.8 45.3 6.2 43.1C6.6 40.8 7.2 38.5 7.9 36.3C8.7 34.2 9.7 32 10.8 30C12 28.1 13.3 26.2 14.8 24.4C16.3 22.7 18 21.1 19.8 19.8C21.5 18.4 23.4 17.2 25.4 16.1C27.3 15.1 29.4 14.2 31.4 13.5C33.4 12.8 35.5 12.3 37.6 11.8C39.7 11.4 41.7 11.1 43.8 10.9C45.9 10.6 47.9 10.5 50 10.5C52.1 10.4 54.1 10.4 56.2 10.6C58.3 10.7 60.5 11 62.6 11.3C64.7 11.7 66.8 12.2 68.9 12.9C71 13.6 73.1 14.4 75.1 15.5C77.1 16.5 79.1 17.7 80.8 19.2C82.6 20.6 84.3 22.2 85.8 24C87.3 25.7 88.6 27.7 89.8 29.7C90.9 31.8 91.8 34 92.5 36.2C93.2 38.4 93.7 40.7 94.1 43C94.4 45.3 94.4 47.6 94.6 50Z'/%3E%3C/svg%3E");
+  --rt-marker-stroke: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100' preserveAspectRatio='none'%3E%3Cpath fill='%23000' d='M97 50C96.8 55.5 96.4 62.9 96.1 66.1C95.8 69.3 95.5 68.4 95.2 69.2C94.8 70 94.5 70.6 94.3 71.1C94 71.7 93.7 72.2 93.4 72.6C93.1 73.1 92.9 73.5 92.6 73.9C92.3 74.3 92 74.7 91.7 75.1C91.4 75.5 91.1 75.9 90.7 76.2C90.3 76.6 89.9 76.9 89.5 77.2C89 77.5 88.5 77.8 87.9 78.1C87.4 78.3 86.7 78.6 86 78.8C85.2 79 84.4 79.2 83.4 79.3C82.4 79.5 81.3 79.6 79.9 79.7C78.4 79.8 79.5 79.8 74.6 79.8C69.6 79.9 58.2 79.9 50 79.9C41.8 79.9 30.4 79.9 25.4 79.8C20.5 79.8 21.6 79.8 20.1 79.7C18.6 79.7 17.5 79.6 16.5 79.5C15.4 79.5 14.5 79.4 13.6 79.3C12.7 79.2 12 79.1 11.2 79C10.5 78.9 9.8 78.8 9.2 78.6C8.5 78.5 8 78.3 7.4 78.1C6.9 77.9 6.4 77.6 5.9 77.3C5.5 77 5.1 76.7 4.7 76.3C4.4 75.9 4.1 75.4 3.8 74.9C3.6 74.3 3.4 73.7 3.2 73C3.1 72.3 3 71.5 2.9 70.5C2.8 69.4 2.8 70.2 2.8 66.7C2.8 63.3 2.8 55.6 2.9 50C2.9 44.4 3 36.8 3.1 33.4C3.1 30 3.2 30.8 3.3 29.8C3.4 28.8 3.5 28.1 3.6 27.3C3.7 26.5 3.8 25.9 3.9 25.2C4 24.5 4.1 23.9 4.3 23.3C4.4 22.7 4.5 22.1 4.6 21.5C4.8 20.9 5 20.3 5.2 19.7C5.4 19.1 5.7 18.5 6 18C6.4 17.5 6.8 16.9 7.3 16.5C7.8 16 8.4 15.5 9.1 15.1C9.9 14.8 10.7 14.4 11.8 14.1C12.9 13.8 14 13.6 15.6 13.5C17.3 13.3 16 13.2 21.7 13.2C27.4 13.1 40.6 13.2 50 13.3C59.4 13.4 72.4 13.5 78 13.7C83.6 13.9 82.2 14.2 83.7 14.4C85.3 14.7 86.3 15.1 87.3 15.4C88.3 15.8 89.1 16.1 89.8 16.5C90.5 16.9 91.1 17.3 91.6 17.7C92.2 18.1 92.6 18.6 93.1 19C93.5 19.4 93.9 19.8 94.2 20.3C94.6 20.7 94.9 21.2 95.2 21.6C95.5 22.1 95.7 22.6 96 23.1C96.2 23.6 96.4 24.2 96.6 24.8C96.8 25.4 97 26 97.1 26.8C97.2 27.5 97.3 28.3 97.4 29.4C97.4 30.4 97.5 29.7 97.4 33.1C97.4 36.6 97.3 44.5 97 50Z'/%3E%3C/svg%3E");
 }
 
 /* Hand-drawn "pen box": a transparent container framed by a hand-drawn ink
@@ -434,11 +446,10 @@ html {
    askew. The color is set per use via --marker (an accent token), kept
    translucent so the ink reads through.
 
-   The uneven, hand-run edge is a PRE-BAKED blob shape applied as a `mask` (see
-   scripts/bake-ink.mjs) — no runtime turbulence filter. The colored background
-   only shows through the wavy blob, so the swipe keeps its felt-tip edge while
-   the color stays a themeable CSS token. Stretch (mask-size:100% 100%) is fine
-   on a blob — there's no even-stroke to distort. */
+   The uneven, hand-run edge is a PRE-BAKED capsule shape applied as a `mask`
+   (see scripts/bake-ink.mjs) — no runtime turbulence filter. The colored
+   background only shows through the wavy capsule, so the swipe keeps its
+   felt-tip edge while the color stays a themeable CSS token. */
 .rt-marker {
   position: relative;
   isolation: isolate;
@@ -451,16 +462,24 @@ html {
   background: color-mix(in srgb, var(--marker, var(--sun)) 48%, transparent);
   transform: rotate(-1.4deg);
   pointer-events: none;
+  -webkit-mask: var(--rt-marker-stroke) center / 100% 100% no-repeat;
+  mask: var(--rt-marker-stroke) center / 100% 100% no-repeat;
+}
+
+/* A solid fill carved to a hand-run, felt-tip edge — the round patch Avatar
+   applies to whatever `background` it carries (so the color stays a themeable
+   token). No runtime filter. */
+.rt-torn {
   -webkit-mask: var(--rt-inked-blob) center / 100% 100% no-repeat;
   mask: var(--rt-inked-blob) center / 100% 100% no-repeat;
 }
 
-/* A solid fill carved to a hand-run, felt-tip edge — the swatch/marker blob mask
-   applied to whatever `background` the element carries (so the color stays a
-   themeable token). No runtime filter. */
-.rt-torn {
-  -webkit-mask: var(--rt-inked-blob) center / 100% 100% no-repeat;
-  mask: var(--rt-inked-blob) center / 100% 100% no-repeat;
+/* Same technique as .rt-torn, but the elongated marker-stroke shape — for the
+   color-swatch chip in the design-system gallery, drawn as if the marker were
+   swatched on paper to test it (a stroke, not a round patch). */
+.rt-swatch {
+  -webkit-mask: var(--rt-marker-stroke) center / 100% 100% no-repeat;
+  mask: var(--rt-marker-stroke) center / 100% 100% no-repeat;
 }
 
 /* StickyNote paper: the fill + edge color are always the same formula off the

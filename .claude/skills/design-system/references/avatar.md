@@ -19,7 +19,7 @@ import { Avatar } from "@/components/ui/Avatar";
 ## When **not** to use
 
 - **A color swatch that isn't identity-bearing** (a decorative tile, a status chip) → use the
-  token directly (`.rt-torn` swatch pattern in the color gallery) or `StickyNote`, not this.
+  token directly (`.rt-swatch` chip pattern in the color gallery) or `StickyNote`, not this.
 - **An interactive control** — `Avatar` is presentational (`aria-hidden`) and carries no click
   behavior. Wrap it in the real `<button>`/`<form>` that does the navigating (see
   `ProfilesManager`'s `ProfileCard`).
@@ -35,12 +35,14 @@ import { Avatar } from "@/components/ui/Avatar";
 
 ## How it works
 
-The fill is the same technique as a color-swatch chip: a solid `background-color` set to the
-token, carved to the shared hand-run felt-tip edge (`.rt-torn`, masked to `--rt-inked-blob` in
-`globals.css`) — a rough round patch instead of a perfect circle, so it reads as coloured in by
-hand rather than a printed disc. A small, **stable** tilt (hashed from `color + name`) keeps
-repeated avatars from looking stamped out identically. The initial sits in a sibling `span`
-painted after the blob, so it's always on top.
+The fill uses the same masking technique as a color-swatch chip, but its own round-patch shape:
+a solid `background-color` set to the token, carved to a hand-run felt-tip edge (`.rt-torn`,
+masked to `--rt-inked-blob` in `globals.css`) — a rough round patch instead of a perfect circle,
+so it reads as coloured in by hand rather than a printed disc. (The swatch chip uses a
+differently-shaped mask, `--rt-marker-stroke` — an elongated capsule, not a circle — since a
+round shape stretched into a wide swatch box just reads as an oval.) A small, **stable** tilt
+(hashed from `color + name`) keeps repeated avatars from looking stamped out identically. The
+initial sits in a sibling `span` painted after the blob, so it's always on top.
 
 ## Accessibility
 

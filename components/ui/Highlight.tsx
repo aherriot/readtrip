@@ -19,9 +19,10 @@ export interface HighlightProps extends HTMLAttributes<HTMLSpanElement> {
  * leaning into the hand-annotated feel. The text keeps its normal `--surface-ink`
  * color and reads through the translucent color, so contrast is unaffected.
  *
- * The swipe is a filtered `::before` (see `.rt-marker` in globals.css): uneven
- * hand-run edges via the shared `#rt-sketch` turbulence filter, overshooting the
- * text sideways and sitting slightly askew like a real marker pass.
+ * The swipe is a `::before` (see `.rt-marker` in globals.css): uneven hand-run
+ * edges via a pre-baked marker-stroke mask (`--rt-marker-stroke`, an elongated
+ * capsule, not a circle — see scripts/bake-ink.mjs), overshooting the text
+ * sideways and sitting slightly askew like a real marker pass.
  *
  * Presentational only — it's a text treatment, not a control. When the
  * highlighted word is the *only* carrier of some state (rare), make sure the
