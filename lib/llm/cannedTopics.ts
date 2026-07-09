@@ -19,8 +19,8 @@ export interface CannedTopic {
 // neighbour of the seed topic, so it only plays the breadth role.
 //
 // `illustrationTag` doesn't have to already exist in the catalog (some don't
-// yet — sharks, weather, bugs) — the resolver falls back to `illustrationCategory`
-// when a tag has no matching art, same as the real model's output would.
+// yet — bugs) — the resolver falls back to `illustrationCategory` when a tag
+// has no matching art, same as the real model's output would.
 const TOPICS: {
   title: string;
   illustrationTag: string;

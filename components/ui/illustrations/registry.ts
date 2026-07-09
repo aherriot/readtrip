@@ -43,4 +43,20 @@ export const ILLUSTRATIONS: Record<IllustrationName, ComponentType> = {
   telescope: dynamic(() =>
     import("./telescope").then((m) => m.TelescopeIllustration)
   ),
+  shark: dynamic(() => import("./shark").then((m) => m.SharkIllustration)),
+  storm: dynamic(() => import("./storm").then((m) => m.StormIllustration)),
+  desert: dynamic(() => import("./desert").then((m) => m.DesertIllustration)),
+  knight: dynamic(() => import("./knight").then((m) => m.KnightIllustration)),
+  astronaut: dynamic(() =>
+    import("./astronaut").then((m) => m.AstronautIllustration)
+  ),
+  compass: dynamic(() =>
+    import("./compass").then((m) => m.CompassIllustration)
+  ),
+  "magnifying-glass": dynamic(() =>
+    import("./magnifying-glass").then((m) => m.MagnifyingGlassIllustration)
+  ),
+  "field-journal": dynamic(() =>
+    import("./field-journal").then((m) => m.FieldJournalIllustration)
+  ),
 };

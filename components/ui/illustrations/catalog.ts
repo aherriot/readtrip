@@ -59,6 +59,26 @@ export const ILLUSTRATION_CATALOG = {
     category: "space",
   },
   telescope: { label: "Telescope", tag: "astronomy", category: "space" },
+  shark: { label: "Shark", tag: "sharks", category: "biology" },
+  storm: { label: "Storm", tag: "weather", category: "science" },
+  desert: { label: "Desert", tag: "deserts", category: "geography" },
+  knight: { label: "Knight", tag: "knights", category: "history" },
+  astronaut: { label: "Astronaut", tag: "astronauts", category: "space" },
+  // Generic fallback pool (see lib/illustrations/resolve.ts) — used when a
+  // topic's tag and category both fail to resolve to art. Still tagged and
+  // categorized like any other entry so they're also eligible as ordinary
+  // category-pool picks, not hidden from normal resolution.
+  compass: { label: "Compass", tag: "compasses", category: "geography" },
+  "magnifying-glass": {
+    label: "Magnifying glass",
+    tag: "magnifying-glasses",
+    category: "science",
+  },
+  "field-journal": {
+    label: "Field journal",
+    tag: "journals",
+    category: "history",
+  },
 } as const satisfies Record<string, IllustrationMeta>;
 
 export type IllustrationName = keyof typeof ILLUSTRATION_CATALOG;

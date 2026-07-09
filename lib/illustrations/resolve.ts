@@ -4,10 +4,16 @@ import {
   type IllustrationName,
 } from "@/components/ui/illustrations/catalog";
 
-// No illustration is truly "generic", so this is a deliberate pick — curiosity
-// and discovery read reasonably on any topic when neither the tag nor the
-// category resolves to art.
-const GENERIC_FALLBACK: IllustrationName = "telescope";
+// No illustration is truly "generic", but these three are drawn as
+// deliberately topic-agnostic exploration/discovery motifs — a compass, a
+// magnifying glass, a field journal — so they read reasonably regardless of
+// what the unresolved topic actually was. A pool (not one hardcoded name) so
+// the last-resort fallback doesn't always show the same picture.
+const GENERIC_FALLBACK_POOL: readonly IllustrationName[] = [
+  "compass",
+  "magnifying-glass",
+  "field-journal",
+];
 
 function buildIndex<K extends string>(
   key: "tag" | "category"
@@ -55,10 +61,10 @@ export interface ResolveIllustrationInput {
 
 /**
  * Resolve a topic to an illustration name: specific tag first (if it has
- * art), then the coarser category, then a hardcoded generic fallback. See
- * the illustration-llm-tag-matching design — this fallback chain exists
- * because tags/categories can be stale (an old topic predating a tag, or a
- * tag that never got art) and must never fail to resolve to *something*.
+ * art), then the coarser category, then the generic fallback pool. See the
+ * illustration-llm-tag-matching design — this fallback chain exists because
+ * tags/categories can be stale (an old topic predating a tag, or a tag that
+ * never got art) and must never fail to resolve to *something*.
  */
 export function resolveIllustration({
   tag,
@@ -71,5 +77,5 @@ export function resolveIllustration({
   if (category && BY_CATEGORY[category]?.length) {
     return pickStable(BY_CATEGORY[category], seed);
   }
-  return GENERIC_FALLBACK;
+  return pickStable(GENERIC_FALLBACK_POOL, seed);
 }
