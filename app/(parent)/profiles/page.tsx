@@ -3,9 +3,11 @@ import { Button } from "@/components/ui/Button";
 import { Heading } from "@/components/ui/Heading";
 import { Icon } from "@/components/ui/Icon";
 import { Text } from "@/components/ui/Text";
+import { Illustration } from "@/components/ui/illustrations/Illustration";
 import { JournalSheet } from "@/components/layout/JournalSheet";
 import { requireParent } from "@/lib/auth/session";
 import { listChildren } from "@/lib/children/queries";
+import { pickRandomIllustrations } from "@/lib/illustrations/pick";
 import { signOutAction } from "./actions";
 import { ProfilesManager } from "./ProfilesManager";
 
@@ -21,16 +23,22 @@ const JOURNAL_LINK =
 export default async function ProfilesPage() {
   const parent = await requireParent();
   const profiles = await listChildren(parent.id);
+  // A fresh pick every load — this route reads cookies() via requireParent(),
+  // which already opts it out of static rendering.
+  const [headerIllustration] = pickRandomIllustrations(1);
 
   return (
     <JournalSheet contentClassName="max-w-2xl gap-8">
-      <header className="flex flex-col gap-1">
-        <Heading level={1}>Who&apos;s exploring?</Heading>
-        <Text tone="soft">
-          {profiles.length === 0
-            ? "Add your first young explorer to get started."
-            : "Pick a profile to start exploring, or add another."}
-        </Text>
+      <header className="flex items-center gap-4">
+        <Illustration name={headerIllustration} size="md" decorative />
+        <div className="flex flex-col gap-1">
+          <Heading level={1}>Who&apos;s exploring?</Heading>
+          <Text tone="soft">
+            {profiles.length === 0
+              ? "Add your first young explorer to get started."
+              : "Pick a profile to start exploring, or add another."}
+          </Text>
+        </div>
       </header>
 
       <ProfilesManager profiles={profiles} />

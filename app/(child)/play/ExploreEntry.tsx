@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import {
   useCallback,
   useEffect,
+  useMemo,
   useRef,
   useState,
   type FormEvent,
@@ -16,12 +17,14 @@ import { Card } from "@/components/ui/Card";
 import { SubmitButton } from "@/components/ui/SubmitButton";
 import { Heading } from "@/components/ui/Heading";
 import { Icon } from "@/components/ui/Icon";
+import { Illustration } from "@/components/ui/illustrations/Illustration";
 import { Input } from "@/components/ui/Input";
 import { Spinner } from "@/components/ui/Spinner";
 import { Text } from "@/components/ui/Text";
 import type { MapNodeView } from "@/lib/map/nodeState";
 import { switchProfileAction } from "@/app/(parent)/profiles/actions";
 import { useStainSeed } from "@/components/layout/paper/StainSeed";
+import { pickRandomIllustrations } from "@/lib/illustrations/pick";
 import { LessonReader, type LessonTopic } from "./LessonReader";
 import { MapTilesSkeleton } from "./PlaySkeleton";
 
@@ -78,6 +81,11 @@ export function ExploreEntry({
   const [dismissing, setDismissing] = useState<Set<string>>(new Set());
 
   const busy = phase.name === "resolving";
+  // Picked once per mount, not per render — otherwise every state update in
+  // this component (map growth, dismiss, streaming) would reshuffle which
+  // illustrations flank the map. Scoped to the "idle" (map) view only, so
+  // they don't compete with the reading view's own inline illustrations.
+  const [mapLeft, mapRight] = useMemo(() => pickRandomIllustrations(2), []);
 
   // Re-stain the paper as the expedition moves between views. While a lesson is
   // open, LessonReader owns the seed (story vs quiz), so we bow out with `null`;
@@ -326,11 +334,27 @@ export function ExploreEntry({
           <MapTilesSkeleton />
         </div>
       ) : (
-        <WorldMap
-          nodes={initialNodes}
-          onSelect={startTopic}
-          onDismiss={dismissTopic}
-        />
+        <div className="flex items-start gap-4">
+          <Illustration
+            name={mapLeft}
+            size="md"
+            decorative
+            className="hidden shrink-0 lg:flex"
+          />
+          <div className="min-w-0 flex-1">
+            <WorldMap
+              nodes={initialNodes}
+              onSelect={startTopic}
+              onDismiss={dismissTopic}
+            />
+          </div>
+          <Illustration
+            name={mapRight}
+            size="md"
+            decorative
+            className="hidden shrink-0 lg:flex"
+          />
+        </div>
       )}
 
       <form onSubmit={onSubmit} className="flex flex-col gap-4">

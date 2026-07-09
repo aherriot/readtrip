@@ -1,14 +1,16 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { LessonChunk } from "@/components/reading/LessonChunk";
 import { ReadingView } from "@/components/reading/ReadingView";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { Heading } from "@/components/ui/Heading";
 import { Icon } from "@/components/ui/Icon";
+import { Illustration } from "@/components/ui/illustrations/Illustration";
 import { Spinner } from "@/components/ui/Spinner";
 import { Text } from "@/components/ui/Text";
+import { pickRandomIllustrations } from "@/lib/illustrations/pick";
 import { toLessonChunks } from "@/lib/reading/chunks";
 import { useStainSeed } from "@/components/layout/paper/StainSeed";
 import { QuizRunner } from "./QuizRunner";
@@ -54,6 +56,11 @@ export function LessonReader({
   const [status, setStatus] = useState<Status>("loading");
   const [redirect, setRedirect] = useState("");
   const [showQuiz, setShowQuiz] = useState(false);
+  // Picked once per topic (not per streamed chunk) so the pair stays put
+  // while the lesson text streams in around them. Empty deps is correct, not
+  // stale — ExploreEntry mounts a new LessonReader instance per topic (keyed
+  // on `expedition`), so this naturally re-picks on the next topic already.
+  const [storyLeft, storyRight] = useMemo(() => pickRandomIllustrations(2), []);
 
   // Own the paper's stain seed while a lesson is open: the story and its quiz
   // each get their own pattern, keyed to the topic so it's stable per topic.
@@ -192,6 +199,21 @@ export function LessonReader({
         aria-busy={status !== "done"}
       >
         <Heading level={1}>{topic.title}</Heading>
+        {/* Floated so the story text flows around them, like illustrations
+            in a real field journal. Both sit up front so they don't shift
+            position as the lesson streams in. */}
+        <Illustration
+          name={storyLeft}
+          size="md"
+          decorative
+          className="float-left mr-4 mb-2"
+        />
+        <Illustration
+          name={storyRight}
+          size="md"
+          decorative
+          className="float-right mb-2 ml-4"
+        />
         {chunks.length === 0 ? (
           <div className="flex items-center gap-3" aria-live="polite">
             <Spinner className="text-surface-ink-soft" />
