@@ -33,6 +33,8 @@ describe("orderNodes", () => {
     status,
     mastered,
     kind,
+    illustrationTag: null,
+    illustrationCategory: null,
   });
 
   it("does not mutate the input", () => {

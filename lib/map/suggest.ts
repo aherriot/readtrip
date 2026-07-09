@@ -6,6 +6,7 @@
 // are filtered against topics the child already has or dismissed. When no
 // Anthropic key is configured (local dev / CI e2e) we fall back to a
 // deterministic canned pool so the map still grows without the API.
+import type { IllustrationCategory } from "@/components/ui/illustrations/catalog";
 import { cannedTopicSuggestions } from "@/lib/llm/cannedTopics";
 import { suggestTopics } from "@/lib/llm";
 import { isLlmOffline } from "@/lib/llm/client";
@@ -119,7 +120,15 @@ async function modelSuggestions(input: {
   seed: { slug: string; title: string } | null;
   exploredSlugs: string[];
   dismissedSlugs: string[];
-}): Promise<{ title: string; topicSlug: string; kind: SuggestionKind }[]> {
+}): Promise<
+  {
+    title: string;
+    topicSlug: string;
+    kind: SuggestionKind;
+    illustrationTag: string | null;
+    illustrationCategory: IllustrationCategory | null;
+  }[]
+> {
   const avoidSlugs = [...input.exploredSlugs, ...input.dismissedSlugs];
   const suggestions = isLlmOffline()
     ? cannedTopicSuggestions(
@@ -151,5 +160,7 @@ async function modelSuggestions(input: {
     title: s.title,
     topicSlug: s.topicSlug,
     kind: s.kind === "neighbor" ? "deep" : "diverse",
+    illustrationTag: s.illustrationTag,
+    illustrationCategory: s.illustrationCategory,
   }));
 }

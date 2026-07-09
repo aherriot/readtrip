@@ -25,23 +25,27 @@ export default async function ProfilesPage() {
   const profiles = await listChildren(parent.id);
   // A fresh pick every load — this route reads cookies() via requireParent(),
   // which already opts it out of static rendering.
-  const [headerIllustration] = pickRandomIllustrations(1);
+  const [belowProfiles] = pickRandomIllustrations(1);
 
   return (
     <JournalSheet contentClassName="max-w-2xl gap-8">
-      <header className="flex items-center gap-4">
-        <Illustration name={headerIllustration} size="md" decorative />
-        <div className="flex flex-col gap-1">
-          <Heading level={1}>Who&apos;s exploring?</Heading>
-          <Text tone="soft">
-            {profiles.length === 0
-              ? "Add your first young explorer to get started."
-              : "Pick a profile to start exploring, or add another."}
-          </Text>
-        </div>
+      <header className="flex flex-col gap-1">
+        <Heading level={1}>Who&apos;s exploring?</Heading>
+        <Text tone="soft">
+          {profiles.length === 0
+            ? "Add your first young explorer to get started."
+            : "Pick a profile to start exploring, or add another."}
+        </Text>
       </header>
 
       <ProfilesManager profiles={profiles} />
+
+      <Illustration
+        name={belowProfiles}
+        size="xl"
+        decorative
+        className="self-center"
+      />
 
       {/* Secondary account actions live at the foot of the page — a wavy pen
           underline marks them as hand-written but plainly tappable links. */}

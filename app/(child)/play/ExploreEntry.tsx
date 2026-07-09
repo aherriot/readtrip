@@ -82,10 +82,13 @@ export function ExploreEntry({
 
   const busy = phase.name === "resolving";
   // Picked once per mount, not per render — otherwise every state update in
-  // this component (map growth, dismiss, streaming) would reshuffle which
-  // illustrations flank the map. Scoped to the "idle" (map) view only, so
-  // they don't compete with the reading view's own inline illustrations.
-  const [mapLeft, mapRight] = useMemo(() => pickRandomIllustrations(2), []);
+  // this component (map growth, dismiss, streaming) would reshuffle the
+  // illustrations. Scoped to the "idle" (map) view only, so they don't
+  // compete with the reading view's own inline illustrations.
+  const [mapAboveTopics, mapBelowExplore] = useMemo(
+    () => pickRandomIllustrations(2),
+    []
+  );
 
   // Re-stain the paper as the expedition moves between views. While a lesson is
   // open, LessonReader owns the seed (story vs quiz), so we bow out with `null`;
@@ -195,7 +198,12 @@ export function ExploreEntry({
 
   // A map node or curated chip is a known concept, so tapping it skips the
   // safety + normalize round-trip and resolves straight away.
-  function startTopic(topic: { title: string; topicSlug: string }) {
+  function startTopic(topic: {
+    title: string;
+    topicSlug: string;
+    illustrationTag?: string | null;
+    illustrationCategory?: LessonTopic["illustrationCategory"];
+  }) {
     if (busy) return;
     startReading({
       title: topic.title,
@@ -205,6 +213,8 @@ export function ExploreEntry({
       parentLoopId: null,
       parentContext: null,
       previousLesson: null,
+      illustrationTag: topic.illustrationTag ?? null,
+      illustrationCategory: topic.illustrationCategory ?? null,
     });
   }
 
@@ -334,25 +344,12 @@ export function ExploreEntry({
           <MapTilesSkeleton />
         </div>
       ) : (
-        <div className="flex items-start gap-4">
-          <Illustration
-            name={mapLeft}
-            size="md"
-            decorative
-            className="hidden shrink-0 lg:flex"
-          />
-          <div className="min-w-0 flex-1">
-            <WorldMap
-              nodes={initialNodes}
-              onSelect={startTopic}
-              onDismiss={dismissTopic}
-            />
-          </div>
-          <Illustration
-            name={mapRight}
-            size="md"
-            decorative
-            className="hidden shrink-0 lg:flex"
+        <div className="flex flex-col items-center gap-6">
+          <Illustration name={mapAboveTopics} size="xl" decorative />
+          <WorldMap
+            nodes={initialNodes}
+            onSelect={startTopic}
+            onDismiss={dismissTopic}
           />
         </div>
       )}
@@ -381,6 +378,13 @@ export function ExploreEntry({
           </Text>
         )}
       </form>
+
+      <Illustration
+        name={mapBelowExplore}
+        size="xl"
+        decorative
+        className="self-center"
+      />
 
       <form action={switchProfileAction} className="self-center">
         <SubmitButton variant="ghost" size="md">

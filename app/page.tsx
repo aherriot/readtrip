@@ -43,8 +43,8 @@ export default async function Home() {
   // which opts it out of static rendering, so Math.random() here re-runs
   // per request for free. Each <Illustration> reserves its own box (fixed
   // h-*/w-* on the wrapper) regardless of when its chunk resolves, so picking
-  // a different pair never shifts the hero layout.
-  const [heroLeft, heroRight] = pickRandomIllustrations(2);
+  // a different pair never shifts the layout.
+  const [aboveHowItWorks, belowFeatures] = pickRandomIllustrations(2);
 
   return (
     <JournalSheet
@@ -52,39 +52,26 @@ export default async function Home() {
       contentClassName="items-center gap-16 py-8 text-center sm:py-16"
     >
       {/* Hero */}
-      <section className="flex max-w-4xl items-center justify-center gap-6">
-        <Illustration
-          name={heroLeft}
-          size="lg"
-          decorative
-          className="hidden shrink-0 md:flex"
-        />
-        <div className="flex max-w-2xl flex-col items-center gap-6">
-          <Heading level={1} size="3xl">
-            <Wordmark className="h-16 sm:h-20" />
-          </Heading>
-          <Text size="lg" className="max-w-xl">
-            A curiosity engine for kids. Turn “why is the sky blue?” into a
-            guided learning session — a clear explanation at exactly the right
-            reading level, a quick check that it stuck, and a reward for the
-            effort.
-          </Text>
-          <div className="mt-2 flex flex-col items-center gap-3 sm:flex-row">
-            <Button href={primaryHref}>
-              {isSignedIn ? "Go to profiles →" : "Get started →"}
-            </Button>
-          </div>
-          <Text size="sm" tone="soft">
-            For parents and teachers of curious 6–11 year-olds.
-          </Text>
+      <section className="flex max-w-2xl flex-col items-center gap-6">
+        <Heading level={1} size="3xl">
+          <Wordmark className="h-16 sm:h-20" />
+        </Heading>
+        <Text size="lg" className="max-w-xl">
+          A curiosity engine for kids. Turn “why is the sky blue?” into a guided
+          learning session — a clear explanation at exactly the right reading
+          level, a quick check that it stuck, and a reward for the effort.
+        </Text>
+        <div className="mt-2 flex flex-col items-center gap-3 sm:flex-row">
+          <Button href={primaryHref}>
+            {isSignedIn ? "Go to profiles →" : "Get started →"}
+          </Button>
         </div>
-        <Illustration
-          name={heroRight}
-          size="lg"
-          decorative
-          className="hidden shrink-0 md:flex"
-        />
+        <Text size="sm" tone="soft">
+          For parents and teachers of curious 6–11 year-olds.
+        </Text>
       </section>
+
+      <Illustration name={aboveHowItWorks} size="xl" decorative />
 
       {/* What it does */}
       <section className="flex w-full max-w-5xl flex-col gap-8">
@@ -103,6 +90,8 @@ export default async function Home() {
           ))}
         </ul>
       </section>
+
+      <Illustration name={belowFeatures} size="xl" decorative />
 
       {/* Who it's for */}
       <section className="w-full max-w-3xl">

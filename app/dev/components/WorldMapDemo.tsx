@@ -15,64 +15,66 @@ const NODE_VARIANTS: { state: TopicNodeState; kind?: "deep" | "diverse" }[] = [
   { state: "mastered" },
 ];
 
-const SAMPLE_NODES: MapNodeView[] = [
-  {
-    topicSlug: "dinosaurs",
-    title: "Dinosaurs",
-    status: "explored",
-    mastered: true,
-    kind: "deep",
-  },
-  {
-    topicSlug: "volcanoes",
-    title: "Volcanoes",
-    status: "explored",
-    mastered: false,
-    kind: "deep",
-  },
-  {
-    topicSlug: "outer-space",
-    title: "Outer Space",
-    status: "suggested",
-    mastered: false,
-    kind: "deep",
-  },
-  {
-    topicSlug: "sharks",
-    title: "Sharks",
-    status: "suggested",
-    mastered: false,
-    kind: "deep",
-  },
-  {
-    topicSlug: "the-human-body",
-    title: "The Human Body",
-    status: "suggested",
-    mastered: false,
-    kind: "diverse",
-  },
-  {
-    topicSlug: "wild-weather",
-    title: "Wild Weather",
-    status: "suggested",
-    mastered: false,
-    kind: "diverse",
-  },
-  {
-    topicSlug: "ancient-egypt",
-    title: "Ancient Egypt",
-    status: "suggested",
-    mastered: false,
-    kind: "diverse",
-  },
-  {
-    topicSlug: "the-solar-system",
-    title: "The Solar System",
-    status: "suggested",
-    mastered: false,
-    kind: "deep",
-  },
-];
+const SAMPLE_NODES: MapNodeView[] = (
+  [
+    {
+      topicSlug: "dinosaurs",
+      title: "Dinosaurs",
+      status: "explored",
+      mastered: true,
+      kind: "deep",
+    },
+    {
+      topicSlug: "volcanoes",
+      title: "Volcanoes",
+      status: "explored",
+      mastered: false,
+      kind: "deep",
+    },
+    {
+      topicSlug: "outer-space",
+      title: "Outer Space",
+      status: "suggested",
+      mastered: false,
+      kind: "deep",
+    },
+    {
+      topicSlug: "sharks",
+      title: "Sharks",
+      status: "suggested",
+      mastered: false,
+      kind: "deep",
+    },
+    {
+      topicSlug: "the-human-body",
+      title: "The Human Body",
+      status: "suggested",
+      mastered: false,
+      kind: "diverse",
+    },
+    {
+      topicSlug: "wild-weather",
+      title: "Wild Weather",
+      status: "suggested",
+      mastered: false,
+      kind: "diverse",
+    },
+    {
+      topicSlug: "ancient-egypt",
+      title: "Ancient Egypt",
+      status: "suggested",
+      mastered: false,
+      kind: "diverse",
+    },
+    {
+      topicSlug: "the-solar-system",
+      title: "The Solar System",
+      status: "suggested",
+      mastered: false,
+      kind: "deep",
+    },
+  ] satisfies Omit<MapNodeView, "illustrationTag" | "illustrationCategory">[]
+).map((n) => ({ ...n, illustrationTag: null, illustrationCategory: null }));
 
 export function WorldMapDemo() {
   return (

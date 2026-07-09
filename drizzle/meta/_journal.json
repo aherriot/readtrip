@@ -64,6 +64,13 @@
       "when": 1783130983748,
       "tag": "0008_lame_korg",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1783605940882,
+      "tag": "0009_curious_mojo",
+      "breakpoints": true
     }
   ]
 }

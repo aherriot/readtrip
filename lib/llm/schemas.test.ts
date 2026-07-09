@@ -94,20 +94,27 @@ describe("NormalizeSchema", () => {
 });
 
 describe("TopicSuggestionsSchema", () => {
+  const wellFormed = {
+    title: "Volcanoes",
+    topicSlug: "volcanoes",
+    kind: "neighbor" as const,
+    illustrationTag: "volcanoes",
+    illustrationCategory: "science" as const,
+  };
+
   it("accepts 1-8 well-formed suggestions", () => {
     expect(
       TopicSuggestionsSchema.safeParse({
-        suggestions: [
-          { title: "Volcanoes", topicSlug: "volcanoes", kind: "neighbor" },
-        ],
+        suggestions: [wellFormed],
       }).success
     ).toBe(true);
   });
 
   it("rejects a suggestion missing kind", () => {
+    const { kind: _kind, ...withoutKind } = wellFormed;
     expect(
       TopicSuggestionsSchema.safeParse({
-        suggestions: [{ title: "Volcanoes", topicSlug: "volcanoes" }],
+        suggestions: [withoutKind],
       }).success
     ).toBe(false);
   });
@@ -116,5 +123,21 @@ describe("TopicSuggestionsSchema", () => {
     expect(TopicSuggestionsSchema.safeParse({ suggestions: [] }).success).toBe(
       false
     );
+  });
+
+  it("rejects an illustrationTag outside the catalog's tag list", () => {
+    expect(
+      TopicSuggestionsSchema.safeParse({
+        suggestions: [{ ...wellFormed, illustrationTag: "made-up-tag" }],
+      }).success
+    ).toBe(false);
+  });
+
+  it("rejects an illustrationCategory outside the closed enum", () => {
+    expect(
+      TopicSuggestionsSchema.safeParse({
+        suggestions: [{ ...wellFormed, illustrationCategory: "sports" }],
+      }).success
+    ).toBe(false);
   });
 });

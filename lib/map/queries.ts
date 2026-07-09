@@ -8,6 +8,10 @@
 import { and, asc, eq, inArray } from "drizzle-orm";
 import { db } from "@/lib/db";
 import { mapNodes, topicProgress } from "@/lib/db/schema";
+import {
+  ILLUSTRATION_CATEGORIES,
+  type IllustrationCategory,
+} from "@/components/ui/illustrations/catalog";
 import type { MapNodeView, SuggestionKind } from "./nodeState";
 
 export type { SuggestionKind };
@@ -32,6 +36,8 @@ export async function getChildMap(childId: string): Promise<MapNodeView[]> {
         title: mapNodes.title,
         status: mapNodes.status,
         kind: mapNodes.kind,
+        illustrationTag: mapNodes.illustrationTag,
+        illustrationCategory: mapNodes.illustrationCategory,
       })
       .from(mapNodes)
       .where(eq(mapNodes.childId, childId)),
@@ -61,7 +67,23 @@ export async function getChildMap(childId: string): Promise<MapNodeView[]> {
       status: n.status === "explored" ? "explored" : "suggested",
       mastered: masteredSlugs.has(n.topicSlug),
       kind: n.kind === "deep" || n.kind === "diverse" ? n.kind : null,
+      illustrationTag: n.illustrationTag,
+      illustrationCategory: isIllustrationCategory(n.illustrationCategory)
+        ? n.illustrationCategory
+        : null,
     }));
+}
+
+/** Guards a raw DB string against the current closed category enum — a stale
+ * row (written before a category existed, or a schema drift) should resolve
+ * via the illustration fallback chain, not blow up or leak an invalid value. */
+function isIllustrationCategory(
+  value: string | null
+): value is IllustrationCategory {
+  return (
+    value !== null &&
+    (ILLUSTRATION_CATEGORIES as readonly string[]).includes(value)
+  );
 }
 
 /**
@@ -167,6 +189,8 @@ export async function saveSuggestedNeighbors(
     title: string;
     topicSlug: string;
     kind: SuggestionKind;
+    illustrationTag: string | null;
+    illustrationCategory: IllustrationCategory | null;
   }[]
 ): Promise<void> {
   // Don't re-suggest anything the child has already got on their map.
@@ -197,6 +221,8 @@ export async function saveSuggestedNeighbors(
           status: "suggested",
           kind: s.kind,
           neighbors: [],
+          illustrationTag: s.illustrationTag,
+          illustrationCategory: s.illustrationCategory,
         }))
       )
       // Two suggestions can't collide (deduped above), but guard the unique
