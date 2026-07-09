@@ -79,6 +79,32 @@ export const ILLUSTRATION_CATALOG = {
     tag: "journals",
     category: "history",
   },
+  "viking-ship": { label: "Viking ship", tag: "vikings", category: "history" },
+  "greek-temple": {
+    label: "Greek temple",
+    tag: "ancient-greece",
+    category: "history",
+  },
+  "coral-reef": {
+    label: "Coral reef",
+    tag: "coral-reefs",
+    category: "biology",
+  },
+  butterfly: { label: "Butterfly", tag: "butterflies", category: "biology" },
+  beehive: { label: "Beehive", tag: "bees", category: "biology" },
+  waterfall: {
+    label: "Waterfall",
+    tag: "waterfalls",
+    category: "geography",
+  },
+  glacier: { label: "Glacier", tag: "glaciers", category: "geography" },
+  "chemistry-lab": {
+    label: "Chemistry lab",
+    tag: "chemistry",
+    category: "science",
+  },
+  satellite: { label: "Satellite", tag: "satellites", category: "space" },
+  comet: { label: "Comet", tag: "comets", category: "space" },
 } as const satisfies Record<string, IllustrationMeta>;
 
 export type IllustrationName = keyof typeof ILLUSTRATION_CATALOG;

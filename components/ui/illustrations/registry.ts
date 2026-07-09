@@ -72,6 +72,32 @@ const LOADERS: Record<
     import("./field-journal").then((m) => ({
       default: m.FieldJournalIllustration,
     })),
+  "viking-ship": () =>
+    import("./viking-ship").then((m) => ({
+      default: m.VikingShipIllustration,
+    })),
+  "greek-temple": () =>
+    import("./greek-temple").then((m) => ({
+      default: m.GreekTempleIllustration,
+    })),
+  "coral-reef": () =>
+    import("./coral-reef").then((m) => ({ default: m.CoralReefIllustration })),
+  butterfly: () =>
+    import("./butterfly").then((m) => ({ default: m.ButterflyIllustration })),
+  beehive: () =>
+    import("./beehive").then((m) => ({ default: m.BeehiveIllustration })),
+  waterfall: () =>
+    import("./waterfall").then((m) => ({ default: m.WaterfallIllustration })),
+  glacier: () =>
+    import("./glacier").then((m) => ({ default: m.GlacierIllustration })),
+  "chemistry-lab": () =>
+    import("./chemistry-lab").then((m) => ({
+      default: m.ChemistryLabIllustration,
+    })),
+  satellite: () =>
+    import("./satellite").then((m) => ({ default: m.SatelliteIllustration })),
+  comet: () =>
+    import("./comet").then((m) => ({ default: m.CometIllustration })),
 };
 
 export const ILLUSTRATIONS: Record<IllustrationName, ComponentType> =
