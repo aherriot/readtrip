@@ -12,11 +12,13 @@
  * tile. There is deliberately NO `filter: url(#…)` here; softness comes from
  * gradient stops, not a live blur.
  *
- * The tile is a square that tiles *vertically* (`background-repeat: repeat-y`,
+ * The tile tiles *vertically* (`background-repeat: repeat-y`,
  * `background-size: 100% auto`) so stains keep a fixed physical size and simply
  * recur down a page of any length — they never stretch when the lesson grows.
- * Every shape that reaches past the top or bottom edge is redrawn wrapped to the
- * opposite edge, so the vertical seam is invisible.
+ * The tile is twice as tall as it is wide, so the repeat is far less obvious on
+ * long pages (story, mobile) than a square tile would be. Every shape that
+ * reaches past the top or bottom edge is redrawn wrapped to the opposite edge,
+ * so the vertical seam is invisible.
  *
  * Determinism is the whole point: same seed → identical SVG string → identical
  * pixels. So a page's stains never change on re-render and are stable in visual
@@ -25,10 +27,13 @@
  */
 import { intRange, pick, range, seededRng, type Rng } from "./prng";
 
-// The tile is authored in a square and tiled vertically. Shapes may bleed off
-// the left/right edges (clipped by the sheet); anything crossing the top/bottom
-// is wrapped to the far edge so repeat-y is seamless.
-const VIEW = 100;
+// The tile is authored TILE_W wide by TILE_H tall (twice as tall as it is wide)
+// and tiled vertically. Shapes may bleed off the left/right edges (clipped by
+// the sheet); anything crossing the top/bottom is wrapped to the far edge so
+// repeat-y is seamless. A taller tile means more distance — and more shape
+// variety — before the pattern visibly repeats down a long page.
+const TILE_W = 100;
+const TILE_H = TILE_W * 2;
 const TAU = Math.PI * 2;
 
 /**
@@ -116,8 +121,8 @@ function blobPath(
  */
 function wrapY(cy: number, reach: number): number[] {
   const ys = [cy];
-  if (cy - reach < 0) ys.push(cy + VIEW);
-  if (cy + reach > VIEW) ys.push(cy - VIEW);
+  if (cy - reach < 0) ys.push(cy + TILE_H);
+  if (cy + reach > TILE_H) ys.push(cy - TILE_H);
   return ys;
 }
 
@@ -245,26 +250,33 @@ export function paperStainSvg(seed: string): string {
   // its margins.
   const edge = () => (rng() < 0.5 ? range(rng, 4, 30) : range(rng, 70, 96));
 
-  // One large soaked wash anchored to a margin.
-  add(wash(rng, `w${n++}`, edge(), range(rng, 0, VIEW)));
-
-  // 0–1 broken rings (kept rare so the page doesn't read as "coffee cups").
-  if (rng() < 0.55) add(ring(rng, `r${n++}`, edge(), range(rng, 0, VIEW)));
-
-  // 1–2 uneven blotches.
-  for (let i = 0, c = intRange(rng, 1, 2); i < c; i++) {
-    add(blotch(rng, `b${n++}`, edge(), range(rng, 0, VIEW)));
+  // Two large soaked washes anchored to a margin (one per tile-height's worth
+  // of the old square tile, so the taller tile keeps the same stain density).
+  for (let i = 0, c = 2; i < c; i++) {
+    add(wash(rng, `w${n++}`, edge(), range(rng, 0, TILE_H)));
   }
 
-  // A scatter of small droplets, loosely clustered around one anchor so they
-  // read as a splash rather than confetti.
-  const ax = edge();
-  const ay = range(rng, 0, VIEW);
-  for (let i = 0, c = intRange(rng, 3, 6); i < c; i++) {
-    add(droplet(rng, ax + range(rng, -14, 14), ay + range(rng, -18, 18)));
+  // 1–3 broken rings (kept rare so the page doesn't read as "coffee cups").
+  for (let i = 0, c = intRange(rng, 1, 3); i < c; i++) {
+    add(ring(rng, `r${n++}`, edge(), range(rng, 0, TILE_H)));
   }
 
-  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${VIEW} ${VIEW}" preserveAspectRatio="xMidYMid meet"><defs>${defs.join("")}</defs>${body.join("")}</svg>`;
+  // 2–4 uneven blotches.
+  for (let i = 0, c = intRange(rng, 2, 4); i < c; i++) {
+    add(blotch(rng, `b${n++}`, edge(), range(rng, 0, TILE_H)));
+  }
+
+  // Two loosely clustered scatters of small droplets so they read as splashes
+  // rather than confetti.
+  for (let cluster = 0; cluster < 2; cluster++) {
+    const ax = edge();
+    const ay = range(rng, 0, TILE_H);
+    for (let i = 0, c = intRange(rng, 3, 6); i < c; i++) {
+      add(droplet(rng, ax + range(rng, -14, 14), ay + range(rng, -18, 18)));
+    }
+  }
+
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${TILE_W} ${TILE_H}" preserveAspectRatio="xMidYMid meet"><defs>${defs.join("")}</defs>${body.join("")}</svg>`;
 }
 
 /** The stain SVG for a seed, ready to drop into `background-image`. */
