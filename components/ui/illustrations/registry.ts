@@ -30,6 +30,10 @@ const LOADERS: Record<
     import("./astronaut").then((m) => ({ default: m.AstronautIllustration })),
   aurora: () =>
     import("./aurora").then((m) => ({ default: m.AuroraIllustration })),
+  "ballet-dancer": () =>
+    import("./ballet-dancer").then((m) => ({
+      default: m.BalletDancerIllustration,
+    })),
   beehive: () =>
     import("./beehive").then((m) => ({ default: m.BeehiveIllustration })),
   bicycle: () =>
@@ -72,6 +76,8 @@ const LOADERS: Record<
     import("./dna-strand").then((m) => ({
       default: m.DnaStrandIllustration,
     })),
+  dragon: () =>
+    import("./dragon").then((m) => ({ default: m.DragonIllustration })),
   "field-journal": () =>
     import("./field-journal").then((m) => ({
       default: m.FieldJournalIllustration,
@@ -86,6 +92,8 @@ const LOADERS: Record<
     import("./greek-temple").then((m) => ({
       default: m.GreekTempleIllustration,
     })),
+  griffin: () =>
+    import("./griffin").then((m) => ({ default: m.GriffinIllustration })),
   "hot-air-balloon": () =>
     import("./hot-air-balloon").then((m) => ({
       default: m.HotAirBalloonIllustration,
@@ -100,6 +108,8 @@ const LOADERS: Record<
     import("./magnifying-glass").then((m) => ({
       default: m.MagnifyingGlassIllustration,
     })),
+  mermaid: () =>
+    import("./mermaid").then((m) => ({ default: m.MermaidIllustration })),
   microscope: () =>
     import("./microscope").then((m) => ({
       default: m.MicroscopeIllustration,
@@ -110,6 +120,12 @@ const LOADERS: Record<
     })),
   octopus: () =>
     import("./octopus").then((m) => ({ default: m.OctopusIllustration })),
+  "paint-palette": () =>
+    import("./paint-palette").then((m) => ({
+      default: m.PaintPaletteIllustration,
+    })),
+  phoenix: () =>
+    import("./phoenix").then((m) => ({ default: m.PhoenixIllustration })),
   pyramid: () =>
     import("./pyramid").then((m) => ({ default: m.PyramidIllustration })),
   rainforest: () =>
@@ -138,16 +154,28 @@ const LOADERS: Record<
     })),
   storm: () =>
     import("./storm").then((m) => ({ default: m.StormIllustration })),
+  "story-book": () =>
+    import("./story-book").then((m) => ({
+      default: m.StoryBookIllustration,
+    })),
   submarine: () =>
     import("./submarine").then((m) => ({
       default: m.SubmarineIllustration,
     })),
   telescope: () =>
     import("./telescope").then((m) => ({ default: m.TelescopeIllustration })),
+  "theater-masks": () =>
+    import("./theater-masks").then((m) => ({
+      default: m.TheaterMasksIllustration,
+    })),
+  unicorn: () =>
+    import("./unicorn").then((m) => ({ default: m.UnicornIllustration })),
   "viking-ship": () =>
     import("./viking-ship").then((m) => ({
       default: m.VikingShipIllustration,
     })),
+  violin: () =>
+    import("./violin").then((m) => ({ default: m.ViolinIllustration })),
   volcano: () =>
     import("./volcano").then((m) => ({ default: m.VolcanoIllustration })),
   waterfall: () =>

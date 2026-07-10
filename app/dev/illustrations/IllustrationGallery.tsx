@@ -45,7 +45,7 @@ export function IllustrationGallery({ entries }: { entries: Entry[] }) {
       {filtered.length === 0 ? (
         <Text tone="soft">No illustrations match “{query}”.</Text>
       ) : (
-        <div className="grid grid-cols-2 gap-x-6 gap-y-10 sm:grid-cols-3 md:grid-cols-4">
+        <div className="grid grid-cols-2 gap-x-12 gap-y-16 sm:grid-cols-3 md:grid-cols-4">
           {filtered.map((entry) => (
             <div key={entry.name} className="flex flex-col items-center gap-2">
               <Illustration name={entry.name} size="xl" label={entry.label} />

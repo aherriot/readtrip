@@ -26,6 +26,8 @@ export const ILLUSTRATION_CATEGORIES = [
   "space",
   "engineering",
   "transportation",
+  "arts-culture",
+  "mythology",
 ] as const;
 export type IllustrationCategory = (typeof ILLUSTRATION_CATEGORIES)[number];
 
@@ -46,6 +48,11 @@ export const ILLUSTRATION_CATALOG = {
   },
   astronaut: { label: "Astronaut", tag: "astronauts", category: "space" },
   aurora: { label: "Aurora borealis", tag: "auroras", category: "science" },
+  "ballet-dancer": {
+    label: "Ballet dancer",
+    tag: "dance",
+    category: "arts-culture",
+  },
   beehive: { label: "Beehive", tag: "bees", category: "biology" },
   bicycle: {
     label: "Bicycle",
@@ -84,6 +91,7 @@ export const ILLUSTRATION_CATALOG = {
   desert: { label: "Desert", tag: "deserts", category: "geography" },
   dinosaur: { label: "Dinosaur", tag: "dinosaurs", category: "biology" },
   "dna-strand": { label: "DNA strand", tag: "dna", category: "biology" },
+  dragon: { label: "Dragon", tag: "dragons", category: "mythology" },
   "field-journal": {
     label: "Field journal",
     tag: "journals",
@@ -100,6 +108,7 @@ export const ILLUSTRATION_CATALOG = {
     tag: "ancient-greece",
     category: "history",
   },
+  griffin: { label: "Griffin", tag: "griffins", category: "mythology" },
   "hot-air-balloon": {
     label: "Hot air balloon",
     tag: "hot-air-balloons",
@@ -116,6 +125,7 @@ export const ILLUSTRATION_CATALOG = {
     tag: "magnifying-glasses",
     category: "science",
   },
+  mermaid: { label: "Mermaid", tag: "mermaids", category: "mythology" },
   microscope: { label: "Microscope", tag: "microscopes", category: "science" },
   "mountain-range": {
     label: "Mountain range",
@@ -123,6 +133,12 @@ export const ILLUSTRATION_CATALOG = {
     category: "geography",
   },
   octopus: { label: "Octopus", tag: "octopuses", category: "biology" },
+  "paint-palette": {
+    label: "Paint palette",
+    tag: "painting",
+    category: "arts-culture",
+  },
+  phoenix: { label: "Phoenix", tag: "phoenixes", category: "mythology" },
   pyramid: { label: "Ancient pyramid", tag: "pyramids", category: "history" },
   rainforest: {
     label: "Rainforest",
@@ -157,13 +173,25 @@ export const ILLUSTRATION_CATALOG = {
     category: "transportation",
   },
   storm: { label: "Storm", tag: "weather", category: "science" },
+  "story-book": {
+    label: "Story book",
+    tag: "storytelling",
+    category: "arts-culture",
+  },
   submarine: {
     label: "Submarine",
     tag: "submarines",
     category: "transportation",
   },
   telescope: { label: "Telescope", tag: "astronomy", category: "space" },
+  "theater-masks": {
+    label: "Theater masks",
+    tag: "theater",
+    category: "arts-culture",
+  },
+  unicorn: { label: "Unicorn", tag: "unicorns", category: "mythology" },
   "viking-ship": { label: "Viking ship", tag: "vikings", category: "history" },
+  violin: { label: "Violin", tag: "violins", category: "arts-culture" },
   volcano: { label: "Volcano", tag: "volcanoes", category: "science" },
   waterfall: {
     label: "Waterfall",
