@@ -23,10 +23,7 @@ import { Spinner } from "@/components/ui/Spinner";
 import { Text } from "@/components/ui/Text";
 import type { MapNodeView } from "@/lib/map/nodeState";
 import { switchProfileAction } from "@/app/(parent)/profiles/actions";
-import {
-  randomSeedSuffix,
-  useStainSeed,
-} from "@/components/layout/paper/StainSeed";
+import { useStainSeed } from "@/components/layout/paper/StainSeed";
 import { pickRandomIllustrations } from "@/lib/illustrations/pick";
 import { LessonReader, type LessonTopic } from "./LessonReader";
 import { MapTilesSkeleton } from "./PlaySkeleton";
@@ -108,17 +105,14 @@ export function ExploreEntry({
     []
   );
 
-  // A per-mount nonce so the map's stains don't redraw identically on every
-  // reload or every return trip to /play — only `expedition` bumping within a
-  // session should feel that stable-until-you-move-on.
-  const [mountNonce] = useState(() => randomSeedSuffix());
-
   // Re-stain the paper as the expedition moves between views. While a lesson is
   // open, LessonReader owns the seed (story vs quiz), so we bow out with `null`;
-  // otherwise the map's seed (bumped per expedition, and per mount) is in force.
-  useStainSeed(
-    phase.name === "reading" ? null : `map:${mountNonce}:${expedition}`
-  );
+  // otherwise the map's seed (bumped per expedition) is in force. Deliberately
+  // deterministic (no per-visit random component): the map looks the same
+  // every time you land on it, changing only when an expedition actually
+  // starts — see StainSeed.tsx's file comment for why a random visit nonce
+  // was tried and reverted.
+  useStainSeed(phase.name === "reading" ? null : `map:${expedition}`);
 
   // Lift the "charting" cover whenever a server refresh delivers a fresh map:
   // the new tiles — or an unchanged empty map, if generation produced none —
