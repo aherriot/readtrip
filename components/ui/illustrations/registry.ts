@@ -17,112 +17,143 @@ import type { IllustrationName } from "./catalog";
  * Each loader is also keyed in `LOADERS` below so a caller that already
  * knows which name(s) it's about to render can warm the chunk ahead of
  * time via `preloadIllustration` — see that function for why.
+ *
+ * Entries are kept alphabetical by key, matching `catalog.ts`.
  */
 const LOADERS: Record<
   IllustrationName,
   () => Promise<{ default: ComponentType }>
 > = {
-  pyramid: () =>
-    import("./pyramid").then((m) => ({ default: m.PyramidIllustration })),
-  castle: () =>
-    import("./castle").then((m) => ({ default: m.CastleIllustration })),
-  volcano: () =>
-    import("./volcano").then((m) => ({ default: m.VolcanoIllustration })),
-  microscope: () =>
-    import("./microscope").then((m) => ({
-      default: m.MicroscopeIllustration,
-    })),
-  dinosaur: () =>
-    import("./dinosaur").then((m) => ({ default: m.DinosaurIllustration })),
-  "human-body": () =>
-    import("./human-body").then((m) => ({
-      default: m.HumanBodyIllustration,
-    })),
-  "mountain-range": () =>
-    import("./mountain-range").then((m) => ({
-      default: m.MountainRangeIllustration,
-    })),
-  rainforest: () =>
-    import("./rainforest").then((m) => ({
-      default: m.RainforestIllustration,
-    })),
-  "rocket-launch": () =>
-    import("./rocket-launch").then((m) => ({
-      default: m.RocketLaunchIllustration,
-    })),
-  telescope: () =>
-    import("./telescope").then((m) => ({ default: m.TelescopeIllustration })),
-  shark: () =>
-    import("./shark").then((m) => ({ default: m.SharkIllustration })),
-  storm: () =>
-    import("./storm").then((m) => ({ default: m.StormIllustration })),
-  desert: () =>
-    import("./desert").then((m) => ({ default: m.DesertIllustration })),
-  knight: () =>
-    import("./knight").then((m) => ({ default: m.KnightIllustration })),
+  airplane: () =>
+    import("./airplane").then((m) => ({ default: m.AirplaneIllustration })),
   astronaut: () =>
     import("./astronaut").then((m) => ({ default: m.AstronautIllustration })),
+  aurora: () =>
+    import("./aurora").then((m) => ({ default: m.AuroraIllustration })),
+  beehive: () =>
+    import("./beehive").then((m) => ({ default: m.BeehiveIllustration })),
+  bicycle: () =>
+    import("./bicycle").then((m) => ({ default: m.BicycleIllustration })),
+  "black-hole": () =>
+    import("./black-hole").then((m) => ({
+      default: m.BlackHoleIllustration,
+    })),
+  bridge: () =>
+    import("./bridge").then((m) => ({ default: m.BridgeIllustration })),
+  butterfly: () =>
+    import("./butterfly").then((m) => ({ default: m.ButterflyIllustration })),
+  canyon: () =>
+    import("./canyon").then((m) => ({ default: m.CanyonIllustration })),
+  car: () => import("./car").then((m) => ({ default: m.CarIllustration })),
+  castle: () =>
+    import("./castle").then((m) => ({ default: m.CastleIllustration })),
+  cave: () => import("./cave").then((m) => ({ default: m.CaveIllustration })),
+  "chemistry-lab": () =>
+    import("./chemistry-lab").then((m) => ({
+      default: m.ChemistryLabIllustration,
+    })),
+  colosseum: () =>
+    import("./colosseum").then((m) => ({
+      default: m.ColosseumIllustration,
+    })),
+  comet: () =>
+    import("./comet").then((m) => ({ default: m.CometIllustration })),
   compass: () =>
     import("./compass").then((m) => ({ default: m.CompassIllustration })),
-  "magnifying-glass": () =>
-    import("./magnifying-glass").then((m) => ({
-      default: m.MagnifyingGlassIllustration,
+  "coral-reef": () =>
+    import("./coral-reef").then((m) => ({ default: m.CoralReefIllustration })),
+  crane: () =>
+    import("./crane").then((m) => ({ default: m.CraneIllustration })),
+  desert: () =>
+    import("./desert").then((m) => ({ default: m.DesertIllustration })),
+  dinosaur: () =>
+    import("./dinosaur").then((m) => ({ default: m.DinosaurIllustration })),
+  "dna-strand": () =>
+    import("./dna-strand").then((m) => ({
+      default: m.DnaStrandIllustration,
     })),
   "field-journal": () =>
     import("./field-journal").then((m) => ({
       default: m.FieldJournalIllustration,
     })),
-  "viking-ship": () =>
-    import("./viking-ship").then((m) => ({
-      default: m.VikingShipIllustration,
-    })),
-  "greek-temple": () =>
-    import("./greek-temple").then((m) => ({
-      default: m.GreekTempleIllustration,
-    })),
-  "coral-reef": () =>
-    import("./coral-reef").then((m) => ({ default: m.CoralReefIllustration })),
-  butterfly: () =>
-    import("./butterfly").then((m) => ({ default: m.ButterflyIllustration })),
-  beehive: () =>
-    import("./beehive").then((m) => ({ default: m.BeehiveIllustration })),
-  waterfall: () =>
-    import("./waterfall").then((m) => ({ default: m.WaterfallIllustration })),
-  glacier: () =>
-    import("./glacier").then((m) => ({ default: m.GlacierIllustration })),
-  "chemistry-lab": () =>
-    import("./chemistry-lab").then((m) => ({
-      default: m.ChemistryLabIllustration,
-    })),
-  satellite: () =>
-    import("./satellite").then((m) => ({ default: m.SatelliteIllustration })),
-  comet: () =>
-    import("./comet").then((m) => ({ default: m.CometIllustration })),
-  bridge: () =>
-    import("./bridge").then((m) => ({ default: m.BridgeIllustration })),
-  crane: () =>
-    import("./crane").then((m) => ({ default: m.CraneIllustration })),
   "gears-machine": () =>
     import("./gears-machine").then((m) => ({
       default: m.GearsMachineIllustration,
     })),
-  "robot-arm": () =>
-    import("./robot-arm").then((m) => ({ default: m.RobotArmIllustration })),
-  "steam-train": () =>
-    import("./steam-train").then((m) => ({
-      default: m.SteamTrainIllustration,
+  glacier: () =>
+    import("./glacier").then((m) => ({ default: m.GlacierIllustration })),
+  "greek-temple": () =>
+    import("./greek-temple").then((m) => ({
+      default: m.GreekTempleIllustration,
     })),
   "hot-air-balloon": () =>
     import("./hot-air-balloon").then((m) => ({
       default: m.HotAirBalloonIllustration,
     })),
+  "human-body": () =>
+    import("./human-body").then((m) => ({
+      default: m.HumanBodyIllustration,
+    })),
+  knight: () =>
+    import("./knight").then((m) => ({ default: m.KnightIllustration })),
+  "magnifying-glass": () =>
+    import("./magnifying-glass").then((m) => ({
+      default: m.MagnifyingGlassIllustration,
+    })),
+  microscope: () =>
+    import("./microscope").then((m) => ({
+      default: m.MicroscopeIllustration,
+    })),
+  "mountain-range": () =>
+    import("./mountain-range").then((m) => ({
+      default: m.MountainRangeIllustration,
+    })),
+  octopus: () =>
+    import("./octopus").then((m) => ({ default: m.OctopusIllustration })),
+  pyramid: () =>
+    import("./pyramid").then((m) => ({ default: m.PyramidIllustration })),
+  rainforest: () =>
+    import("./rainforest").then((m) => ({
+      default: m.RainforestIllustration,
+    })),
+  "robot-arm": () =>
+    import("./robot-arm").then((m) => ({ default: m.RobotArmIllustration })),
+  "rocket-launch": () =>
+    import("./rocket-launch").then((m) => ({
+      default: m.RocketLaunchIllustration,
+    })),
   sailboat: () =>
     import("./sailboat").then((m) => ({ default: m.SailboatIllustration })),
-  bicycle: () =>
-    import("./bicycle").then((m) => ({ default: m.BicycleIllustration })),
-  airplane: () =>
-    import("./airplane").then((m) => ({ default: m.AirplaneIllustration })),
-  car: () => import("./car").then((m) => ({ default: m.CarIllustration })),
+  satellite: () =>
+    import("./satellite").then((m) => ({ default: m.SatelliteIllustration })),
+  shark: () =>
+    import("./shark").then((m) => ({ default: m.SharkIllustration })),
+  "solar-system": () =>
+    import("./solar-system").then((m) => ({
+      default: m.SolarSystemIllustration,
+    })),
+  "steam-train": () =>
+    import("./steam-train").then((m) => ({
+      default: m.SteamTrainIllustration,
+    })),
+  storm: () =>
+    import("./storm").then((m) => ({ default: m.StormIllustration })),
+  submarine: () =>
+    import("./submarine").then((m) => ({
+      default: m.SubmarineIllustration,
+    })),
+  telescope: () =>
+    import("./telescope").then((m) => ({ default: m.TelescopeIllustration })),
+  "viking-ship": () =>
+    import("./viking-ship").then((m) => ({
+      default: m.VikingShipIllustration,
+    })),
+  volcano: () =>
+    import("./volcano").then((m) => ({ default: m.VolcanoIllustration })),
+  waterfall: () =>
+    import("./waterfall").then((m) => ({ default: m.WaterfallIllustration })),
+  windmill: () =>
+    import("./windmill").then((m) => ({ default: m.WindmillIllustration })),
 };
 
 export const ILLUSTRATIONS: Record<IllustrationName, ComponentType> =

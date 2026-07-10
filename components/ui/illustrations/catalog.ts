@@ -9,6 +9,10 @@
  * Two levels of matching, coarsest last: `tag` is the specific subject (what
  * a topic like "Ancient Egypt" maps to directly); `category` is the broad
  * fallback bucket used when no illustration exists for a specific tag yet.
+ *
+ * Entries are kept alphabetical by key — there's no other ordering to
+ * preserve (tag/category groupings live in the data, not the key order), so
+ * alphabetical is the only order that stays stable as the set grows.
  */
 // Single source of truth for the category enum — read by the zod schema that
 // validates the topic_map LLM's `illustrationCategory` field and by the
@@ -35,116 +39,142 @@ export interface IllustrationMeta {
 }
 
 export const ILLUSTRATION_CATALOG = {
-  pyramid: { label: "Ancient pyramid", tag: "pyramids", category: "history" },
-  castle: { label: "Castle", tag: "castles", category: "history" },
-  volcano: { label: "Volcano", tag: "volcanoes", category: "science" },
-  microscope: { label: "Microscope", tag: "microscopes", category: "science" },
-  dinosaur: { label: "Dinosaur", tag: "dinosaurs", category: "biology" },
-  "human-body": {
-    label: "Human body",
-    tag: "human-body",
-    category: "biology",
+  airplane: {
+    label: "Airplane",
+    tag: "airplanes",
+    category: "transportation",
   },
-  "mountain-range": {
-    label: "Mountain range",
-    tag: "mountains",
-    category: "geography",
+  astronaut: { label: "Astronaut", tag: "astronauts", category: "space" },
+  aurora: { label: "Aurora borealis", tag: "auroras", category: "science" },
+  beehive: { label: "Beehive", tag: "bees", category: "biology" },
+  bicycle: {
+    label: "Bicycle",
+    tag: "bicycles",
+    category: "transportation",
   },
-  rainforest: {
-    label: "Rainforest",
-    tag: "rainforests",
-    category: "geography",
-  },
-  "rocket-launch": {
-    label: "Rocket launch",
-    tag: "space-travel",
+  "black-hole": {
+    label: "Black hole",
+    tag: "black-holes",
     category: "space",
   },
-  telescope: { label: "Telescope", tag: "astronomy", category: "space" },
-  shark: { label: "Shark", tag: "sharks", category: "biology" },
-  storm: { label: "Storm", tag: "weather", category: "science" },
-  desert: { label: "Desert", tag: "deserts", category: "geography" },
-  knight: { label: "Knight", tag: "knights", category: "history" },
-  astronaut: { label: "Astronaut", tag: "astronauts", category: "space" },
-  // Generic fallback pool (see lib/illustrations/resolve.ts) — used when a
-  // topic's tag and category both fail to resolve to art. Still tagged and
-  // categorized like any other entry so they're also eligible as ordinary
-  // category-pool picks, not hidden from normal resolution.
-  compass: { label: "Compass", tag: "compasses", category: "geography" },
-  "magnifying-glass": {
-    label: "Magnifying glass",
-    tag: "magnifying-glasses",
-    category: "science",
-  },
-  "field-journal": {
-    label: "Field journal",
-    tag: "journals",
-    category: "history",
-  },
-  "viking-ship": { label: "Viking ship", tag: "vikings", category: "history" },
-  "greek-temple": {
-    label: "Greek temple",
-    tag: "ancient-greece",
-    category: "history",
-  },
-  "coral-reef": {
-    label: "Coral reef",
-    tag: "coral-reefs",
-    category: "biology",
-  },
+  bridge: { label: "Bridge", tag: "bridges", category: "engineering" },
   butterfly: { label: "Butterfly", tag: "butterflies", category: "biology" },
-  beehive: { label: "Beehive", tag: "bees", category: "biology" },
-  waterfall: {
-    label: "Waterfall",
-    tag: "waterfalls",
-    category: "geography",
-  },
-  glacier: { label: "Glacier", tag: "glaciers", category: "geography" },
+  canyon: { label: "Canyon", tag: "canyons", category: "geography" },
+  car: { label: "Car", tag: "cars", category: "transportation" },
+  castle: { label: "Castle", tag: "castles", category: "history" },
+  cave: { label: "Cave", tag: "caves", category: "geography" },
   "chemistry-lab": {
     label: "Chemistry lab",
     tag: "chemistry",
     category: "science",
   },
-  satellite: { label: "Satellite", tag: "satellites", category: "space" },
+  colosseum: {
+    label: "Colosseum",
+    tag: "ancient-rome",
+    category: "history",
+  },
   comet: { label: "Comet", tag: "comets", category: "space" },
-  bridge: { label: "Bridge", tag: "bridges", category: "engineering" },
+  compass: { label: "Compass", tag: "compasses", category: "geography" },
+  "coral-reef": {
+    label: "Coral reef",
+    tag: "coral-reefs",
+    category: "biology",
+  },
   crane: { label: "Crane", tag: "cranes", category: "engineering" },
+  desert: { label: "Desert", tag: "deserts", category: "geography" },
+  dinosaur: { label: "Dinosaur", tag: "dinosaurs", category: "biology" },
+  "dna-strand": { label: "DNA strand", tag: "dna", category: "biology" },
+  "field-journal": {
+    label: "Field journal",
+    tag: "journals",
+    category: "history",
+  },
   "gears-machine": {
     label: "Gears machine",
     tag: "gears",
     category: "engineering",
   },
-  "robot-arm": {
-    label: "Robot arm",
-    tag: "robotics",
-    category: "engineering",
-  },
-  "steam-train": {
-    label: "Steam train",
-    tag: "trains",
-    category: "transportation",
+  glacier: { label: "Glacier", tag: "glaciers", category: "geography" },
+  "greek-temple": {
+    label: "Greek temple",
+    tag: "ancient-greece",
+    category: "history",
   },
   "hot-air-balloon": {
     label: "Hot air balloon",
     tag: "hot-air-balloons",
     category: "transportation",
   },
+  "human-body": {
+    label: "Human body",
+    tag: "human-body",
+    category: "biology",
+  },
+  knight: { label: "Knight", tag: "knights", category: "history" },
+  "magnifying-glass": {
+    label: "Magnifying glass",
+    tag: "magnifying-glasses",
+    category: "science",
+  },
+  microscope: { label: "Microscope", tag: "microscopes", category: "science" },
+  "mountain-range": {
+    label: "Mountain range",
+    tag: "mountains",
+    category: "geography",
+  },
+  octopus: { label: "Octopus", tag: "octopuses", category: "biology" },
+  pyramid: { label: "Ancient pyramid", tag: "pyramids", category: "history" },
+  rainforest: {
+    label: "Rainforest",
+    tag: "rainforests",
+    category: "geography",
+  },
+  "robot-arm": {
+    label: "Robot arm",
+    tag: "robotics",
+    category: "engineering",
+  },
+  "rocket-launch": {
+    label: "Rocket launch",
+    tag: "space-travel",
+    category: "space",
+  },
   sailboat: {
     label: "Sailboat",
     tag: "sailboats",
     category: "transportation",
   },
-  bicycle: {
-    label: "Bicycle",
-    tag: "bicycles",
+  satellite: { label: "Satellite", tag: "satellites", category: "space" },
+  shark: { label: "Shark", tag: "sharks", category: "biology" },
+  "solar-system": {
+    label: "Solar system",
+    tag: "solar-system",
+    category: "space",
+  },
+  "steam-train": {
+    label: "Steam train",
+    tag: "trains",
     category: "transportation",
   },
-  airplane: {
-    label: "Airplane",
-    tag: "airplanes",
+  storm: { label: "Storm", tag: "weather", category: "science" },
+  submarine: {
+    label: "Submarine",
+    tag: "submarines",
     category: "transportation",
   },
-  car: { label: "Car", tag: "cars", category: "transportation" },
+  telescope: { label: "Telescope", tag: "astronomy", category: "space" },
+  "viking-ship": { label: "Viking ship", tag: "vikings", category: "history" },
+  volcano: { label: "Volcano", tag: "volcanoes", category: "science" },
+  waterfall: {
+    label: "Waterfall",
+    tag: "waterfalls",
+    category: "geography",
+  },
+  windmill: {
+    label: "Windmill",
+    tag: "windmills",
+    category: "engineering",
+  },
 } as const satisfies Record<string, IllustrationMeta>;
 
 export type IllustrationName = keyof typeof ILLUSTRATION_CATALOG;
