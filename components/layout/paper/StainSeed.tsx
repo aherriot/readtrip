@@ -38,32 +38,58 @@ import { usePathname } from "next/navigation";
  * and state changes within one visit — only a *new visit* to the route reseeds
  * it.
  *
- * "New visit" has to be judged across component MOUNTS, not just renders:
- * every route with a `loading.tsx` mounts this provider twice for one visit —
- * once for the instant skeleton, again for the real page once data resolves,
- * as two unrelated trees (Next.js unmounts the loading boundary and mounts the
- * page). A `useState` initializer alone can't tell those apart from a genuine
- * new visit, so the last-seeded pathname is cached in module scope, outside
- * React state, and survives that skeleton→ready swap.
+ * "New visit" has to be judged across component MOUNTS, not just renders, and
+ * not just at the provider: every route with a `loading.tsx` mounts this
+ * provider twice for one visit — once for the instant skeleton, again for the
+ * real page once data resolves, as two unrelated trees (Next.js unmounts the
+ * loading boundary and mounts the page). Worse, an async Server Component page
+ * can re-suspend and show `loading.tsx` again *after* the initial mount too —
+ * e.g. /play's `router.refresh()` once a deferred map-suggestion backfill
+ * lands — remounting everything below it, including views like ExploreEntry
+ * that register their own explicit seed. A `useState` initializer, anywhere in
+ * that subtree, can't tell a within-visit remount apart from a genuine new
+ * visit. So the per-visit random suffix is cached in module scope, outside
+ * React state entirely, keyed by pathname, and handed out to any component
+ * that asks via `useVisitSeed()` — it survives every remount those
+ * server-driven suspensions cause, and only changes when the pathname itself
+ * changes (a real navigation) or the module is torn down (a hard reload).
+ *
+ * Guarded to the client: during SSR this module can be shared across
+ * concurrent requests from different users on a warm server, so a fresh value
+ * is computed per render there instead of cached — the cache only kicks in
+ * once code is running in a single user's browser tab.
  */
-const pathSeedCache = new Map<string, string>();
+const visitSuffixCache = new Map<string, string>();
 let lastSeededPathname: string | null = null;
 
-function seedForPathname(pathname: string): string {
-  if (lastSeededPathname !== pathname || !pathSeedCache.has(pathname)) {
-    pathSeedCache.set(pathname, `${pathname}:${randomSeedSuffix()}`);
+function visitSuffixForPathname(pathname: string): string {
+  if (typeof window === "undefined") return randomSeedSuffix();
+  if (lastSeededPathname !== pathname || !visitSuffixCache.has(pathname)) {
+    visitSuffixCache.set(pathname, randomSeedSuffix());
     lastSeededPathname = pathname;
   }
-  return pathSeedCache.get(pathname)!;
+  return visitSuffixCache.get(pathname)!;
 }
+
 /**
  * A short random string for mixing into a seed so a fresh mount doesn't repeat
- * the last visit's pattern. Exported for views like ExploreEntry's world map,
- * whose explicit seed (`map:<expedition>`) otherwise starts from the same
- * `map:0` on every remount (a reload, or navigating back to /play).
+ * the last visit's pattern.
  */
 export function randomSeedSuffix(): string {
   return Math.random().toString(36).slice(2, 10);
+}
+
+/**
+ * The nonce for "this visit to this route" — stable across every within-visit
+ * remount (loading↔ready swaps, a `router.refresh()`-triggered re-suspension),
+ * fresh on a genuine new visit (a real navigation, or a hard reload). Views
+ * that mix a random component into their own explicit seed — e.g. ExploreEntry's
+ * `map:<nonce>:<expedition>`, which otherwise restarts at the same value on
+ * every such remount — should use this instead of minting their own.
+ */
+export function useVisitSeed(): string {
+  const pathname = usePathname();
+  return visitSuffixForPathname(pathname);
 }
 type Registry = {
   register: (id: string, seed: string | null) => void;
@@ -81,13 +107,15 @@ export function StainSeedProvider({ children }: { children: ReactNode }) {
 
   // Fresh random suffix per visit to a pathname — not per mount. Regenerated
   // whenever the pathname actually changes (React's "adjust state during
-  // render" pattern), via the module-level cache above so the loading.tsx →
-  // page.tsx remount doesn't look like a new visit.
-  const [pathSeed, setPathSeed] = useState(() => seedForPathname(pathname));
+  // render" pattern), via the module-level cache above so any within-visit
+  // remount doesn't look like a new visit.
+  const [pathSeed, setPathSeed] = useState(
+    () => `${pathname}:${visitSuffixForPathname(pathname)}`
+  );
   const [prevPathname, setPrevPathname] = useState(pathname);
   if (pathname !== prevPathname) {
     setPrevPathname(pathname);
-    setPathSeed(seedForPathname(pathname));
+    setPathSeed(`${pathname}:${visitSuffixForPathname(pathname)}`);
   }
 
   const register = useCallback((id: string, seed: string | null) => {

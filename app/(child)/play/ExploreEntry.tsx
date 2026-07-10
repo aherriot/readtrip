@@ -24,8 +24,8 @@ import { Text } from "@/components/ui/Text";
 import type { MapNodeView } from "@/lib/map/nodeState";
 import { switchProfileAction } from "@/app/(parent)/profiles/actions";
 import {
-  randomSeedSuffix,
   useStainSeed,
+  useVisitSeed,
 } from "@/components/layout/paper/StainSeed";
 import { pickRandomIllustrations } from "@/lib/illustrations/pick";
 import { LessonReader, type LessonTopic } from "./LessonReader";
@@ -108,16 +108,18 @@ export function ExploreEntry({
     []
   );
 
-  // A per-mount nonce so the map's stains don't redraw identically on every
-  // reload or every return trip to /play — only `expedition` bumping within a
-  // session should feel that stable-until-you-move-on.
-  const [mountNonce] = useState(() => randomSeedSuffix());
+  // A per-visit nonce (not per-mount: this component remounts within a single
+  // visit whenever the route re-suspends, e.g. the router.refresh() below or
+  // the deferred map-suggestion backfill) so the map's stains don't redraw
+  // identically on every reload or every return trip to /play — only
+  // `expedition` bumping within a visit should feel that stable-until-you-move-on.
+  const visitSeed = useVisitSeed();
 
   // Re-stain the paper as the expedition moves between views. While a lesson is
   // open, LessonReader owns the seed (story vs quiz), so we bow out with `null`;
-  // otherwise the map's seed (bumped per expedition, and per mount) is in force.
+  // otherwise the map's seed (bumped per expedition, stable per visit) is in force.
   useStainSeed(
-    phase.name === "reading" ? null : `map:${mountNonce}:${expedition}`
+    phase.name === "reading" ? null : `map:${visitSeed}:${expedition}`
   );
 
   // Lift the "charting" cover whenever a server refresh delivers a fresh map:
