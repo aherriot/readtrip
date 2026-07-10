@@ -3,6 +3,8 @@ import { cn } from "@/lib/ui/cn";
 import { PaperStains } from "./paper/PaperStains";
 import { StainSeedProvider } from "./paper/StainSeed";
 
+const REPO_URL = "https://github.com/aherriot/readtrip";
+
 /**
  * The "open field journal on a desk" page frame — three stacked layers:
  * a light desk (`.rt-desk`) fills the viewport; a leather cover (`.rt-cover`)
@@ -49,6 +51,19 @@ export function JournalSheet({
             >
               {children}
             </div>
+            <footer className="mt-auto pt-6 text-center">
+              <p className="font-body text-xs text-surface-ink-soft">
+                Made by{" "}
+                <a
+                  href={REPO_URL}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="underline decoration-surface-rule underline-offset-2 hover:text-surface-ink"
+                >
+                  Andrew Herriot
+                </a>
+              </p>
+            </footer>
           </main>
         </div>
       </div>
