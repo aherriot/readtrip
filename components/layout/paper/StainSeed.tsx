@@ -58,8 +58,25 @@ import { usePathname } from "next/navigation";
  * concurrent requests from different users on a warm server, so a fresh value
  * is computed per render there instead of cached — the cache only kicks in
  * once code is running in a single user's browser tab.
+ *
+ * The nonce cache alone isn't the whole fix, though: that same remount
+ * unregisters ExploreEntry's claimed seed for a tick before it re-registers
+ * (its `useStainSeed` cleanup fires, then the effect re-runs) — and because the
+ * loading.tsx reappearance remounts the *provider itself*, not just its
+ * children, the provider's own React state (a `useRef`, a `useState`) resets
+ * right along with it and can't remember what was registered a moment ago.
+ * Left alone, the `seed` memo falls through to the bare pathname for that gap,
+ * so the paper visibly flashes to the untagged pattern and back even though
+ * the eventual seed value doesn't actually change. So the last real
+ * (non-fallback) seed is tracked in this same module scope, keyed by
+ * pathname — surviving the provider's own remount the same way the nonce
+ * does — and the provider sticks with it across an empty registry instead of
+ * dropping straight to `pathSeed`. It's cleared only when a genuine new visit
+ * regenerates the nonce below (no view has claimed anything yet on a fresh
+ * visit).
  */
 const visitSuffixCache = new Map<string, string>();
+const lastRealSeedCache = new Map<string, string>();
 let lastSeededPathname: string | null = null;
 
 function visitSuffixForPathname(pathname: string): string {
@@ -67,8 +84,19 @@ function visitSuffixForPathname(pathname: string): string {
   if (lastSeededPathname !== pathname || !visitSuffixCache.has(pathname)) {
     visitSuffixCache.set(pathname, randomSeedSuffix());
     lastSeededPathname = pathname;
+    lastRealSeedCache.delete(pathname);
   }
   return visitSuffixCache.get(pathname)!;
+}
+
+function rememberRealSeed(pathname: string, seed: string): void {
+  if (typeof window !== "undefined") lastRealSeedCache.set(pathname, seed);
+}
+
+function lastRealSeedForPathname(pathname: string): string | undefined {
+  return typeof window === "undefined"
+    ? undefined
+    : lastRealSeedCache.get(pathname);
 }
 
 /**
@@ -105,18 +133,24 @@ export function StainSeedProvider({ children }: { children: ReactNode }) {
   >(new Map());
   const orderRef = useRef(0);
 
-  // Fresh random suffix per visit to a pathname — not per mount. Regenerated
-  // whenever the pathname actually changes (React's "adjust state during
-  // render" pattern), via the module-level cache above so any within-visit
-  // remount doesn't look like a new visit.
-  const [pathSeed, setPathSeed] = useState(
-    () => `${pathname}:${visitSuffixForPathname(pathname)}`
-  );
-  const [prevPathname, setPrevPathname] = useState(pathname);
-  if (pathname !== prevPathname) {
-    setPrevPathname(pathname);
+  // The bare pathname, with no random suffix, for every render up through
+  // hydration: the suffix is a `Math.random()` call, and computing it during
+  // render would run independently on the server and on the client's first
+  // (hydrating) render — two different values React would then need to
+  // reconcile, flashing from one to the other. Deferred to the effect below
+  // instead, so the server-rendered markup and the client's initial hydration
+  // match exactly, and the upgrade to a seeded pattern happens as one
+  // controlled post-mount transition rather than a hydration mismatch.
+  const [pathSeed, setPathSeed] = useState(pathname);
+  useEffect(() => {
+    // The canonical hydration-mismatch-avoidance idiom (as used by e.g.
+    // next-themes for client-only randomized/system values): this can't be
+    // computed during render, on the server or the client's first pass,
+    // without the two diverging — it has to land after the render that
+    // matched SSR has already committed.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setPathSeed(`${pathname}:${visitSuffixForPathname(pathname)}`);
-  }
+  }, [pathname]);
 
   const register = useCallback((id: string, seed: string | null) => {
     setEntries((prev) => {
@@ -134,8 +168,21 @@ export function StainSeedProvider({ children }: { children: ReactNode }) {
     for (const entry of entries.values()) {
       if (!best || entry.order > best.order) best = entry;
     }
-    return best?.seed ?? pathSeed;
-  }, [entries, pathSeed]);
+    if (best) {
+      rememberRealSeed(pathname, best.seed);
+      return best.seed;
+    }
+    // No view currently claims a seed. This isn't necessarily "no view is
+    // active" — a view can be mid-remount for a tick (its cleanup unregisters,
+    // then it re-registers) without the pathname changing, e.g. /play's
+    // router.refresh() re-suspending the route once the deferred map-suggestion
+    // backfill lands, which remounts this whole provider too. Sticking with the
+    // last real seed (tracked in module scope so it survives that remount)
+    // rather than the raw pathname avoids a visible flash back to the
+    // bare-pathname pattern for that gap; it only falls through to pathSeed if
+    // no view has ever claimed one this visit.
+    return lastRealSeedForPathname(pathname) ?? pathSeed;
+  }, [entries, pathSeed, pathname]);
 
   const value = useMemo(() => ({ register, seed }), [register, seed]);
   return (
