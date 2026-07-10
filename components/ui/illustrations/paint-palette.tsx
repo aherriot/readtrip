@@ -78,20 +78,20 @@ export function PaintPaletteIllustration() {
       />
 
       {/* brush one — handle, ferrule, splayed bristle tips */}
-      <path d="M30 172C55 150 90 115 150 62" {...ink} strokeWidth="3" />
-      <path d="M139 71 148 61" {...ink} strokeWidth="5" opacity="0.8" />
+      <path d="M22 178C50 152 86 118 144 68" {...ink} strokeWidth="3" />
+      <path d="M135 76 146 66" {...ink} strokeWidth="5" opacity="0.8" />
       <path
-        d="M150 60c4-3 8-2 10 1M150 60c3-5 7-5 10-2M150 60c2-6 6-7 9-5"
+        d="M146 65c4-3 8-2 10 1M146 65c3-5 7-5 10-2M146 65c2-6 6-7 9-5"
         {...ink}
         strokeWidth="1"
         opacity="0.7"
       />
 
-      {/* brush two — hand-varied angle, crossing the first */}
-      <path d="M150 170C125 145 85 100 46 56" {...ink} strokeWidth="2.6" />
-      <path d="M60 70 49 59" {...ink} strokeWidth="4.5" opacity="0.8" />
+      {/* brush two — lying alongside the first, not crossing it */}
+      <path d="M38 186C64 162 96 132 152 86" {...ink} strokeWidth="2.6" />
+      <path d="M143 94 154 84" {...ink} strokeWidth="4.5" opacity="0.8" />
       <path
-        d="M46 56c-4-2-7 0-8 4M46 56c-5 1-7 4-7 8M46 56c-2-5-6-6-9-4"
+        d="M154 83c4-2 8-1 9 3M154 83c2-5 6-6 9-4M154 83c1-6 5-8 8-6"
         {...ink}
         strokeWidth="1"
         opacity="0.7"

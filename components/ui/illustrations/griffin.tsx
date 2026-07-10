@@ -39,21 +39,23 @@ export function GriffinIllustration() {
         opacity="0.6"
       />
 
-      {/* body: eagle front (head, curved beak, feathered chest) transitioning
-          into lion back (furred haunch, tufted tail), one continuous silhouette */}
+      {/* body: eagle front (head, beak, feathered neck, chest) transitioning
+          at the shoulder into lion back (spine arch, haunch bulge, tail base),
+          one continuous silhouette — 9 long purposeful curves, not a chain
+          of even bumps */}
       <path
-        d="M30 140C22 136 20 128 27 123C24 114 30 107 39 108C40 100 47 95 55 97C58 90 65 84 74 84C80 74 90 66 100 66C108 58 118 54 127 57C134 51 144 51 149 57C156 55 163 60 161 68C168 70 170 78 165 84C160 90 152 91 146 88C144 96 138 101 130 100C132 108 128 114 120 114C120 122 114 128 106 127C106 134 100 139 92 137C90 145 82 149 74 146C68 152 58 151 54 144C46 147 38 144 36 137C33 141 30 141 30 140Z"
+        d="M24 140C14 128 16 112 30 108C48 92 58 86 70 82C82 76 90 72 100 68C108 62 114 58 122 55C134 50 146 48 155 58C152 62 150 64 148 66C138 76 128 84 120 92C100 108 84 120 70 130C50 138 34 140 24 140Z"
         fill="var(--sun)"
         opacity="0.16"
       />
       <path
-        d="M30 140C22 136 20 128 27 123C24 114 30 107 39 108C40 100 47 95 55 97C58 90 65 84 74 84C80 74 90 66 100 66C108 58 118 54 127 57C134 51 144 51 149 57C156 55 163 60 161 68C168 70 170 78 165 84C160 90 152 91 146 88C144 96 138 101 130 100C132 108 128 114 120 114C120 122 114 128 106 127C106 134 100 139 92 137C90 145 82 149 74 146C68 152 58 151 54 144C46 147 38 144 36 137C33 141 30 141 30 140Z"
+        d="M24 140C14 128 16 112 30 108C48 92 58 86 70 82C82 76 90 72 100 68C108 62 114 58 122 55C134 50 146 48 155 58C152 62 150 64 148 66C138 76 128 84 120 92C100 108 84 120 70 130C50 138 34 140 24 140Z"
         {...ink}
         strokeWidth="2.2"
       />
       {/* sketchy retrace pass */}
       <path
-        d="M31 139C24 135 22 128 28 124C25 115 31 108 40 109C41 101 48 96 56 98C59 91 66 85 75 85C81 75 91 67 101 67C109 59 119 55 128 58C135 52 145 52 150 58C157 56 164 61 162 69C169 71 171 79 166 85C161 91 153 92 147 89C145 97 139 102 131 101C133 109 129 115 121 115C121 123 115 129 107 128C107 135 101 140 93 138C91 146 83 150 75 147C69 153 59 152 55 145C47 148 39 145 37 138C34 142 31 142 31 139Z"
+        d="M25 139C15 127 17 113 31 109C49 93 59 87 71 83C83 77 91 73 101 69C109 63 115 59 123 56C135 51 147 49 156 59C153 63 151 65 149 67C139 77 129 85 121 93C101 109 85 121 71 131C51 139 35 141 25 139Z"
         {...ink}
         strokeWidth="1"
         opacity="0.4"
@@ -69,7 +71,7 @@ export function GriffinIllustration() {
 
       {/* furred haunch texture (lion half) */}
       <path
-        d="M52 118 46 122M58 126 52 131M66 132 60 137"
+        d="M36 112 30 117M44 122 38 127M56 130 50 135"
         {...ink}
         strokeWidth="1.4"
         opacity="0.6"
@@ -77,16 +79,16 @@ export function GriffinIllustration() {
 
       {/* tufted lion tail, own stroke */}
       <path
-        d="M32 138C22 134 14 138 12 146C8 144 4 148 6 154"
+        d="M26 139C17 135 10 139 8 147C4 145 1 149 3 155"
         {...ink}
         strokeWidth="2"
       />
       <path
-        d="M6 154c-2 2-2 5 0 7 2 1 5-1 5-4"
+        d="M3 155c-2 2-2 5 0 7 2 1 5-1 5-4"
         fill="var(--coral)"
         opacity="0.7"
       />
-      <path d="M6 154c-2 2-2 5 0 7 2 1 5-1 5-4" {...ink} strokeWidth="1.3" />
+      <path d="M3 155c-2 2-2 5 0 7 2 1 5-1 5-4" {...ink} strokeWidth="1.3" />
 
       {/* near wing, large spread, own stroke */}
       <path
@@ -108,12 +110,12 @@ export function GriffinIllustration() {
 
       {/* eagle beak + eye (front legs stay implicit as talons below) */}
       <path
-        d="M150 60 158 63 150 67 148 63Z"
+        d="M153 58 161 61 153 65 151 61Z"
         fill="var(--surface-ink)"
         opacity="0.8"
       />
       <path
-        d="M142 58c.6-1.1 2.3-1.1 2.3.5s-1.9 1.5-2.3-.5Z"
+        d="M144 55c.6-1.1 2.3-1.1 2.3.5s-1.9 1.5-2.3-.5Z"
         fill="var(--surface-ink)"
       />
 
