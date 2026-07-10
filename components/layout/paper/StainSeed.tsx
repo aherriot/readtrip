@@ -33,10 +33,29 @@ import { usePathname } from "next/navigation";
  * The pathname fallback is deliberately NOT just the pathname: a fixed-forever
  * seed made the pattern feel too static — reloading /play or navigating back to
  * it always drew identical stains. So a random suffix is mixed in and
- * regenerated on every pathname change (including a full reload, which remounts
- * this provider outright). It's still stable across ordinary re-renders and
- * state changes within one visit — only a *new visit* to the route reseeds it.
+ * regenerated on every pathname change (including a full reload, which resets
+ * the module-level cache below). It's still stable across ordinary re-renders
+ * and state changes within one visit — only a *new visit* to the route reseeds
+ * it.
+ *
+ * "New visit" has to be judged across component MOUNTS, not just renders:
+ * every route with a `loading.tsx` mounts this provider twice for one visit —
+ * once for the instant skeleton, again for the real page once data resolves,
+ * as two unrelated trees (Next.js unmounts the loading boundary and mounts the
+ * page). A `useState` initializer alone can't tell those apart from a genuine
+ * new visit, so the last-seeded pathname is cached in module scope, outside
+ * React state, and survives that skeleton→ready swap.
  */
+const pathSeedCache = new Map<string, string>();
+let lastSeededPathname: string | null = null;
+
+function seedForPathname(pathname: string): string {
+  if (lastSeededPathname !== pathname || !pathSeedCache.has(pathname)) {
+    pathSeedCache.set(pathname, `${pathname}:${randomSeedSuffix()}`);
+    lastSeededPathname = pathname;
+  }
+  return pathSeedCache.get(pathname)!;
+}
 /**
  * A short random string for mixing into a seed so a fresh mount doesn't repeat
  * the last visit's pattern. Exported for views like ExploreEntry's world map,
@@ -60,17 +79,15 @@ export function StainSeedProvider({ children }: { children: ReactNode }) {
   >(new Map());
   const orderRef = useRef(0);
 
-  // Fresh random suffix per visit to a pathname — not per render. Regenerated
-  // whenever the pathname changes (React's "adjust state during render"
-  // pattern); a hard reload remounts the provider entirely, so the `useState`
-  // initializer covers that case.
-  const [pathSeed, setPathSeed] = useState(
-    () => `${pathname}:${randomSeedSuffix()}`
-  );
+  // Fresh random suffix per visit to a pathname — not per mount. Regenerated
+  // whenever the pathname actually changes (React's "adjust state during
+  // render" pattern), via the module-level cache above so the loading.tsx →
+  // page.tsx remount doesn't look like a new visit.
+  const [pathSeed, setPathSeed] = useState(() => seedForPathname(pathname));
   const [prevPathname, setPrevPathname] = useState(pathname);
   if (pathname !== prevPathname) {
     setPrevPathname(pathname);
-    setPathSeed(`${pathname}:${randomSeedSuffix()}`);
+    setPathSeed(seedForPathname(pathname));
   }
 
   const register = useCallback((id: string, seed: string | null) => {
