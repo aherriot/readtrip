@@ -16,7 +16,16 @@ import { usePathname } from "next/navigation";
 /**
  * Supplies the seed that <PaperStains> uses to lay out the journal page's
  * coffee-stains. By default the seed is the URL path, so ordinary pages get a
- * stable pattern that changes when you navigate between routes.
+ * stable pattern that changes when you navigate between routes — and only
+ * then. Nothing here is randomized: a per-visit random suffix was tried (to
+ * make reloading /play or returning to it draw a fresh pattern instead of the
+ * identical one every time) and had to be pulled back out — a client-only
+ * random value can't be embedded in the server-rendered HTML, so the browser
+ * necessarily paints one value first and then swaps to another once
+ * JavaScript runs, on *every* page, every load, even ones with no other stain
+ * activity (the plain marketing/profile pages included). That's a real,
+ * guaranteed change during load, which is exactly what this seed exists to
+ * avoid — so the pattern is deterministic from the pathname alone instead.
  *
  * The catch: the whole /play expedition (world map → story → quiz → map) is a
  * single route whose view is swapped by client state, so the pathname never
@@ -30,67 +39,41 @@ import { usePathname } from "next/navigation";
  * child-before-parent effect ordering — when LessonReader takes over it wins;
  * when it unmounts, ExploreEntry's map seed is what's left.
  *
- * The pathname fallback is deliberately NOT just the pathname: a fixed-forever
- * seed made the pattern feel too static — reloading /play or navigating back to
- * it always drew identical stains. So a random suffix is mixed in and
- * regenerated on every pathname change (including a full reload, which resets
- * the module-level cache below). It's still stable across ordinary re-renders
- * and state changes within one visit — only a *new visit* to the route reseeds
- * it.
+ * A view's seed is claimed via an effect (registration has to happen through
+ * context, since a child like ExploreEntry can't otherwise reach the sibling
+ * <PaperStains> that a shared parent renders), so there's one unavoidable gap
+ * on first mount, before any view has registered anything: the initial paint
+ * (both the server-rendered HTML and the client's first hydrating render) can
+ * only show the pathname fallback, and the seed then updates once a view
+ * claims it a moment later. That's an existing effect-timing constraint of
+ * the registry design, not something to route around here.
  *
- * "New visit" has to be judged across component MOUNTS, not just renders, and
- * not just at the provider: every route with a `loading.tsx` mounts this
- * provider twice for one visit — once for the instant skeleton, again for the
- * real page once data resolves, as two unrelated trees (Next.js unmounts the
- * loading boundary and mounts the page). Worse, an async Server Component page
- * can re-suspend and show `loading.tsx` again *after* the initial mount too —
- * e.g. /play's `router.refresh()` once a deferred map-suggestion backfill
- * lands — remounting everything below it, including views like ExploreEntry
- * that register their own explicit seed. A `useState` initializer, anywhere in
- * that subtree, can't tell a within-visit remount apart from a genuine new
- * visit. So the per-visit random suffix is cached in module scope, outside
- * React state entirely, keyed by pathname, and handed out to any component
- * that asks via `useVisitSeed()` — it survives every remount those
- * server-driven suspensions cause, and only changes when the pathname itself
- * changes (a real navigation) or the module is torn down (a hard reload).
- *
- * Guarded to the client: during SSR this module can be shared across
- * concurrent requests from different users on a warm server, so a fresh value
- * is computed per render there instead of cached — the cache only kicks in
- * once code is running in a single user's browser tab.
- *
- * The nonce cache alone isn't the whole fix, though: that same remount
- * unregisters ExploreEntry's claimed seed for a tick before it re-registers
- * (its `useStainSeed` cleanup fires, then the effect re-runs) — and because the
- * loading.tsx reappearance remounts the *provider itself*, not just its
- * children, the provider's own React state (a `useRef`, a `useState`) resets
- * right along with it and can't remember what was registered a moment ago.
- * Left alone, the `seed` memo falls through to the bare pathname for that gap,
- * so the paper visibly flashes to the untagged pattern and back even though
- * the eventual seed value doesn't actually change. So the last real
- * (non-fallback) seed is tracked in this same module scope, keyed by
- * pathname — surviving the provider's own remount the same way the nonce
- * does — and the provider sticks with it across an empty registry instead of
- * dropping straight to `pathSeed`. It's cleared only when a genuine new visit
- * regenerates the nonce below (no view has claimed anything yet on a fresh
- * visit).
+ * What *is* fixed here: an async Server Component page (e.g. /play) can
+ * re-suspend and show `loading.tsx` again well after the initial mount — e.g.
+ * /play's `router.refresh()` once a deferred map-suggestion backfill lands —
+ * which remounts this whole provider, not just its children. That drops
+ * ExploreEntry's claimed seed out of the registry for a tick (its
+ * `useStainSeed` cleanup fires, then the effect re-registers), and since the
+ * remount resets the provider's own React state too, there's nothing left
+ * to remember what was registered a moment ago — the `seed` memo would fall
+ * through to the bare pathname for that gap, flashing to the untagged pattern
+ * and back even though the eventual value doesn't change. So the last real
+ * (non-fallback) seed is tracked in module scope, outside React state
+ * entirely, keyed by pathname so it survives the provider's own remount; the
+ * provider sticks with it across an empty registry instead of dropping
+ * straight to the pathname. It's cleared only on a genuine new visit (see
+ * `visitedPathnames` below).
  */
-const visitSuffixCache = new Map<string, string>();
 const lastRealSeedCache = new Map<string, string>();
-let lastSeededPathname: string | null = null;
-
-function visitSuffixForPathname(pathname: string): string {
-  if (typeof window === "undefined") return randomSeedSuffix();
-  if (lastSeededPathname !== pathname || !visitSuffixCache.has(pathname)) {
-    visitSuffixCache.set(pathname, randomSeedSuffix());
-    lastSeededPathname = pathname;
-    lastRealSeedCache.delete(pathname);
-  }
-  return visitSuffixCache.get(pathname)!;
-}
+const visitedPathnames = new Set<string>();
 
 function rememberRealSeed(pathname: string, seed: string): void {
-  if (typeof window !== "undefined") lastRealSeedCache.set(pathname, seed);
+  if (typeof window === "undefined") return;
+  if (!visitedPathnames.has(pathname)) {
+    visitedPathnames.add(pathname);
+    lastRealSeedCache.delete(pathname);
+  }
+  lastRealSeedCache.set(pathname, seed);
 }
 
 function lastRealSeedForPathname(pathname: string): string | undefined {
@@ -99,26 +82,6 @@ function lastRealSeedForPathname(pathname: string): string | undefined {
     : lastRealSeedCache.get(pathname);
 }
 
-/**
- * A short random string for mixing into a seed so a fresh mount doesn't repeat
- * the last visit's pattern.
- */
-export function randomSeedSuffix(): string {
-  return Math.random().toString(36).slice(2, 10);
-}
-
-/**
- * The nonce for "this visit to this route" — stable across every within-visit
- * remount (loading↔ready swaps, a `router.refresh()`-triggered re-suspension),
- * fresh on a genuine new visit (a real navigation, or a hard reload). Views
- * that mix a random component into their own explicit seed — e.g. ExploreEntry's
- * `map:<nonce>:<expedition>`, which otherwise restarts at the same value on
- * every such remount — should use this instead of minting their own.
- */
-export function useVisitSeed(): string {
-  const pathname = usePathname();
-  return visitSuffixForPathname(pathname);
-}
 type Registry = {
   register: (id: string, seed: string | null) => void;
   seed: string;
@@ -132,25 +95,6 @@ export function StainSeedProvider({ children }: { children: ReactNode }) {
     Map<string, { seed: string; order: number }>
   >(new Map());
   const orderRef = useRef(0);
-
-  // The bare pathname, with no random suffix, for every render up through
-  // hydration: the suffix is a `Math.random()` call, and computing it during
-  // render would run independently on the server and on the client's first
-  // (hydrating) render — two different values React would then need to
-  // reconcile, flashing from one to the other. Deferred to the effect below
-  // instead, so the server-rendered markup and the client's initial hydration
-  // match exactly, and the upgrade to a seeded pattern happens as one
-  // controlled post-mount transition rather than a hydration mismatch.
-  const [pathSeed, setPathSeed] = useState(pathname);
-  useEffect(() => {
-    // The canonical hydration-mismatch-avoidance idiom (as used by e.g.
-    // next-themes for client-only randomized/system values): this can't be
-    // computed during render, on the server or the client's first pass,
-    // without the two diverging — it has to land after the render that
-    // matched SSR has already committed.
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    setPathSeed(`${pathname}:${visitSuffixForPathname(pathname)}`);
-  }, [pathname]);
 
   const register = useCallback((id: string, seed: string | null) => {
     setEntries((prev) => {
@@ -179,10 +123,10 @@ export function StainSeedProvider({ children }: { children: ReactNode }) {
     // backfill lands, which remounts this whole provider too. Sticking with the
     // last real seed (tracked in module scope so it survives that remount)
     // rather than the raw pathname avoids a visible flash back to the
-    // bare-pathname pattern for that gap; it only falls through to pathSeed if
-    // no view has ever claimed one this visit.
-    return lastRealSeedForPathname(pathname) ?? pathSeed;
-  }, [entries, pathSeed, pathname]);
+    // bare-pathname pattern for that gap; it only falls through to the
+    // pathname if no view has ever claimed one this visit.
+    return lastRealSeedForPathname(pathname) ?? pathname;
+  }, [entries, pathname]);
 
   const value = useMemo(() => ({ register, seed }), [register, seed]);
   return (
