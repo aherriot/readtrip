@@ -28,6 +28,8 @@ export const ILLUSTRATION_CATEGORIES = [
   "transportation",
   "arts-culture",
   "mythology",
+  "food-agriculture",
+  "sports-games",
 ] as const;
 export type IllustrationCategory = (typeof ILLUSTRATION_CATEGORIES)[number];
 
@@ -48,10 +50,16 @@ export const ILLUSTRATION_CATALOG = {
   },
   astronaut: { label: "Astronaut", tag: "astronauts", category: "space" },
   aurora: { label: "Aurora borealis", tag: "auroras", category: "science" },
+  bakery: { label: "Bakery", tag: "baking", category: "food-agriculture" },
   "ballet-dancer": {
     label: "Ballet dancer",
     tag: "dance",
     category: "arts-culture",
+  },
+  "basketball-hoop": {
+    label: "Basketball hoop",
+    tag: "basketball",
+    category: "sports-games",
   },
   beehive: { label: "Beehive", tag: "bees", category: "biology" },
   bicycle: {
@@ -63,6 +71,11 @@ export const ILLUSTRATION_CATALOG = {
     label: "Black hole",
     tag: "black-holes",
     category: "space",
+  },
+  "board-game": {
+    label: "Board game",
+    tag: "board-games",
+    category: "sports-games",
   },
   bridge: { label: "Bridge", tag: "bridges", category: "engineering" },
   butterfly: { label: "Butterfly", tag: "butterflies", category: "biology" },
@@ -92,6 +105,11 @@ export const ILLUSTRATION_CATALOG = {
   dinosaur: { label: "Dinosaur", tag: "dinosaurs", category: "biology" },
   "dna-strand": { label: "DNA strand", tag: "dna", category: "biology" },
   dragon: { label: "Dragon", tag: "dragons", category: "mythology" },
+  "farmers-market": {
+    label: "Farmers market",
+    tag: "farmers-markets",
+    category: "food-agriculture",
+  },
   "field-journal": {
     label: "Field journal",
     tag: "journals",
@@ -133,6 +151,12 @@ export const ILLUSTRATION_CATALOG = {
     category: "geography",
   },
   octopus: { label: "Octopus", tag: "octopuses", category: "biology" },
+  "olympic-torch": {
+    label: "Olympic torch",
+    tag: "olympics",
+    category: "sports-games",
+  },
+  orchard: { label: "Orchard", tag: "orchards", category: "food-agriculture" },
   "paint-palette": {
     label: "Paint palette",
     tag: "painting",
@@ -162,6 +186,11 @@ export const ILLUSTRATION_CATALOG = {
   },
   satellite: { label: "Satellite", tag: "satellites", category: "space" },
   shark: { label: "Shark", tag: "sharks", category: "biology" },
+  "soccer-match": {
+    label: "Soccer match",
+    tag: "soccer",
+    category: "sports-games",
+  },
   "solar-system": {
     label: "Solar system",
     tag: "solar-system",
@@ -183,13 +212,20 @@ export const ILLUSTRATION_CATALOG = {
     tag: "submarines",
     category: "transportation",
   },
+  swimming: { label: "Swimming", tag: "swimming", category: "sports-games" },
   telescope: { label: "Telescope", tag: "astronomy", category: "space" },
   "theater-masks": {
     label: "Theater masks",
     tag: "theater",
     category: "arts-culture",
   },
+  tractor: { label: "Tractor", tag: "tractors", category: "food-agriculture" },
   unicorn: { label: "Unicorn", tag: "unicorns", category: "mythology" },
+  "vegetable-garden": {
+    label: "Vegetable garden",
+    tag: "gardens",
+    category: "food-agriculture",
+  },
   "viking-ship": { label: "Viking ship", tag: "vikings", category: "history" },
   violin: { label: "Violin", tag: "violins", category: "arts-culture" },
   volcano: { label: "Volcano", tag: "volcanoes", category: "science" },

@@ -30,9 +30,15 @@ const LOADERS: Record<
     import("./astronaut").then((m) => ({ default: m.AstronautIllustration })),
   aurora: () =>
     import("./aurora").then((m) => ({ default: m.AuroraIllustration })),
+  bakery: () =>
+    import("./bakery").then((m) => ({ default: m.BakeryIllustration })),
   "ballet-dancer": () =>
     import("./ballet-dancer").then((m) => ({
       default: m.BalletDancerIllustration,
+    })),
+  "basketball-hoop": () =>
+    import("./basketball-hoop").then((m) => ({
+      default: m.BasketballHoopIllustration,
     })),
   beehive: () =>
     import("./beehive").then((m) => ({ default: m.BeehiveIllustration })),
@@ -41,6 +47,10 @@ const LOADERS: Record<
   "black-hole": () =>
     import("./black-hole").then((m) => ({
       default: m.BlackHoleIllustration,
+    })),
+  "board-game": () =>
+    import("./board-game").then((m) => ({
+      default: m.BoardGameIllustration,
     })),
   bridge: () =>
     import("./bridge").then((m) => ({ default: m.BridgeIllustration })),
@@ -78,6 +88,10 @@ const LOADERS: Record<
     })),
   dragon: () =>
     import("./dragon").then((m) => ({ default: m.DragonIllustration })),
+  "farmers-market": () =>
+    import("./farmers-market").then((m) => ({
+      default: m.FarmersMarketIllustration,
+    })),
   "field-journal": () =>
     import("./field-journal").then((m) => ({
       default: m.FieldJournalIllustration,
@@ -120,6 +134,12 @@ const LOADERS: Record<
     })),
   octopus: () =>
     import("./octopus").then((m) => ({ default: m.OctopusIllustration })),
+  "olympic-torch": () =>
+    import("./olympic-torch").then((m) => ({
+      default: m.OlympicTorchIllustration,
+    })),
+  orchard: () =>
+    import("./orchard").then((m) => ({ default: m.OrchardIllustration })),
   "paint-palette": () =>
     import("./paint-palette").then((m) => ({
       default: m.PaintPaletteIllustration,
@@ -144,6 +164,10 @@ const LOADERS: Record<
     import("./satellite").then((m) => ({ default: m.SatelliteIllustration })),
   shark: () =>
     import("./shark").then((m) => ({ default: m.SharkIllustration })),
+  "soccer-match": () =>
+    import("./soccer-match").then((m) => ({
+      default: m.SoccerMatchIllustration,
+    })),
   "solar-system": () =>
     import("./solar-system").then((m) => ({
       default: m.SolarSystemIllustration,
@@ -162,14 +186,22 @@ const LOADERS: Record<
     import("./submarine").then((m) => ({
       default: m.SubmarineIllustration,
     })),
+  swimming: () =>
+    import("./swimming").then((m) => ({ default: m.SwimmingIllustration })),
   telescope: () =>
     import("./telescope").then((m) => ({ default: m.TelescopeIllustration })),
   "theater-masks": () =>
     import("./theater-masks").then((m) => ({
       default: m.TheaterMasksIllustration,
     })),
+  tractor: () =>
+    import("./tractor").then((m) => ({ default: m.TractorIllustration })),
   unicorn: () =>
     import("./unicorn").then((m) => ({ default: m.UnicornIllustration })),
+  "vegetable-garden": () =>
+    import("./vegetable-garden").then((m) => ({
+      default: m.VegetableGardenIllustration,
+    })),
   "viking-ship": () =>
     import("./viking-ship").then((m) => ({
       default: m.VikingShipIllustration,
