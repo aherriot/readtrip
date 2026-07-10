@@ -128,6 +128,15 @@ export function StainSeedProvider({ children }: { children: ReactNode }) {
     return lastRealSeedForPathname(pathname) ?? pathname;
   }, [entries, pathname]);
 
+  // The seed already tracks "what view is the child looking at" — a real
+  // route change (falls back to pathname) or an in-app swap inside a single
+  // route like /play (world map ↔ story ↔ quiz). Both are cases where the
+  // child should land at the top, not wherever the previous view left the
+  // scroll position, so this is also the one place that resets it.
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [seed]);
+
   const value = useMemo(() => ({ register, seed }), [register, seed]);
   return (
     <StainSeedContext.Provider value={value}>
