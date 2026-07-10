@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import { cn } from "@/lib/ui/cn";
 import type { IllustrationName } from "./catalog";
 import { ILLUSTRATIONS } from "./registry";
@@ -51,7 +52,17 @@ export function Illustration({
       aria-label={decorative ? undefined : a11y.label}
       aria-hidden={decorative ? true : undefined}
     >
-      <Art />
+      {/* Local Suspense boundary around the `next/dynamic` art. Without it, an
+          illustration that first mounts before its chunk has loaded (e.g. a
+          reading illustration whose paragraph anchor streams in ahead of the
+          preloaded chunk) suspends with no nearer boundary to catch it, so the
+          suspension bubbles to the /play route segment's boundary and flashes
+          the whole-page loading fallback for a beat. Catching it here confines
+          any load gap to this glyph — the `<span>` already reserves its size,
+          so `null` shows nothing and never shifts layout. */}
+      <Suspense fallback={null}>
+        <Art />
+      </Suspense>
     </span>
   );
 }
