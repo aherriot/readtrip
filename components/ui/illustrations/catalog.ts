@@ -26,6 +26,10 @@ export const ILLUSTRATION_CATEGORIES = [
   "space",
   "engineering",
   "transportation",
+  "arts-culture",
+  "mythology",
+  "food-agriculture",
+  "sports-games",
 ] as const;
 export type IllustrationCategory = (typeof ILLUSTRATION_CATEGORIES)[number];
 
@@ -46,6 +50,17 @@ export const ILLUSTRATION_CATALOG = {
   },
   astronaut: { label: "Astronaut", tag: "astronauts", category: "space" },
   aurora: { label: "Aurora borealis", tag: "auroras", category: "science" },
+  bakery: { label: "Bakery", tag: "baking", category: "food-agriculture" },
+  "ballet-dancer": {
+    label: "Ballet dancer",
+    tag: "dance",
+    category: "arts-culture",
+  },
+  "basketball-hoop": {
+    label: "Basketball hoop",
+    tag: "basketball",
+    category: "sports-games",
+  },
   beehive: { label: "Beehive", tag: "bees", category: "biology" },
   bicycle: {
     label: "Bicycle",
@@ -56,6 +71,11 @@ export const ILLUSTRATION_CATALOG = {
     label: "Black hole",
     tag: "black-holes",
     category: "space",
+  },
+  "board-game": {
+    label: "Board game",
+    tag: "board-games",
+    category: "sports-games",
   },
   bridge: { label: "Bridge", tag: "bridges", category: "engineering" },
   butterfly: { label: "Butterfly", tag: "butterflies", category: "biology" },
@@ -84,6 +104,12 @@ export const ILLUSTRATION_CATALOG = {
   desert: { label: "Desert", tag: "deserts", category: "geography" },
   dinosaur: { label: "Dinosaur", tag: "dinosaurs", category: "biology" },
   "dna-strand": { label: "DNA strand", tag: "dna", category: "biology" },
+  dragon: { label: "Dragon", tag: "dragons", category: "mythology" },
+  "farmers-market": {
+    label: "Farmers market",
+    tag: "farmers-markets",
+    category: "food-agriculture",
+  },
   "field-journal": {
     label: "Field journal",
     tag: "journals",
@@ -100,6 +126,7 @@ export const ILLUSTRATION_CATALOG = {
     tag: "ancient-greece",
     category: "history",
   },
+  griffin: { label: "Griffin", tag: "griffins", category: "mythology" },
   "hot-air-balloon": {
     label: "Hot air balloon",
     tag: "hot-air-balloons",
@@ -116,6 +143,7 @@ export const ILLUSTRATION_CATALOG = {
     tag: "magnifying-glasses",
     category: "science",
   },
+  mermaid: { label: "Mermaid", tag: "mermaids", category: "mythology" },
   microscope: { label: "Microscope", tag: "microscopes", category: "science" },
   "mountain-range": {
     label: "Mountain range",
@@ -123,6 +151,18 @@ export const ILLUSTRATION_CATALOG = {
     category: "geography",
   },
   octopus: { label: "Octopus", tag: "octopuses", category: "biology" },
+  "olympic-torch": {
+    label: "Olympic torch",
+    tag: "olympics",
+    category: "sports-games",
+  },
+  orchard: { label: "Orchard", tag: "orchards", category: "food-agriculture" },
+  "paint-palette": {
+    label: "Paint palette",
+    tag: "painting",
+    category: "arts-culture",
+  },
+  phoenix: { label: "Phoenix", tag: "phoenixes", category: "mythology" },
   pyramid: { label: "Ancient pyramid", tag: "pyramids", category: "history" },
   rainforest: {
     label: "Rainforest",
@@ -146,6 +186,11 @@ export const ILLUSTRATION_CATALOG = {
   },
   satellite: { label: "Satellite", tag: "satellites", category: "space" },
   shark: { label: "Shark", tag: "sharks", category: "biology" },
+  "soccer-match": {
+    label: "Soccer match",
+    tag: "soccer",
+    category: "sports-games",
+  },
   "solar-system": {
     label: "Solar system",
     tag: "solar-system",
@@ -157,13 +202,32 @@ export const ILLUSTRATION_CATALOG = {
     category: "transportation",
   },
   storm: { label: "Storm", tag: "weather", category: "science" },
+  "story-book": {
+    label: "Story book",
+    tag: "storytelling",
+    category: "arts-culture",
+  },
   submarine: {
     label: "Submarine",
     tag: "submarines",
     category: "transportation",
   },
+  swimming: { label: "Swimming", tag: "swimming", category: "sports-games" },
   telescope: { label: "Telescope", tag: "astronomy", category: "space" },
+  "theater-masks": {
+    label: "Theater masks",
+    tag: "theater",
+    category: "arts-culture",
+  },
+  tractor: { label: "Tractor", tag: "tractors", category: "food-agriculture" },
+  unicorn: { label: "Unicorn", tag: "unicorns", category: "mythology" },
+  "vegetable-garden": {
+    label: "Vegetable garden",
+    tag: "gardens",
+    category: "food-agriculture",
+  },
   "viking-ship": { label: "Viking ship", tag: "vikings", category: "history" },
+  violin: { label: "Violin", tag: "violins", category: "arts-culture" },
   volcano: { label: "Volcano", tag: "volcanoes", category: "science" },
   waterfall: {
     label: "Waterfall",

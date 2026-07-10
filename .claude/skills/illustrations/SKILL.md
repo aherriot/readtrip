@@ -119,6 +119,20 @@ straight 80px wall or an exact circle. Concretely, when authoring or reviewing a
     features (a head arc, a neck-in, a shoulder-out bulge, a taper to waist), the same
     economy of a handful of purposeful big curves that `castle.tsx`'s towers use, rather
     than many same-size wobbles that could belong to any blob.
+  - **This trap isn't limited to round objects — an elongated body (a dragon, a mermaid's
+    tail, a unicorn, any creature silhouette) falls into it just as easily, and it's the
+    more common way it happens in practice.** If the main silhouette's `d` has more than
+    ~10-12 curve commands, or if you can't say what real feature each one represents
+    (this bump is the shoulder, this one's the haunch, this one's the wing joint), you're
+    chaining small similar-size wobbles the whole way around — which reads as a sheep or
+    a cloud no matter how the creature was labeled. Compare `dinosaur.tsx`'s body+neck path
+    (~12 commands: belly curve, neck-up, jaw, back-down, tail) or `shark.tsx`'s body
+    (~10 commands, wildly different lengths — a 40-unit back sweep next to a 6-unit gill
+    notch) against a bad version with 18+ near-identical 8-10-unit lobes. The tell is
+    **segment-length uniformity**: real anatomy produces long confident sweeps between a
+    handful of landmarks, not a rhythmic scallop. Before finalizing a creature or figure
+    silhouette, count the curve commands and name the landmark each one draws — if you
+    run out of landmarks before you run out of curves, delete curves until they match.
 - **No straight edge longer than ~15-20 units.** A real hand can't rule a long straight
   line freehand. Any wall, limb, tube, or silhouette edge longer than that should be a `C`/
   `Q` curve that bows a couple of px off the straight path — asymmetrically, not a clean
